@@ -154,6 +154,7 @@ final class RunRepository implements RunStore {
             'capacity' => (int)$row['capacity'],
             'status' => (string)$row['status'],
             'version' => (int)$row['version'],
+            'leadLecturerId' => $row['lead_lecturer_id'] === null ? null : (int)$row['lead_lecturer_id'],
         ];
     }
 
@@ -173,6 +174,7 @@ final class RunRepository implements RunStore {
             'additionalCapacity' => (int)$row['additional_capacity'],
             'position' => (int)$row['position'],
             'version' => (int)$row['version'],
+            'lecturerId' => $row['lecturer_id'] === null ? null : (int)$row['lecturer_id'],
         ];
     }
 

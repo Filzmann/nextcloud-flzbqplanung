@@ -20,6 +20,12 @@ Nachholplätze werden ausschließlich an einzelnen Modulen ausgewiesen.
 Teilnehmerinnen und Umbuchungen zwischen früheren und späteren BQs bleiben in
 AD Recruitment.
 
+Der Dozentinnenbereich verwaltet interne PFKs als Nextcloud-UID und externe
+Dozentinnen mit Name und E-Mail. Eine Haupt-PFK gilt für den gesamten
+Durchlauf; bestätigte externe Anfragen überschreiben sie nur am jeweiligen
+Modul. Der aktuelle Stand dokumentiert Anfrage, Zusage, Ablehnung und Absage,
+versendet jedoch noch keine E-Mail.
+
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.

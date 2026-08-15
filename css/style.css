@@ -65,6 +65,26 @@
     gap: 12px;
 }
 
+.bq-inline-form,
+.bq-inline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+    margin: 12px 0;
+}
+
+.bq-inline-actions form {
+    margin: 0;
+}
+
+.bq-request {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-large);
+    padding: 12px;
+    margin-block: 10px;
+}
+
 .bq-form label,
 .bq-module-form label {
     display: grid;

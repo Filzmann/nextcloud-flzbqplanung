@@ -6,6 +6,7 @@ namespace OCA\AdBqPlanning\Controller;
 
 use OCA\AdBqPlanning\AppInfo\Application;
 use OCA\AdBqPlanning\Repository\RunRepository;
+use OCA\AdBqPlanning\Repository\TeachingRepository;
 use OCA\AdBqPlanning\Service\PlanningSettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -17,6 +18,7 @@ final class PageController extends Controller {
         IRequest $request,
         private RunRepository $runs,
         private PlanningSettingsService $settingsService,
+        private TeachingRepository $teaching,
     ) {
         parent::__construct(Application::APP_ID, $request);
     }
@@ -30,6 +32,8 @@ final class PageController extends Controller {
         return new TemplateResponse(Application::APP_ID, 'index', [
             'runs' => $runs,
             'settings' => $this->settingsService->current(),
+            'lecturers' => $this->teaching->lecturers(),
+            'teachingRequests' => $this->teaching->requests(),
         ]);
     }
 }

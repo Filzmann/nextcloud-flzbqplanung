@@ -54,6 +54,10 @@ beim direkten Öffnen dieses App-Repositories.
 - Eine interne PFK kann als durchgängige Hauptdozentin gesetzt werden.
   Einzelne Module dürfen auf andere interne oder externe Dozentinnen aus dem
   Pool abweichen.
+- Interne PFK-UIDs werden vor der Speicherung gegen Nextcloud geprüft.
+  Externe Profile speichern ausschließlich Name und E-Mail als minimale
+  Kontaktdaten. Der aktuelle Anfrageworkflow versendet keine Nachrichten,
+  sondern dokumentiert den extern erfolgten Kommunikationsstatus.
 - Nur veröffentlichte, terminlich vollständige und nicht abgesagte
   Durchläufe dürfen später als verfügbare BQs an Recruitment gemeldet werden.
 
