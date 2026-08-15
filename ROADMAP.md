@@ -9,15 +9,20 @@
 - Veränderbare Curriculum-Snapshots
 - Haupt-PFK und Modulabweichungen
 - Admin-beschränkte, zugängliche Grundoberfläche
+- Persistente BQ-Durchläufe und Curriculum-Module mit additiver Migration
+- Optimistische Versionierung für Durchläufe und Module
+- Konfigurierbare reguläre Kapazität bis maximal zehn Plätze
+- Modulbezogene Nachholkapazität ohne Warteliste
+- Entwurfs- und Veröffentlichungsstatus für terminierte Durchläufe
 
 ## Nächste freigabepflichtige Pakete
 
-1. Persistentes Zustandsmodell, additive Migrationen und optimistische
-   Versionierung für Durchläufe, Curriculum, Dozentinnen und Anfragen.
+1. Persistenz und Workflows für Dozentinnenpool, Modulzuordnung und externe
+   Anfragen ergänzen.
 2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
 3. Versionierter Kalenderprovider für Berliner Ferien und Feiertage mit
    kontrolliertem Missing-/Incompatible-Provider-Zustand.
-4. Jahresansicht, Bearbeitungsdialoge, Konfliktanzeige und Veröffentlichung.
+4. Jahresansicht, Bearbeitungsdialoge und Konfliktanzeige ausbauen.
 5. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
 6. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene

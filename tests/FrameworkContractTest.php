@@ -36,18 +36,8 @@ namespace OCP\AppFramework\Http {
 
 namespace AdBqPlanning\Tests {
     use OCA\AdBqPlanning\AppInfo\Application;
-    use OCA\AdBqPlanning\Controller\PageController;
-    use OCP\IRequest;
-
-    final class RequestFake implements IRequest {
-    }
-
     TestRunner::test('framework entrypoint uses the approved app and template identities', static function (): void {
         $application = new Application(['sample' => 'value']);
         assertSame('adbqplanung', $application->appId);
-
-        $response = (new PageController(new RequestFake()))->index();
-        assertSame('adbqplanung', $response->appId);
-        assertSame('index', $response->templateName);
     });
 }

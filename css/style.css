@@ -38,7 +38,8 @@
 }
 
 .bq-card,
-.bq-notice {
+.bq-notice,
+.bq-run {
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-large);
     padding: 20px;
@@ -47,6 +48,81 @@
 
 .bq-state {
     color: var(--color-text-maxcontrast);
+}
+
+.bq-feedback {
+    min-height: 24px;
+    margin: 0 0 12px;
+}
+
+.bq-feedback[data-state="error"] {
+    color: var(--color-error-text);
+}
+
+.bq-form,
+.bq-module-form {
+    display: grid;
+    gap: 12px;
+}
+
+.bq-form label,
+.bq-module-form label {
+    display: grid;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.bq-form input,
+.bq-form select,
+.bq-module-form input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.bq-runs {
+    margin-top: 28px;
+}
+
+.bq-run {
+    margin-bottom: 16px;
+}
+
+.bq-run > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.bq-badge {
+    border-radius: 999px;
+    padding: 4px 10px;
+    background: var(--color-background-dark);
+    white-space: nowrap;
+}
+
+.bq-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+.bq-table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bq-table-wrap th,
+.bq-table-wrap td {
+    padding: 8px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: start;
+}
+
+.bq-module-form {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    align-items: end;
+    margin: 16px 0;
 }
 
 .bq-notice {

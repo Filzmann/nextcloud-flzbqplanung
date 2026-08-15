@@ -13,6 +13,13 @@ Der erste Planungskern umfasst:
   terminiert werden können; und
 - eine Haupt-PFK mit optionalen abweichenden Dozentinnen je Modul.
 
+Der persistente Admin-Arbeitsstand ergänzt BQ-Durchläufe und frei terminierbare
+Curriculum-Module mit optimistischer Versionierung. Reguläre Durchläufe haben
+aktuell höchstens zehn Plätze. Es gibt keine Warteliste; zusätzliche
+Nachholplätze werden ausschließlich an einzelnen Modulen ausgewiesen.
+Teilnehmerinnen und Umbuchungen zwischen früheren und späteren BQs bleiben in
+AD Recruitment.
+
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.
@@ -25,4 +32,4 @@ node tests/run-js.mjs
 ```
 
 Lokale URL nach gesondert freizugebender Aktivierung:
-`https://nextcloud-dev.ddev.site/apps/adbqplanung/`.
+`https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`.

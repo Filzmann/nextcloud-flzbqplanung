@@ -32,8 +32,10 @@ if ($coverageTool !== '' && $coverageOutput !== '' && getenv('ADBQ_COVERAGE_CHIL
     exit($exitCode);
 }
 
-foreach (glob(__DIR__ . '/*Test.php') ?: [] as $testFile) {
-    require $testFile;
+foreach (['*Test.php', '*/*Test.php'] as $pattern) {
+    foreach (glob(__DIR__ . '/' . $pattern) ?: [] as $testFile) {
+        require $testFile;
+    }
 }
 
 \AdBqPlanning\Tests\TestRunner::finish();

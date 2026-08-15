@@ -7,7 +7,7 @@ Curricula, Lehrenden und zeitlich folgenden Praxisreflexionen.
 Diese Datei und die beiden lokal mitgeführten Skills bilden die vollständige Repository-Steuerung
 beim direkten Öffnen dieses App-Repositories.
 
-- Lokale URL: `https://nextcloud-dev.ddev.site/apps/adbqplanung/`
+- Lokale URL: `https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`
 - App-ID: `adbqplanung`
 - PHP-Namespace: `OCA\AdBqPlanning`
 
@@ -35,6 +35,13 @@ beim direkten Öffnen dieses App-Repositories.
 
 - Standard sind sieben Arbeitstage und ein Start am Freitag; beide Werte sind
   innerhalb fachlich validierter Grenzen konfigurierbar.
+- Reguläre Durchläufe besitzen höchstens zehn Plätze; der Standardwert zehn
+  ist konfigurierbar. Die App führt keine Warteliste.
+- Zusätzliche Nachholplätze gelten ausschließlich für einzelne
+  Curriculum-Module und erhöhen nicht die reguläre Durchlaufkapazität.
+- Teilnehmerinnen werden ausschließlich aus AD Recruitment zugeordnet. Das
+  Personalreferat kann dort Zuordnungen zwischen früheren und späteren BQs
+  ändern; die BQ-App kopiert weder Zuordnungen noch Bewerbungsakten.
 - Arbeitstage sind Montag bis Freitag. Automatische Vorschläge überspringen
   Ferien, Feiertage sowie konfigurierte Brücken- und Sperrtage vollständig.
   Manuelle Abweichungen werden nicht still vorgenommen.
