@@ -1,0 +1,8 @@
+/.idea/
+/.vscode/
+/vendor/
+/node_modules/
+/coverage/
+/.phpunit.cache/
+*.log
+*.tmp
