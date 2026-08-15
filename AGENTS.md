@@ -20,11 +20,15 @@ beim direkten Öffnen dieses App-Repositories.
   BQ-Zuordnungen, Eignungsentscheidungen und Einstellungsfreigaben. Es gibt
   keine direkten Zugriffe auf dessen Tabellen, Controller, Assets oder
   private Konfiguration.
-- Der erste App-Kern besitzt **keine gemeinsame Laufzeitabhängigkeit**.
-  Kalender-Sperrperioden werden über einen app-eigenen Port verarbeitet.
-  Eine spätere LocalBase- oder Kalenderanbindung ist optional und beginnt nur
-  mit einem freigegebenen, aktivierungs- und versionsbewussten öffentlichen
-  Providervertrag. Bis dahin entsteht keine versteckte Runtime-Abhängigkeit.
+- Die App verwendet den öffentlichen LocalBase-Produktkatalog und dessen
+  Standalone-Navigationsdienst als mitgelieferte Suite-Infrastruktur. Sie
+  kopiert keine Suite-Linkliste und leitet aus Navigation keine Rechte ab.
+  Fehlende oder ungültige Katalogdaten dürfen keinen zusätzlichen Einstieg
+  und keine Berechtigung erzeugen.
+- Kalender-Sperrperioden werden weiterhin über einen app-eigenen Port
+  verarbeitet. Eine Kalenderanbindung bleibt optional und beginnt nur mit
+  einem freigegebenen, aktivierungs- und versionsbewussten öffentlichen
+  Providervertrag.
 - Fehlt ein Kalenderprovider, darf die App keine vermeintlich konfliktfreien
   automatischen Vorschläge behaupten. Manuelle Planung bleibt mit sichtbarem
   Vollständigkeitsstatus möglich.
@@ -60,6 +64,9 @@ beim direkten Öffnen dieses App-Repositories.
   sondern dokumentiert den extern erfolgten Kommunikationsstatus.
 - Nur veröffentlichte, terminlich vollständige und nicht abgesagte
   Durchläufe dürfen später als verfügbare BQs an Recruitment gemeldet werden.
+- Die App ist im AD-Menü als Entwicklungsprodukt registriert, bleibt aber bis
+  zur dokumentierten Release-Reife aus Full-Suite- und Einzelprodukt-Bundles
+  ausgeschlossen.
 
 ## Architektur, Rechte und Datenschutz
 

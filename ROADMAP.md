@@ -18,6 +18,8 @@
   externen Kontaktdaten
 - Haupt-PFK je Durchlauf sowie externe Modul-Anfragen mit gekapselten
   Statusübergängen
+- AD-Suite-Navigation über den kanonischen LocalBase-Produktkatalog mit
+  explizitem Ausschluss aus Release-Bundles
 
 ## Nächste freigabepflichtige Pakete
 
@@ -31,3 +33,5 @@
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
 6. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
    Retention-Regeln für interne und externe Dozentinnen.
+7. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
+   Integrations- und Staging-Nachweisen erteilen.

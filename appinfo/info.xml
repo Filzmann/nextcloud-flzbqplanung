@@ -5,7 +5,7 @@
     <name>AD BQ-Planer</name>
     <summary>Plant Basisqualifizierungen, Curricula und Praxisreflexionen.</summary>
     <description>Erstellt erklärbare Terminvorschläge und plant Curriculum sowie Dozentinnen für Basisqualifizierungen.</description>
-    <version>0.3.0-dev.1</version>
+    <version>0.4.0-dev.1</version>
     <licence>agpl</licence>
     <author>Simon</author>
     <namespace>AdBqPlanning</namespace>
@@ -14,11 +14,4 @@
         <php min-version="8.3"/>
         <nextcloud min-version="34" max-version="34"/>
     </dependencies>
-    <navigations>
-        <navigation>
-            <name>BQ-Planer</name>
-            <route>adbqplanung.page.index</route>
-            <order>45</order>
-        </navigation>
-    </navigations>
 </info>

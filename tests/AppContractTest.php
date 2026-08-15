@@ -10,7 +10,12 @@ TestRunner::test('app metadata and route keep the approved identity', static fun
     $routes = (string)file_get_contents($root . '/appinfo/routes.php');
     assertTrue(str_contains($info, '<id>adbqplanung</id>'));
     assertTrue(str_contains($info, '<namespace>AdBqPlanning</namespace>'));
+    assertTrue(!str_contains($info, '<navigations>'), 'Static navigation bypasses the suite contract');
     assertTrue(str_contains($routes, "'name' => 'page#index'"));
+    $application = (string)file_get_contents($root . '/lib/AppInfo/Application.php');
+    $listener = (string)file_get_contents($root . '/lib/Listener/StandaloneNavigationListener.php');
+    assertTrue(str_contains($application, 'LoadAdditionalEntriesEvent::class'));
+    assertTrue(str_contains($listener, 'StandaloneAppNavigationService'));
 });
 
 TestRunner::test('initial page remains admin-only and documents calendar completeness', static function (): void {
@@ -19,4 +24,5 @@ TestRunner::test('initial page remains admin-only and documents calendar complet
     $template = (string)file_get_contents($root . '/templates/index.php');
     assertTrue(!str_contains($controller, 'NoAdminRequired'));
     assertTrue(str_contains($template, 'Automatische Vorschläge werden erst als konfliktfrei bezeichnet'));
+    assertTrue(str_contains($template, 'data-orgsuite data-suite="ad" data-current-app="adbqplanung"'));
 });

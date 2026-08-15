@@ -34,6 +34,7 @@ $statusNames = [
 $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'declined' => 'Abgelehnt', 'cancelled' => 'Abgesagt'];
 ?>
 <main id="adbqplanung-app" class="bq-app" aria-labelledby="bq-page-title">
+    <div class="orgsuite-host" data-orgsuite data-suite="ad" data-current-app="adbqplanung"></div>
     <header class="bq-hero">
         <p class="bq-eyebrow">Basisqualifizierung</p>
         <h1 id="bq-page-title">BQ-Planer</h1>
