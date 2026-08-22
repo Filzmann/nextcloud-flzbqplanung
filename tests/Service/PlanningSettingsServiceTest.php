@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 namespace OCP {
-    interface IAppConfig {
-        public function getValueInt(string $appId, string $key, int $default): int;
-        public function getValueString(string $appId, string $key, string $default): string;
-        public function setValueInt(string $appId, string $key, int $value): void;
-        public function setValueString(string $appId, string $key, string $value): void;
+    if (!interface_exists(IAppConfig::class)) {
+        interface IAppConfig {
+            public function getValueInt(string $appId, string $key, int $default): int;
+            public function getValueString(string $appId, string $key, string $default): string;
+            public function setValueInt(string $appId, string $key, int $value): void;
+            public function setValueString(string $appId, string $key, string $value): void;
+        }
     }
 }
 
@@ -47,6 +49,7 @@ namespace AdBqPlanning\Tests {
         assertSame(5, $current['startWeekday']);
         assertSame(10, $current['defaultCapacity']);
         assertSame([1, 3, 4], $current['reflectionMonthOffsets']);
+        assertSame([], $current['bridgeDays']);
     });
 
     TestRunner::test('invalid planning settings are rejected without partial writes', static function (): void {
@@ -58,11 +61,18 @@ namespace AdBqPlanning\Tests {
         );
         assertSame(0, $config->writes);
 
-        $updated = $settings->update(8, 4, 9, [1, 2, 4]);
+        $updated = $settings->update(8, 4, 9, [1, 2, 4], ['2026-05-15', '2026-05-15', '2026-01-02']);
         assertSame(8, $updated['workdayCount']);
         assertSame(4, $updated['startWeekday']);
         assertSame(9, $updated['defaultCapacity']);
-        assertSame(4, $config->writes);
+        assertSame(['2026-01-02', '2026-05-15'], $updated['bridgeDays']);
+        assertSame(5, $config->writes);
+
+        $writes = $config->writes;
+        assertThrows(
+            static fn () => $settings->update(7, 5, 10, [1, 3, 4], ['02.01.2026']),
+            DomainException::class,
+        );
+        assertSame($writes, $config->writes);
     });
 }
-

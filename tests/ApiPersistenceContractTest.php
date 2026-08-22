@@ -10,7 +10,7 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
     $controllerPath = $root . '/lib/Controller/RunController.php';
     assertTrue(is_file($controllerPath), 'RunController is missing');
     $controller = (string)file_get_contents($controllerPath);
-    foreach (['run#list', 'run#create', 'run#addModule', 'run#publish', 'run#settings', 'run#updateSettings'] as $route) {
+    foreach (['run#list', 'run#create', 'run#addModule', 'run#publish', 'run#settings', 'run#updateSettings', 'proposal#suggest'] as $route) {
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
     assertTrue(!str_contains(strtolower($routes), 'waitlist'));
@@ -18,6 +18,9 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
     assertTrue(!str_contains($controller, '#[NoCSRFRequired]\n    public function create'));
     assertTrue(str_contains($controller, 'LoggerInterface'), 'Unexpected API failures are not connected to Nextcloud logging');
     assertTrue(str_contains($controller, "->error('Unexpected BQ planning failure.'"), 'Unexpected API failures are silently swallowed');
+    $proposalController = (string)file_get_contents($root . '/lib/Controller/ProposalController.php');
+    assertTrue(!str_contains($proposalController, 'NoAdminRequired'));
+    assertTrue(str_contains($proposalController, 'Unexpected BQ proposal failure.'));
 });
 
 TestRunner::test('repository uses bound parameters and optimistic run versions', static function (): void {

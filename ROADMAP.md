@@ -20,18 +20,23 @@
   Statusübergängen
 - AD-Suite-Navigation über den kanonischen LocalBase-Produktkatalog mit
   explizitem Ausschluss aus Release-Bundles
+- Versionierte LocalBase-Kalenderanbindung für Schulferien und gesetzliche
+  Feiertage, konfigurierte Brückentage und sichere Status für aktuelle,
+  veraltete, fehlende oder inkompatible Kalenderdaten
+- Monatsvorschlag in Admin-API und Oberfläche ohne falsches Konfliktfrei-
+  Versprechen bei fehlendem Provider
+- Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
+  Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
 
 ## Nächste freigabepflichtige Pakete
 
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;
    der aktuelle Workflow erfasst ausschließlich den Kommunikationsstatus.
 2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
-3. Versionierter Kalenderprovider für Berliner Ferien und Feiertage mit
-   kontrolliertem Missing-/Incompatible-Provider-Zustand.
-4. Jahresansicht, Bearbeitungsdialoge und Konfliktanzeige ausbauen.
-5. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
+3. Jahresansicht, Bearbeitungsdialoge und Konfliktanzeige ausbauen.
+4. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
-6. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
+5. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
    Retention-Regeln für interne und externe Dozentinnen.
-7. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
+6. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
    Integrations- und Staging-Nachweisen erteilen.

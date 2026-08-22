@@ -5,6 +5,15 @@ declare(strict_types=1);
 namespace OCP {
     interface IRequest {
     }
+
+    if (!interface_exists(IAppConfig::class)) {
+        interface IAppConfig {
+            public function getValueInt(string $appId, string $key, int $default): int;
+            public function getValueString(string $appId, string $key, string $default): string;
+            public function setValueInt(string $appId, string $key, int $value): void;
+            public function setValueString(string $appId, string $key, string $value): void;
+        }
+    }
 }
 
 namespace OCP\AppFramework {
@@ -27,6 +36,7 @@ namespace OCP\AppFramework\Bootstrap {
 
     interface IRegistrationContext {
         public function registerEventListener(string $event, string $listener): void;
+        public function registerServiceAlias(string $service, string $target): void;
     }
 
     interface IBootContext {
@@ -69,6 +79,18 @@ namespace OCP\AppFramework\Http {
     class TemplateResponse {
         public function __construct(public string $appId, public string $templateName) {
         }
+    }
+
+    class JSONResponse {
+        public function __construct(public array $data, public int $status = 200) {
+        }
+    }
+}
+
+namespace Psr\Log {
+    interface LoggerInterface {
+        public function warning(string $message, array $context = []): void;
+        public function error(string $message, array $context = []): void;
     }
 }
 

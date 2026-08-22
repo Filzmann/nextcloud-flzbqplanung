@@ -13,7 +13,7 @@ final class PlanningSettingsService {
     public function __construct(private IAppConfig $config) {
     }
 
-    /** @return array{workdayCount:int,startWeekday:int,defaultCapacity:int,reflectionMonthOffsets:list<int>} */
+    /** @return array{workdayCount:int,startWeekday:int,defaultCapacity:int,reflectionMonthOffsets:list<int>,bridgeDays:list<string>} */
     public function current(): array {
         $offsets = array_values(array_filter(array_map(
             static fn (string $value): int => (int)trim($value),
@@ -33,6 +33,10 @@ final class PlanningSettingsService {
             'startWeekday' => $rules->startWeekday,
             'defaultCapacity' => $capacity,
             'reflectionMonthOffsets' => $rules->reflectionMonthOffsets,
+            'bridgeDays' => $this->normalizeBridgeDays(array_filter(array_map(
+                'trim',
+                explode(',', $this->config->getValueString(Application::APP_ID, 'bridge_days', '')),
+            ))),
         ];
     }
 
@@ -46,15 +50,18 @@ final class PlanningSettingsService {
     }
 
     /** @param list<int> $reflectionMonthOffsets
-     * @return array{workdayCount:int,startWeekday:int,defaultCapacity:int,reflectionMonthOffsets:list<int>}
+     * @param list<string> $bridgeDays
+     * @return array{workdayCount:int,startWeekday:int,defaultCapacity:int,reflectionMonthOffsets:list<int>,bridgeDays:list<string>}
      */
     public function update(
         int $workdayCount,
         int $startWeekday,
         int $defaultCapacity,
         array $reflectionMonthOffsets,
+        array $bridgeDays = [],
     ): array {
         $rules = new PlanningRules($workdayCount, $startWeekday, $reflectionMonthOffsets);
+        $bridgeDays = $this->normalizeBridgeDays($bridgeDays);
         if ($defaultCapacity < 1 || $defaultCapacity > RunService::MAX_CAPACITY) {
             throw new DomainException('Die Standardkapazität muss zwischen 1 und 10 liegen.');
         }
@@ -67,7 +74,30 @@ final class PlanningSettingsService {
             'reflection_month_offsets',
             implode(',', $rules->reflectionMonthOffsets),
         );
+        $this->config->setValueString(Application::APP_ID, 'bridge_days', implode(',', $bridgeDays));
         return $this->current();
     }
-}
 
+    /** @param array<array-key,mixed> $dates
+     * @return list<string>
+     */
+    private function normalizeBridgeDays(array $dates): array {
+        if (count($dates) > 366) {
+            throw new DomainException('Es können höchstens 366 Brückentage konfiguriert werden.');
+        }
+        $normalized = [];
+        foreach ($dates as $value) {
+            if (!is_string($value) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) !== 1) {
+                throw new DomainException('Brückentage benötigen gültige ISO-Daten im Format JJJJ-MM-TT.');
+            }
+            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+            if ($date === false || $date->format('Y-m-d') !== $value) {
+                throw new DomainException('Brückentage benötigen gültige ISO-Daten im Format JJJJ-MM-TT.');
+            }
+            $normalized[$value] = true;
+        }
+        $values = array_keys($normalized);
+        sort($values);
+        return $values;
+    }
+}

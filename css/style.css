@@ -59,6 +59,34 @@
     color: var(--color-error-text);
 }
 
+.bq-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.bq-tab {
+    flex: 0 0 auto;
+    margin: 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.bq-tab[aria-selected="true"] {
+    background: var(--color-primary-element-light);
+    font-weight: 700;
+}
+
+.bq-tab:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 2px;
+}
+
+.bq-tab-panel[hidden] {
+    display: none;
+}
+
 .bq-form,
 .bq-module-form {
     display: grid;

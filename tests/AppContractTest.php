@@ -24,5 +24,9 @@ TestRunner::test('initial page remains admin-only and documents calendar complet
     $template = (string)file_get_contents($root . '/templates/index.php');
     assertTrue(!str_contains($controller, 'NoAdminRequired'));
     assertTrue(str_contains($template, 'Automatische Vorschläge werden erst als konfliktfrei bezeichnet'));
+    assertTrue(str_contains($template, 'Monat vorschlagen'));
+    assertTrue(str_contains($template, 'Brückentage'));
     assertTrue(str_contains($template, 'data-orgsuite data-suite="ad" data-current-app="adbqplanung"'));
+    assertTrue(!preg_match('/data-endpoint="[^"]*(applicant|bewerb|candidate)/i', $template), 'Applicant assignment must remain in AD Recruitment');
+    assertTrue(!preg_match('/[\'\"]url[\'\"]\s*=>\s*[\'\"][^\'\"]*(applicant|bewerb|candidate)/i', (string)file_get_contents($root . '/appinfo/routes.php')), 'BQ planning must not expose applicant-assignment routes');
 });

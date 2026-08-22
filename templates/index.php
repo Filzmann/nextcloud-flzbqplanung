@@ -43,7 +43,14 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <p id="bq-feedback" class="bq-feedback" role="status" aria-live="polite"></p>
 
-    <section class="bq-grid" aria-label="BQ-Konfiguration und neuer Durchlauf">
+    <nav class="bq-tabs" role="tablist" aria-label="BQ-Planungsbereiche">
+        <button type="button" id="bq-tab-runs" class="bq-tab" role="tab" aria-controls="bq-panel-runs" aria-selected="true" tabindex="0" data-tab-target="bq-panel-runs">Durchläufe</button>
+        <button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-lecturers">Dozentinnen</button>
+        <button type="button" id="bq-tab-settings" class="bq-tab" role="tab" aria-controls="bq-panel-settings" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-settings">Einstellungen</button>
+    </nav>
+
+    <section id="bq-panel-settings" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-settings" hidden>
+        <section class="bq-grid" aria-label="BQ-Konfiguration">
         <form class="bq-card bq-form" data-endpoint="/api/settings" data-method="PUT">
             <h2>Planungsregeln</h2>
             <label>Arbeitstage
@@ -62,7 +69,24 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <label>Praxisreflexionen nach Monaten
                 <input name="reflectionMonthOffsets" inputmode="numeric" required value="<?php p(implode(',', $settings['reflectionMonthOffsets'] ?? [1, 3, 4])); ?>">
             </label>
+            <label>Brückentage
+                <input name="bridgeDays" inputmode="numeric" value="<?php p(implode(',', $settings['bridgeDays'] ?? [])); ?>" placeholder="2026-05-15,2026-12-24">
+                <small>Kommagetrennte Daten im Format JJJJ-MM-TT.</small>
+            </label>
             <button type="submit" class="primary">Regeln speichern</button>
+        </form>
+        </section>
+    </section>
+
+    <section id="bq-panel-runs" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-runs">
+        <section class="bq-grid" aria-label="Neuen BQ-Durchlauf vorbereiten">
+        <form class="bq-card bq-form" data-proposal-form>
+            <h2>Monat vorschlagen</h2>
+            <label>Planungsmonat
+                <input name="proposalMonth" type="month" required>
+            </label>
+            <button type="submit">Terminvorschlag prüfen</button>
+            <p id="bq-proposal-result" role="status" aria-live="polite"></p>
         </form>
 
         <form class="bq-card bq-form" data-endpoint="/api/runs" data-method="POST">
@@ -81,41 +105,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             </label>
             <button type="submit" class="primary">Entwurf anlegen</button>
         </form>
-    </section>
-
-    <section class="bq-runs" aria-labelledby="bq-lecturers-title">
-        <h2 id="bq-lecturers-title">Dozentinnenpool</h2>
-        <div class="bq-grid">
-            <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
-                <h3>Interne PFK aufnehmen</h3>
-                <input name="kind" type="hidden" value="internal">
-                <input name="displayName" type="hidden" value="">
-                <input name="email" type="hidden" value="">
-                <label>Nextcloud-UID <input name="nextcloudUid" maxlength="64" required placeholder="ad-demo-pfk-a"></label>
-                <button type="submit">PFK aufnehmen</button>
-            </form>
-            <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
-                <h3>Externe Dozentin aufnehmen</h3>
-                <input name="kind" type="hidden" value="external">
-                <input name="nextcloudUid" type="hidden" value="">
-                <label>Name <input name="displayName" maxlength="128" required></label>
-                <label>E-Mail <input name="email" type="email" maxlength="254" required></label>
-                <button type="submit">Dozentin aufnehmen</button>
-            </form>
-        </div>
-        <?php if ($lecturers === []): ?><p class="bq-empty">Noch keine Dozentinnen im Pool.</p><?php endif; ?>
-        <?php if ($lecturers !== []): ?>
-            <div class="bq-table-wrap"><table>
-                <thead><tr><th>Typ</th><th>Referenz</th><th>Kontakt</th><th>Status</th></tr></thead>
-                <tbody><?php foreach ($lecturers as $lecturer): ?><tr>
-                    <td><?php p(($lecturer['kind'] ?? '') === 'internal' ? 'Interne PFK' : 'Extern'); ?></td>
-                    <td><?php p($lecturerLabel($lecturer)); ?></td>
-                    <td><?php p((string)($lecturer['email'] ?? '–')); ?></td>
-                    <td><?php p(($lecturer['active'] ?? false) ? 'Aktiv' : 'Inaktiv'); ?></td>
-                </tr><?php endforeach; ?></tbody>
-            </table></div>
-        <?php endif; ?>
-    </section>
+        </section>
 
     <section class="bq-notice" aria-labelledby="bq-recruitment-title">
         <h2 id="bq-recruitment-title">Teilnehmerinnen aus Recruitment</h2>
@@ -212,36 +202,73 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
         <?php endforeach; ?>
     </section>
 
-    <section class="bq-runs" aria-labelledby="bq-requests-title">
-        <h2 id="bq-requests-title">Externe Anfragen</h2>
-        <?php if ($teachingRequests === []): ?><p class="bq-empty">Noch keine externen Dozentinnen angefragt.</p><?php endif; ?>
-        <?php foreach ($teachingRequests as $request): ?>
-            <?php $requestLecturer = $lecturersById[(int)$request['lecturerId']] ?? null; ?>
-            <article class="bq-request">
-                <p><strong><?php p($moduleLabels[(int)$request['moduleId']] ?? 'Unbekanntes Modul'); ?></strong> · <?php p($requestLecturer === null ? 'Unbekannte Dozentin' : $lecturerLabel($requestLecturer)); ?> · <?php p($requestStatusNames[(string)$request['status']] ?? (string)$request['status']); ?></p>
-                <?php if (($request['status'] ?? '') === 'requested'): ?>
-                    <div class="bq-inline-actions">
-                        <?php foreach (['confirmed' => 'Zusage erfassen', 'declined' => 'Ablehnung erfassen', 'cancelled' => 'Anfrage absagen'] as $target => $label): ?>
-                            <form data-endpoint="/api/teaching-requests/<?php p((string)$request['id']); ?>/transition" data-method="POST">
-                                <input name="targetStatus" type="hidden" value="<?php p($target); ?>">
-                                <input name="version" type="hidden" value="<?php p((string)$request['version']); ?>">
-                                <button type="submit"><?php p($label); ?></button>
-                            </form>
-                        <?php endforeach; ?>
-                    </div>
-                <?php elseif (($request['status'] ?? '') === 'confirmed'): ?>
-                    <form data-endpoint="/api/teaching-requests/<?php p((string)$request['id']); ?>/transition" data-method="POST">
-                        <input name="targetStatus" type="hidden" value="cancelled">
-                        <input name="version" type="hidden" value="<?php p((string)$request['version']); ?>">
-                        <button type="submit">Zusage absagen</button>
-                    </form>
-                <?php endif; ?>
-            </article>
-        <?php endforeach; ?>
-    </section>
-
     <section class="bq-notice" aria-labelledby="bq-calendar-title">
         <h2 id="bq-calendar-title">Kalenderstatus</h2>
         <p>Automatische Vorschläge werden erst als konfliktfrei bezeichnet, wenn eine vollständige Ferien-, Feiertags- und Sperrtagsquelle vorliegt.</p>
+    </section>
+    </section>
+
+    <section id="bq-panel-lecturers" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-lecturers" hidden>
+        <section class="bq-runs" aria-labelledby="bq-lecturers-title">
+            <h2 id="bq-lecturers-title">Dozentinnenpool</h2>
+            <div class="bq-grid">
+                <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
+                    <h3>Interne PFK aufnehmen</h3>
+                    <input name="kind" type="hidden" value="internal">
+                    <input name="displayName" type="hidden" value="">
+                    <input name="email" type="hidden" value="">
+                    <label>Nextcloud-UID <input name="nextcloudUid" maxlength="64" required placeholder="ad-demo-pfk-a"></label>
+                    <button type="submit">PFK aufnehmen</button>
+                </form>
+                <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
+                    <h3>Externe Dozentin aufnehmen</h3>
+                    <input name="kind" type="hidden" value="external">
+                    <input name="nextcloudUid" type="hidden" value="">
+                    <label>Name <input name="displayName" maxlength="128" required></label>
+                    <label>E-Mail <input name="email" type="email" maxlength="254" required></label>
+                    <button type="submit">Dozentin aufnehmen</button>
+                </form>
+            </div>
+            <?php if ($lecturers === []): ?><p class="bq-empty">Noch keine Dozentinnen im Pool.</p><?php endif; ?>
+            <?php if ($lecturers !== []): ?>
+                <div class="bq-table-wrap"><table>
+                    <thead><tr><th>Typ</th><th>Referenz</th><th>Kontakt</th><th>Status</th></tr></thead>
+                    <tbody><?php foreach ($lecturers as $lecturer): ?><tr>
+                        <td><?php p(($lecturer['kind'] ?? '') === 'internal' ? 'Interne PFK' : 'Extern'); ?></td>
+                        <td><?php p($lecturerLabel($lecturer)); ?></td>
+                        <td><?php p((string)($lecturer['email'] ?? '–')); ?></td>
+                        <td><?php p(($lecturer['active'] ?? false) ? 'Aktiv' : 'Inaktiv'); ?></td>
+                    </tr><?php endforeach; ?></tbody>
+                </table></div>
+            <?php endif; ?>
+        </section>
+
+        <section class="bq-runs" aria-labelledby="bq-requests-title">
+            <h2 id="bq-requests-title">Externe Anfragen</h2>
+            <?php if ($teachingRequests === []): ?><p class="bq-empty">Noch keine externen Dozentinnen angefragt.</p><?php endif; ?>
+            <?php foreach ($teachingRequests as $request): ?>
+                <?php $requestLecturer = $lecturersById[(int)$request['lecturerId']] ?? null; ?>
+                <article class="bq-request">
+                    <p><strong><?php p($moduleLabels[(int)$request['moduleId']] ?? 'Unbekanntes Modul'); ?></strong> · <?php p($requestLecturer === null ? 'Unbekannte Dozentin' : $lecturerLabel($requestLecturer)); ?> · <?php p($requestStatusNames[(string)$request['status']] ?? (string)$request['status']); ?></p>
+                    <?php if (($request['status'] ?? '') === 'requested'): ?>
+                        <div class="bq-inline-actions">
+                            <?php foreach (['confirmed' => 'Zusage erfassen', 'declined' => 'Ablehnung erfassen', 'cancelled' => 'Anfrage absagen'] as $target => $label): ?>
+                                <form data-endpoint="/api/teaching-requests/<?php p((string)$request['id']); ?>/transition" data-method="POST">
+                                    <input name="targetStatus" type="hidden" value="<?php p($target); ?>">
+                                    <input name="version" type="hidden" value="<?php p((string)$request['version']); ?>">
+                                    <button type="submit"><?php p($label); ?></button>
+                                </form>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php elseif (($request['status'] ?? '') === 'confirmed'): ?>
+                        <form data-endpoint="/api/teaching-requests/<?php p((string)$request['id']); ?>/transition" data-method="POST">
+                            <input name="targetStatus" type="hidden" value="cancelled">
+                            <input name="version" type="hidden" value="<?php p((string)$request['version']); ?>">
+                            <button type="submit">Zusage absagen</button>
+                        </form>
+                    <?php endif; ?>
+                </article>
+            <?php endforeach; ?>
+        </section>
     </section>
 </main>

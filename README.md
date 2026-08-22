@@ -17,6 +17,12 @@ Der erste Planungskern umfasst:
   terminiert werden können; und
 - eine Haupt-PFK mit optionalen abweichenden Dozentinnen je Modul.
 
+Monatliche Vorschläge beziehen den versionierten LocalBase-Jahreskalender für
+Schulferien und gesetzliche Feiertage ein. Brückentage werden als
+kommagetrennte ISO-Daten konfiguriert. Ein veralteter Kalenderstand bleibt mit
+sichtbarer Einschränkung nutzbar; bei fehlenden oder inkompatiblen Daten wird
+kein automatischer Vorschlag ausgegeben.
+
 Der persistente Admin-Arbeitsstand ergänzt BQ-Durchläufe und frei terminierbare
 Curriculum-Module mit optimistischer Versionierung. Reguläre Durchläufe haben
 aktuell höchstens zehn Plätze. Es gibt keine Warteliste; zusätzliche
@@ -29,6 +35,10 @@ Dozentinnen mit Name und E-Mail. Eine Haupt-PFK gilt für den gesamten
 Durchlauf; bestätigte externe Anfragen überschreiben sie nur am jeweiligen
 Modul. Der aktuelle Stand dokumentiert Anfrage, Zusage, Ablehnung und Absage,
 versendet jedoch noch keine E-Mail.
+
+Die Adminoberfläche gliedert die vorhandenen Funktionen wie die übrigen
+Fachapps in die per Maus und Tastatur bedienbaren Tabs `Durchläufe`,
+`Dozentinnen` und `Einstellungen`.
 
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet

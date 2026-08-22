@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace OCA\AdBqPlanning\AppInfo;
 
 use OCA\AdBqPlanning\Listener\StandaloneNavigationListener;
+use OCA\AdBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\AdBqPlanning\Service\CalendarBlockedPeriodProvider;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -20,6 +22,7 @@ final class Application extends App implements IBootstrap {
 
     public function register(IRegistrationContext $context): void {
         $context->registerEventListener(LoadAdditionalEntriesEvent::class, StandaloneNavigationListener::class);
+        $context->registerServiceAlias(BlockedPeriodProvider::class, CalendarBlockedPeriodProvider::class);
     }
 
     public function boot(IBootContext $context): void {

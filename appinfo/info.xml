@@ -5,7 +5,7 @@
     <name>AD BQ-Planer</name>
     <summary>Plant Basisqualifizierungen, Curricula und Praxisreflexionen.</summary>
     <description>Erstellt erklärbare Terminvorschläge und plant Curriculum sowie Dozentinnen für Basisqualifizierungen.</description>
-    <version>0.4.0-dev.1</version>
+    <version>0.5.0-dev.1</version>
     <licence>agpl</licence>
     <author>Simon</author>
     <namespace>AdBqPlanning</namespace>

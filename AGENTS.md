@@ -25,10 +25,12 @@ beim direkten Öffnen dieses App-Repositories.
   kopiert keine Suite-Linkliste und leitet aus Navigation keine Rechte ab.
   Fehlende oder ungültige Katalogdaten dürfen keinen zusätzlichen Einstieg
   und keine Berechtigung erzeugen.
-- Kalender-Sperrperioden werden weiterhin über einen app-eigenen Port
-  verarbeitet. Eine Kalenderanbindung bleibt optional und beginnt nur mit
-  einem freigegebenen, aktivierungs- und versionsbewussten öffentlichen
-  Providervertrag.
+- Kalender-Sperrperioden werden über einen app-eigenen Port verarbeitet. Der
+  LocalBase-Jahresvertrag Version 1 liefert Schulferien und gesetzliche
+  Feiertage; konfigurierte Brückentage bleiben BQ-eigene Planungsregeln.
+  `stale` ist nur mit sichtbarer Aktualitätseinschränkung nutzbar,
+  `unavailable` oder inkompatible Daten erzeugen keinen automatischen
+  Vorschlag.
 - Fehlt ein Kalenderprovider, darf die App keine vermeintlich konfliktfreien
   automatischen Vorschläge behaupten. Manuelle Planung bleibt mit sichtbarem
   Vollständigkeitsstatus möglich.
@@ -83,6 +85,9 @@ beim direkten Öffnen dieses App-Repositories.
   Bearbeitungsreferenzen konkret umgesetzt und getestet sein.
 - Schreibende Routen sind CSRF-geschützt. UI-Sichtbarkeit erteilt keine
   Rechte. SQL-Werte werden gebunden und Ausgaben escaped.
+- Die Adminoberfläche gruppiert ihre Funktionen in die zugänglichen Tabs
+  `Durchläufe`, `Dozentinnen` und `Einstellungen`; die Tabs unterstützen
+  Maus, Pfeiltasten sowie Anfang/Ende und besitzen sichtbare Fokuszustände.
 
 ## Arbeitsweise und Tests
 

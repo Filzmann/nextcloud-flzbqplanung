@@ -98,12 +98,14 @@ final class RunController extends Controller {
         int $startWeekday,
         int $defaultCapacity,
         array $reflectionMonthOffsets,
+        array $bridgeDays = [],
     ): JSONResponse {
         return $this->respond(fn (): array => $this->settingsService->update(
             $workdayCount,
             $startWeekday,
             $defaultCapacity,
             $reflectionMonthOffsets,
+            $bridgeDays,
         ));
     }
 
