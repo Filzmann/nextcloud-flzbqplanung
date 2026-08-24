@@ -113,6 +113,28 @@
     margin-block: 10px;
 }
 
+.bq-module-editor {
+    margin: 12px 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 10px 12px;
+}
+
+.bq-module-editor summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.bq-module-editor summary:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 2px;
+}
+
+.bq-conflict {
+    color: var(--color-warning-text);
+    font-weight: 700;
+}
+
 .bq-form label,
 .bq-module-form label {
     display: grid;

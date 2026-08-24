@@ -35,6 +35,10 @@ Nachholplätze werden ausschließlich an einzelnen Modulen ausgewiesen.
 Teilnehmerinnen und Umbuchungen zwischen früheren und späteren BQs bleiben in
 AD Recruitment.
 
+Module eines Entwurfs können mit Schutz vor parallelen Änderungen bearbeitet
+werden. Zeitlich überlappende Module eines Durchlaufs werden sichtbar
+gekennzeichnet, ohne daraus eine zusätzliche fachliche Verbotsregel abzuleiten.
+
 Der Dozentinnenbereich verwaltet interne PFKs als Nextcloud-UID und externe
 Dozentinnen mit Name und E-Mail. Eine Haupt-PFK gilt für den gesamten
 Durchlauf; bestätigte externe Anfragen überschreiben sie nur am jeweiligen

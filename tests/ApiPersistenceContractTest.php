@@ -10,7 +10,7 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
     $controllerPath = $root . '/lib/Controller/RunController.php';
     assertTrue(is_file($controllerPath), 'RunController is missing');
     $controller = (string)file_get_contents($controllerPath);
-    foreach (['run#list', 'run#create', 'run#addModule', 'run#publish', 'run#settings', 'run#updateSettings', 'proposal#suggest', 'proposal#suggestYear'] as $route) {
+    foreach (['run#list', 'run#create', 'run#addModule', 'run#updateModule', 'run#publish', 'run#settings', 'run#updateSettings', 'proposal#suggest', 'proposal#suggestYear'] as $route) {
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
     assertTrue(!str_contains(strtolower($routes), 'waitlist'));
@@ -32,6 +32,7 @@ TestRunner::test('repository uses bound parameters and optimistic run versions',
     assertTrue(str_contains($source, "'version'"));
     assertTrue(str_contains($source, 'beginTransaction'));
     assertTrue(str_contains($source, 'rollBack'));
+    assertTrue(str_contains($source, 'updateModule'));
     assertTrue(!str_contains($source, 'SELECT '));
     assertTrue(!str_contains($source, 'INSERT '));
 });

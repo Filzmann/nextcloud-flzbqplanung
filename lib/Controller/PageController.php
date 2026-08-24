@@ -8,6 +8,7 @@ use OCA\AdBqPlanning\AppInfo\Application;
 use OCA\AdBqPlanning\Repository\RunRepository;
 use OCA\AdBqPlanning\Repository\TeachingRepository;
 use OCA\AdBqPlanning\Service\PlanningSettingsService;
+use OCA\AdBqPlanning\Service\RunService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -19,6 +20,7 @@ final class PageController extends Controller {
         private RunRepository $runs,
         private PlanningSettingsService $settingsService,
         private TeachingRepository $teaching,
+        private RunService $runService,
     ) {
         parent::__construct(Application::APP_ID, $request);
     }
@@ -27,6 +29,7 @@ final class PageController extends Controller {
     public function index(): TemplateResponse {
         $runs = array_map(function (array $run): array {
             $run['modules'] = $this->runs->modules((int)$run['id']);
+            $run['moduleConflicts'] = $this->runService->moduleConflicts($run['modules']);
             return $run;
         }, $this->runs->runs());
         return new TemplateResponse(Application::APP_ID, 'index', [

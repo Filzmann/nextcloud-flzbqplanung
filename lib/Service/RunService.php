@@ -76,39 +76,86 @@ final class RunService {
             throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
         }
         $moduleKey = trim($moduleKey);
-        $title = trim($title);
-        if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/', $moduleKey) || $title === '' || strlen($title) > 128) {
-            throw new DomainException('Das Curriculum-Modul benötigt einen stabilen Schlüssel und einen kurzen Titel.');
+        if (!preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/', $moduleKey)) {
+            throw new DomainException('Das Curriculum-Modul benötigt einen stabilen Schlüssel.');
         }
-        if ($minutes < 1 || $minutes > 600) {
-            throw new DomainException('Ein Curriculum-Modul muss zwischen 1 und 600 Minuten dauern.');
+        $values = $this->validatedModuleValues($run, $title, $minutes, $date, $startsAt, $endsAt, $additionalCapacity);
+
+        return $store->addModule($runId, ['moduleKey' => $moduleKey, ...$values], $expectedRunVersion, trim($actorUid));
+    }
+
+    /** @return array<string,mixed> */
+    public function updateModule(
+        RunStore $store,
+        int $runId,
+        int $moduleId,
+        string $title,
+        int $minutes,
+        string $date,
+        string $startsAt,
+        string $endsAt,
+        int $additionalCapacity,
+        int $expectedRunVersion,
+        int $expectedModuleVersion,
+        string $actorUid,
+    ): array {
+        $run = $store->run($runId);
+        if (($run['status'] ?? '') !== 'draft') {
+            throw new DomainException('Curriculum-Module können nur im Entwurf bearbeitet werden.');
         }
-        if ($additionalCapacity < 0 || $additionalCapacity > self::MAX_ADDITIONAL_CAPACITY) {
-            throw new DomainException('Die modulbezogene Zusatzkapazität muss zwischen 0 und 10 liegen.');
+        if ((int)($run['version'] ?? 0) !== $expectedRunVersion) {
+            throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
         }
-        $moduleDate = $this->date($date);
-        if ($date < (string)$run['startsOn'] || $date > (string)$run['endsOn']) {
-            throw new DomainException('Das Curriculum-Modul muss innerhalb des BQ-Zeitraums liegen.');
+        $module = null;
+        foreach ($store->modules($runId) as $candidate) {
+            if ((int)($candidate['id'] ?? 0) === $moduleId) {
+                $module = $candidate;
+                break;
+            }
         }
-        if ((int)$moduleDate->format('N') > 5) {
-            throw new DomainException('Curriculum-Module müssen montags bis freitags stattfinden.');
+        if ($module === null) {
+            throw new DomainException('Das Curriculum-Modul gehört nicht zu diesem BQ-Durchlauf.');
         }
-        [$startHour, $startMinute] = $this->time($startsAt);
-        [$endHour, $endMinute] = $this->time($endsAt);
-        $actualMinutes = ($endHour * 60 + $endMinute) - ($startHour * 60 + $startMinute);
-        if ($actualMinutes !== $minutes) {
-            throw new DomainException('Zeitspanne und Moduldauer stimmen nicht überein.');
+        if ((int)($module['version'] ?? 0) !== $expectedModuleVersion) {
+            throw new DomainException('Das Curriculum-Modul wurde zwischenzeitlich geändert.');
+        }
+        $actorUid = trim($actorUid);
+        if ($actorUid === '') {
+            throw new DomainException('Die Modulbearbeitung benötigt eine handelnde Person.');
         }
 
-        return $store->addModule($runId, [
-            'moduleKey' => $moduleKey,
-            'title' => $title,
-            'minutes' => $minutes,
-            'date' => $date,
-            'startsAt' => $startsAt,
-            'endsAt' => $endsAt,
-            'additionalCapacity' => $additionalCapacity,
-        ], $expectedRunVersion, trim($actorUid));
+        $values = $this->validatedModuleValues($run, $title, $minutes, $date, $startsAt, $endsAt, $additionalCapacity);
+        return $store->updateModule(
+            $runId,
+            $moduleId,
+            $values,
+            $expectedRunVersion,
+            $expectedModuleVersion,
+            $actorUid,
+        );
+    }
+
+    /**
+     * @param list<array<string,mixed>> $modules
+     * @return list<array{firstModuleId:int,secondModuleId:int}>
+     */
+    public function moduleConflicts(array $modules): array {
+        $conflicts = [];
+        foreach ($modules as $firstIndex => $first) {
+            foreach (array_slice($modules, $firstIndex + 1) as $second) {
+                if (($first['date'] ?? null) !== ($second['date'] ?? null)) {
+                    continue;
+                }
+                if ((string)($first['startsAt'] ?? '') < (string)($second['endsAt'] ?? '')
+                    && (string)($second['startsAt'] ?? '') < (string)($first['endsAt'] ?? '')) {
+                    $conflicts[] = [
+                        'firstModuleId' => (int)$first['id'],
+                        'secondModuleId' => (int)$second['id'],
+                    ];
+                }
+            }
+        }
+        return $conflicts;
     }
 
     /** @return array<string,mixed> */
@@ -147,6 +194,50 @@ final class RunService {
             throw new DomainException('Es wird eine gültige Uhrzeit im Format HH:MM benötigt.');
         }
         return [(int)$matches['hour'], (int)$matches['minute']];
+    }
+
+    /** @param array<string,mixed> $run
+     * @return array<string,mixed>
+     */
+    private function validatedModuleValues(
+        array $run,
+        string $title,
+        int $minutes,
+        string $date,
+        string $startsAt,
+        string $endsAt,
+        int $additionalCapacity,
+    ): array {
+        $title = trim($title);
+        if ($title === '' || strlen($title) > 128) {
+            throw new DomainException('Das Curriculum-Modul benötigt einen kurzen Titel.');
+        }
+        if ($minutes < 1 || $minutes > 600) {
+            throw new DomainException('Ein Curriculum-Modul muss zwischen 1 und 600 Minuten dauern.');
+        }
+        if ($additionalCapacity < 0 || $additionalCapacity > self::MAX_ADDITIONAL_CAPACITY) {
+            throw new DomainException('Die modulbezogene Zusatzkapazität muss zwischen 0 und 10 liegen.');
+        }
+        $moduleDate = $this->date($date);
+        if ($date < (string)$run['startsOn'] || $date > (string)$run['endsOn']) {
+            throw new DomainException('Das Curriculum-Modul muss innerhalb des BQ-Zeitraums liegen.');
+        }
+        if ((int)$moduleDate->format('N') > 5) {
+            throw new DomainException('Curriculum-Module müssen montags bis freitags stattfinden.');
+        }
+        [$startHour, $startMinute] = $this->time($startsAt);
+        [$endHour, $endMinute] = $this->time($endsAt);
+        if (($endHour * 60 + $endMinute) - ($startHour * 60 + $startMinute) !== $minutes) {
+            throw new DomainException('Zeitspanne und Moduldauer stimmen nicht überein.');
+        }
+        return [
+            'title' => $title,
+            'minutes' => $minutes,
+            'date' => $date,
+            'startsAt' => $startsAt,
+            'endsAt' => $endsAt,
+            'additionalCapacity' => $additionalCapacity,
+        ];
     }
 
     private function workdayCount(DateTimeImmutable $start, DateTimeImmutable $end): int {

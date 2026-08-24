@@ -125,6 +125,59 @@ final class RunRepository implements RunStore {
         }
     }
 
+    public function updateModule(
+        int $runId,
+        int $moduleId,
+        array $module,
+        int $expectedRunVersion,
+        int $expectedModuleVersion,
+        string $actorUid,
+    ): array {
+        $this->db->beginTransaction();
+        try {
+            $run = $this->db->getQueryBuilder();
+            $runAffected = $run->update('adbq_runs')
+                ->set('version', $run->createFunction('version + 1'))
+                ->set('updated_by', $run->createNamedParameter($actorUid))
+                ->set('updated_at', $run->createNamedParameter($this->now()))
+                ->where($run->expr()->eq('id', $run->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
+                ->andWhere($run->expr()->eq('status', $run->createNamedParameter('draft')))
+                ->andWhere($run->expr()->eq('version', $run->createNamedParameter($expectedRunVersion, IQueryBuilder::PARAM_INT)))
+                ->executeStatement();
+            if ($runAffected !== 1) {
+                throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
+            }
+
+            $qb = $this->db->getQueryBuilder();
+            $moduleAffected = $qb->update('adbq_modules')
+                ->set('title', $qb->createNamedParameter($module['title']))
+                ->set('minutes', $qb->createNamedParameter($module['minutes'], IQueryBuilder::PARAM_INT))
+                ->set('module_date', $qb->createNamedParameter($module['date']))
+                ->set('starts_at', $qb->createNamedParameter($module['startsAt']))
+                ->set('ends_at', $qb->createNamedParameter($module['endsAt']))
+                ->set('additional_capacity', $qb->createNamedParameter($module['additionalCapacity'], IQueryBuilder::PARAM_INT))
+                ->set('version', $qb->createFunction('version + 1'))
+                ->where($qb->expr()->eq('id', $qb->createNamedParameter($moduleId, IQueryBuilder::PARAM_INT)))
+                ->andWhere($qb->expr()->eq('run_id', $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
+                ->andWhere($qb->expr()->eq('version', $qb->createNamedParameter($expectedModuleVersion, IQueryBuilder::PARAM_INT)))
+                ->executeStatement();
+            if ($moduleAffected !== 1) {
+                throw new DomainException('Das Curriculum-Modul wurde zwischenzeitlich geändert.');
+            }
+            $this->db->commit();
+        } catch (Throwable $error) {
+            $this->db->rollBack();
+            throw $error;
+        }
+
+        foreach ($this->modules($runId) as $updated) {
+            if ((int)$updated['id'] === $moduleId) {
+                return $updated;
+            }
+        }
+        throw new DomainException('Das aktualisierte Curriculum-Modul wurde nicht gefunden.');
+    }
+
     public function changeStatus(int $runId, string $from, string $to, int $expectedVersion, string $actorUid): array {
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('adbq_runs')

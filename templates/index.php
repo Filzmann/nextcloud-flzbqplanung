@@ -136,6 +136,13 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <p class="bq-empty">Noch keine Durchläufe angelegt.</p>
         <?php endif; ?>
         <?php foreach ($runs as $run): ?>
+            <?php
+                $conflictingModuleIds = [];
+                foreach (($run['moduleConflicts'] ?? []) as $conflict) {
+                    $conflictingModuleIds[(int)$conflict['firstModuleId']] = true;
+                    $conflictingModuleIds[(int)$conflict['secondModuleId']] = true;
+                }
+            ?>
             <article class="bq-run">
                 <header>
                     <div>
@@ -151,7 +158,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
                 <div class="bq-table-wrap">
                     <table>
-                        <thead><tr><th>Modul</th><th>Termin</th><th>Dauer</th><th>Dozentin</th><th>Nachholplätze</th></tr></thead>
+                        <thead><tr><th>Modul</th><th>Termin</th><th>Dauer</th><th>Dozentin</th><th>Nachholplätze</th><th>Status</th></tr></thead>
                         <tbody>
                         <?php foreach (($run['modules'] ?? []) as $module): ?>
                             <tr>
@@ -163,6 +170,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                                     p($moduleLecturer === null ? 'Haupt-PFK offen' : $lecturerLabel($moduleLecturer));
                                 ?></td>
                                 <td><?php p((string)$module['additionalCapacity']); ?></td>
+                                <td><?php if (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -170,6 +178,22 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                 </div>
 
                 <?php if (($run['status'] ?? '') === 'draft'): ?>
+                    <?php foreach (($run['modules'] ?? []) as $module): ?>
+                        <details class="bq-module-editor">
+                            <summary>Modul bearbeiten: <?php p((string)$module['title']); ?></summary>
+                            <form class="bq-module-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/modules/<?php p((string)$module['id']); ?>" data-method="PUT">
+                                <input name="runVersion" type="hidden" value="<?php p((string)$run['version']); ?>">
+                                <input name="moduleVersion" type="hidden" value="<?php p((string)$module['version']); ?>">
+                                <label>Titel <input name="title" maxlength="128" required value="<?php p((string)$module['title']); ?>"></label>
+                                <label>Datum <input name="date" type="date" required value="<?php p((string)$module['date']); ?>"></label>
+                                <label>Beginn <input name="startsAt" type="time" required value="<?php p((string)$module['startsAt']); ?>"></label>
+                                <label>Ende <input name="endsAt" type="time" required value="<?php p((string)$module['endsAt']); ?>"></label>
+                                <label>Minuten <input name="minutes" type="number" min="1" max="600" required value="<?php p((string)$module['minutes']); ?>"></label>
+                                <label>Nachholplätze <input name="additionalCapacity" type="number" min="0" max="10" required value="<?php p((string)$module['additionalCapacity']); ?>"></label>
+                                <button type="submit">Änderungen speichern</button>
+                            </form>
+                        </details>
+                    <?php endforeach; ?>
                     <?php if ($internalLecturers !== []): ?>
                         <form class="bq-inline-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/lead-lecturer" data-method="POST">
                             <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">

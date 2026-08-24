@@ -79,6 +79,34 @@ final class RunController extends Controller {
         ]);
     }
 
+    public function updateModule(
+        int $id,
+        int $moduleId,
+        string $title,
+        int $minutes,
+        string $date,
+        string $startsAt,
+        string $endsAt,
+        int $additionalCapacity,
+        int $runVersion,
+        int $moduleVersion,
+    ): JSONResponse {
+        return $this->respond(fn (): array => $this->service->updateModule(
+            $this->runs,
+            $id,
+            $moduleId,
+            $title,
+            $minutes,
+            $date,
+            $startsAt,
+            $endsAt,
+            $additionalCapacity,
+            $runVersion,
+            $moduleVersion,
+            $this->actorUid(),
+        ));
+    }
+
     public function publish(int $id, int $version): JSONResponse {
         return $this->respond(fn (): array => $this->service->publish(
             $this->runs,
