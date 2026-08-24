@@ -6,6 +6,7 @@ $appRoot = dirname(__DIR__);
 
 spl_autoload_register(static function (string $class) use ($appRoot): void {
     $mappings = [
+        'OCA\\FilzmannDataProtection\\' => $appRoot . '/tests/stubs/FilzmannDataProtection/',
         'OCA\\AdBqPlanning\\' => $appRoot . '/lib/',
         'AdBqPlanning\\Tests\\' => $appRoot . '/tests/',
     ];

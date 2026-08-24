@@ -83,6 +83,11 @@ beim direkten Öffnen dieses App-Repositories.
 - Vor fachlicher Fertigstellung müssen PersonalDataProvider,
   Drittpersonensicht, Retention-Trigger und Maßnahmen für Dozentinnen- und
   Bearbeitungsreferenzen konkret umgesetzt und getestet sein.
+- Der öffentliche Privacy-V1-Provider unterstützt zunächst ausschließlich
+  interne PFKs über ihre geprüfte Nextcloud-UID. Externe Dozentinnenprofile
+  bleiben bis zu einem sicher authentifizierten externen Subject-Vertrag aus
+  der Selbstauskunft ausgeschlossen; Name oder E-Mail dienen nicht als
+  Ersatzidentifikation.
 - Schreibende Routen sind CSRF-geschützt. UI-Sichtbarkeit erteilt keine
   Rechte. SQL-Werte werden gebunden und Ausgaben escaped.
 - Die Adminoberfläche gruppiert ihre Funktionen in die zugänglichen Tabs
