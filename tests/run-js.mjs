@@ -24,6 +24,8 @@ assert.match(template, /id="bq-year-proposal-rows"/)
 assert.match(template, /Konflikte\/Status/)
 assert.match(template, /Modul bearbeiten/)
 assert.match(template, /Durchlauf bearbeiten/)
+assert.match(template, /Nach oben/)
+assert.match(template, /Nach unten/)
 assert.match(template, /Terminüberschneidung/)
 assert.match(template, /\/api\/runs\/<\?php p\(\(string\)\$run\['id'\]\); \?>\/modules\/<\?php p\(\(string\)\$module\['id'\]\); \?>/)
 assert.match(template, /name="bridgeDays"/)
@@ -218,5 +220,19 @@ globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'Ungül
 await listeners.submit({ target: form, preventDefault() {} })
 assert.equal(feedback.textContent, 'Ungültige Planung')
 assert.equal(feedback.dataset.state, 'error')
+
+const moveForm = {
+    dataset: { endpoint: '/api/runs/1/modules/reorder', method: 'POST' },
+    fields: { version: '4', moduleId: '3', direction: 'up' },
+    matches: selector => selector === 'form[data-endpoint]',
+}
+globalThis.fetch = async (url, options) => {
+    requests.push({ url, options })
+    return { ok: true, json: async () => ({ data: [] }) }
+}
+await listeners.submit({ target: moveForm, preventDefault() {} })
+const moveRequest = requests.at(-1)
+assert.equal(moveRequest.url, '/nextcloud/apps/adbqplanung/api/runs/1/modules/reorder')
+assert.deepEqual(JSON.parse(moveRequest.options.body), { version: 4, moduleId: 3, direction: 'up' })
 
 console.log('AD BQ-Planer JavaScript/UI contracts passed')

@@ -37,6 +37,11 @@ interface RunStore {
     /** @return list<array<string,mixed>> */
     public function modules(int $runId): array;
 
+    /** @param list<int> $orderedModuleIds
+     * @return list<array<string,mixed>>
+     */
+    public function reorderModules(int $runId, array $orderedModuleIds, int $expectedVersion, string $actorUid): array;
+
     /** @return array<string,mixed> */
     public function changeStatus(int $runId, string $from, string $to, int $expectedVersion, string $actorUid): array;
 }

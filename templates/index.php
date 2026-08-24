@@ -174,7 +174,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <table>
                         <thead><tr><th>Modul</th><th>Termin</th><th>Dauer</th><th>Dozentin</th><th>Nachholplätze</th><th>Status</th></tr></thead>
                         <tbody>
-                        <?php foreach (($run['modules'] ?? []) as $module): ?>
+                        <?php foreach (($run['modules'] ?? []) as $moduleIndex => $module): ?>
                             <tr>
                                 <td><?php p((string)$module['title']); ?></td>
                                 <td><?php p((string)$module['date']); ?>, <?php p((string)$module['startsAt']); ?>–<?php p((string)$module['endsAt']); ?></td>
@@ -184,7 +184,24 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                                     p($moduleLecturer === null ? 'Haupt-PFK offen' : $lecturerLabel($moduleLecturer));
                                 ?></td>
                                 <td><?php p((string)$module['additionalCapacity']); ?></td>
-                                <td><?php if (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?></td>
+                                <td>
+                                    <?php if (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?>
+                                    <?php if (($run['status'] ?? '') === 'draft'): ?>
+                                        <div class="bq-inline-actions" aria-label="Reihenfolge von <?php p((string)$module['title']); ?> ändern">
+                                            <?php foreach (['up' => 'Nach oben', 'down' => 'Nach unten'] as $direction => $directionLabel): ?>
+                                                <?php $atBoundary = ($direction === 'up' && $moduleIndex === 0) || ($direction === 'down' && $moduleIndex === count($run['modules']) - 1); ?>
+                                                <?php if (!$atBoundary): ?>
+                                                    <form data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/modules/reorder" data-method="POST">
+                                                        <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">
+                                                        <input name="moduleId" type="hidden" value="<?php p((string)$module['id']); ?>">
+                                                        <input name="direction" type="hidden" value="<?php p($direction); ?>">
+                                                        <button type="submit"><?php p($directionLabel); ?></button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

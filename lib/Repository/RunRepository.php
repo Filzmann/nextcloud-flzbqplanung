@@ -198,6 +198,42 @@ final class RunRepository implements RunStore {
         throw new DomainException('Das aktualisierte Curriculum-Modul wurde nicht gefunden.');
     }
 
+    public function reorderModules(int $runId, array $orderedModuleIds, int $expectedVersion, string $actorUid): array {
+        $this->db->beginTransaction();
+        try {
+            $run = $this->db->getQueryBuilder();
+            $runAffected = $run->update('adbq_runs')
+                ->set('version', $run->createFunction('version + 1'))
+                ->set('updated_by', $run->createNamedParameter($actorUid))
+                ->set('updated_at', $run->createNamedParameter($this->now()))
+                ->where($run->expr()->eq('id', $run->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
+                ->andWhere($run->expr()->eq('status', $run->createNamedParameter('draft')))
+                ->andWhere($run->expr()->eq('version', $run->createNamedParameter($expectedVersion, IQueryBuilder::PARAM_INT)))
+                ->executeStatement();
+            if ($runAffected !== 1) {
+                throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
+            }
+
+            foreach ($orderedModuleIds as $position => $moduleId) {
+                $qb = $this->db->getQueryBuilder();
+                $affected = $qb->update('adbq_modules')
+                    ->set('position', $qb->createNamedParameter($position, IQueryBuilder::PARAM_INT))
+                    ->set('version', $qb->createFunction('version + 1'))
+                    ->where($qb->expr()->eq('id', $qb->createNamedParameter($moduleId, IQueryBuilder::PARAM_INT)))
+                    ->andWhere($qb->expr()->eq('run_id', $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
+                    ->executeStatement();
+                if ($affected !== 1) {
+                    throw new DomainException('Die Modulreihenfolge konnte nicht vollständig gespeichert werden.');
+                }
+            }
+            $this->db->commit();
+        } catch (Throwable $error) {
+            $this->db->rollBack();
+            throw $error;
+        }
+        return $this->modules($runId);
+    }
+
     public function changeStatus(int $runId, string $from, string $to, int $expectedVersion, string $actorUid): array {
         $qb = $this->db->getQueryBuilder();
         $affected = $qb->update('adbq_runs')

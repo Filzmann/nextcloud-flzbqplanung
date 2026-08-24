@@ -41,6 +41,8 @@ gekennzeichnet, ohne daraus eine zusätzliche fachliche Verbotsregel abzuleiten.
 Auch Bezeichnung, Zeitraum und reguläre Kapazität eines Entwurfs bleiben
 bearbeitbar, sofern der neue Zeitraum weiterhin alle terminierten Module
 enthält und den konfigurierten Planungsregeln entspricht.
+Die Reihenfolge der Module kann im Entwurf schrittweise geändert werden;
+parallele Änderungen werden über die Durchlaufversion abgewehrt.
 
 Der Dozentinnenbereich verwaltet interne PFKs als Nextcloud-UID und externe
 Dozentinnen mit Name und E-Mail. Eine Haupt-PFK gilt für den gesamten

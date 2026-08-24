@@ -77,6 +77,23 @@ final class MemoryRunStore implements RunStore {
         return $this->moduleRows[$moduleId];
     }
 
+    public function reorderModules(int $runId, array $orderedModuleIds, int $expectedVersion, string $actorUid): array {
+        if (($this->runRows[$runId]['status'] ?? '') !== 'draft'
+            || ($this->runRows[$runId]['version'] ?? 0) !== $expectedVersion) {
+            throw new DomainException('stale');
+        }
+        foreach ($orderedModuleIds as $position => $moduleId) {
+            if (($this->moduleRows[$moduleId]['runId'] ?? 0) !== $runId) {
+                throw new DomainException('foreign');
+            }
+            $this->moduleRows[$moduleId]['position'] = $position;
+            $this->moduleRows[$moduleId]['version']++;
+        }
+        $this->runRows[$runId]['version']++;
+        usort($this->moduleRows, static fn (array $first, array $second): int => ($first['position'] ?? 0) <=> ($second['position'] ?? 0));
+        return $this->modules($runId);
+    }
+
     public function changeStatus(int $runId, string $from, string $to, int $expectedVersion, string $actorUid): array {
         $run = $this->runRows[$runId];
         if ($run['status'] !== $from || $run['version'] !== $expectedVersion) {
@@ -277,4 +294,42 @@ TestRunner::test('run update rejects published stale and module-excluding change
         DomainException::class,
     );
     assertSame($published, $store->runRows[$runId]);
+});
+
+TestRunner::test('draft modules move one position while preserving the complete module set', static function (): void {
+    $store = new MemoryRunStore();
+    $service = new RunService();
+    $runId = $service->createRun($store, 'BQ 09/26', '2026-09-11', '2026-09-21', 10, new PlanningRules(), 'planner');
+    $first = $service->addModule($store, $runId, 'eins', 'Eins', 60, '2026-09-11', '09:00', '10:00', 0, 1, 'planner');
+    $second = $service->addModule($store, $runId, 'zwei', 'Zwei', 60, '2026-09-11', '10:00', '11:00', 0, 2, 'planner');
+    $third = $service->addModule($store, $runId, 'drei', 'Drei', 60, '2026-09-11', '11:00', '12:00', 0, 3, 'planner');
+
+    $moved = $service->moveModule($store, $runId, $third, 'up', 4, 'planner');
+
+    assertSame([$first, $third, $second], array_column($moved, 'id'));
+    assertSame(5, $store->runRows[$runId]['version']);
+});
+
+TestRunner::test('invalid stale foreign and boundary module moves have no side effect', static function (): void {
+    $store = new MemoryRunStore();
+    $service = new RunService();
+    $runId = $service->createRun($store, 'BQ 09/26', '2026-09-11', '2026-09-21', 10, new PlanningRules(), 'planner');
+    $first = $service->addModule($store, $runId, 'eins', 'Eins', 60, '2026-09-11', '09:00', '10:00', 0, 1, 'planner');
+    $second = $service->addModule($store, $runId, 'zwei', 'Zwei', 60, '2026-09-11', '10:00', '11:00', 0, 2, 'planner');
+    $beforeModules = $store->moduleRows;
+    $beforeRun = $store->runRows[$runId];
+
+    foreach ([
+        [$first, 'up', 3],
+        [$second, 'sideways', 3],
+        [999, 'down', 3],
+        [$second, 'up', 2],
+    ] as [$moduleId, $direction, $version]) {
+        assertThrows(
+            static fn () => $service->moveModule($store, $runId, $moduleId, $direction, $version, 'planner'),
+            DomainException::class,
+        );
+        assertSame($beforeModules, $store->moduleRows);
+        assertSame($beforeRun, $store->runRows[$runId]);
+    }
 });

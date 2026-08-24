@@ -31,6 +31,8 @@
   auf zeitliche Modulüberschneidungen
 - Versionierte Bearbeitung der Stammdaten eines Entwurfs unter Erhalt aller
   bereits terminierten Module
+- Transaktionale Änderung der Modulreihenfolge mit vollständiger
+  Permutations- und Nebenläufigkeitsprüfung
 - Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
   Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
 
@@ -39,10 +41,9 @@
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;
    der aktuelle Workflow erfasst ausschließlich den Kommunikationsstatus.
 2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
-3. Bearbeitung der Modulreihenfolge ergänzen.
-4. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
+3. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
-5. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
+4. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
    Retention-Regeln für interne und externe Dozentinnen.
-6. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
+5. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
    Integrations- und Staging-Nachweisen erteilen.

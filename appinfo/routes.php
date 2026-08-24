@@ -10,6 +10,7 @@ return [
         ['name' => 'run#update', 'url' => '/api/runs/{id}', 'verb' => 'PUT'],
         ['name' => 'run#addModule', 'url' => '/api/runs/{id}/modules', 'verb' => 'POST'],
         ['name' => 'run#updateModule', 'url' => '/api/runs/{id}/modules/{moduleId}', 'verb' => 'PUT'],
+        ['name' => 'run#moveModule', 'url' => '/api/runs/{id}/modules/reorder', 'verb' => 'POST'],
         ['name' => 'run#publish', 'url' => '/api/runs/{id}/publish', 'verb' => 'POST'],
         ['name' => 'run#settings', 'url' => '/api/settings', 'verb' => 'GET'],
         ['name' => 'run#updateSettings', 'url' => '/api/settings', 'verb' => 'PUT'],

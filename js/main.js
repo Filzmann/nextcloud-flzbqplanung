@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!form.matches('form[data-endpoint]')) return
         event.preventDefault()
         const payload = Object.fromEntries(new FormData(form).entries())
-        for (const field of ['workdayCount', 'startWeekday', 'defaultCapacity', 'capacity', 'version', 'minutes', 'additionalCapacity', 'lecturerId', 'runVersion', 'moduleVersion']) {
+        for (const field of ['workdayCount', 'startWeekday', 'defaultCapacity', 'capacity', 'version', 'minutes', 'additionalCapacity', 'lecturerId', 'runVersion', 'moduleVersion', 'moduleId']) {
             if (field in payload) payload[field] = Number(payload[field])
         }
         if ('reflectionMonthOffsets' in payload) {

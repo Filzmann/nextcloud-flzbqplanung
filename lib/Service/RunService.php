@@ -165,6 +165,53 @@ final class RunService {
         return $conflicts;
     }
 
+    /** @return list<array<string,mixed>> */
+    public function moveModule(
+        RunStore $store,
+        int $runId,
+        int $moduleId,
+        string $direction,
+        int $expectedVersion,
+        string $actorUid,
+    ): array {
+        $run = $store->run($runId);
+        if (($run['status'] ?? '') !== 'draft') {
+            throw new DomainException('Die Modulreihenfolge kann nur im Entwurf geändert werden.');
+        }
+        if ((int)($run['version'] ?? 0) !== $expectedVersion) {
+            throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
+        }
+        if (!in_array($direction, ['up', 'down'], true)) {
+            throw new DomainException('Die gewünschte Verschieberichtung ist ungültig.');
+        }
+        $modules = $store->modules($runId);
+        $currentIndex = null;
+        foreach ($modules as $index => $module) {
+            if ((int)($module['id'] ?? 0) === $moduleId) {
+                $currentIndex = $index;
+                break;
+            }
+        }
+        if ($currentIndex === null) {
+            throw new DomainException('Das Curriculum-Modul gehört nicht zu diesem BQ-Durchlauf.');
+        }
+        $targetIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+        if (!isset($modules[$targetIndex])) {
+            throw new DomainException('Das Curriculum-Modul kann nicht weiter verschoben werden.');
+        }
+        [$modules[$currentIndex], $modules[$targetIndex]] = [$modules[$targetIndex], $modules[$currentIndex]];
+        $actorUid = trim($actorUid);
+        if ($actorUid === '') {
+            throw new DomainException('Die Reihenfolgeänderung benötigt eine handelnde Person.');
+        }
+        return $store->reorderModules(
+            $runId,
+            array_map(static fn (array $module): int => (int)$module['id'], $modules),
+            $expectedVersion,
+            $actorUid,
+        );
+    }
+
     /** @return array<string,mixed> */
     public function publish(RunStore $store, int $runId, int $expectedVersion, string $actorUid): array {
         $run = $store->run($runId);

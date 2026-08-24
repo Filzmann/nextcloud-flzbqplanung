@@ -128,6 +128,17 @@ final class RunController extends Controller {
         ));
     }
 
+    public function moveModule(int $id, int $moduleId, string $direction, int $version): JSONResponse {
+        return $this->respond(fn (): array => $this->service->moveModule(
+            $this->runs,
+            $id,
+            $moduleId,
+            $direction,
+            $version,
+            $this->actorUid(),
+        ));
+    }
+
     public function publish(int $id, int $version): JSONResponse {
         return $this->respond(fn (): array => $this->service->publish(
             $this->runs,
