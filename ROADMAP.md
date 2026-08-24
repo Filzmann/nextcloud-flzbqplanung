@@ -29,6 +29,8 @@
   Teilfehlerbehandlung je Monat
 - Versionierte Bearbeitung bestehender Entwurfsmodule und sichtbare Hinweise
   auf zeitliche Modulüberschneidungen
+- Versionierte Bearbeitung der Stammdaten eines Entwurfs unter Erhalt aller
+  bereits terminierten Module
 - Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
   Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
 
@@ -37,7 +39,7 @@
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;
    der aktuelle Workflow erfasst ausschließlich den Kommunikationsstatus.
 2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
-3. Bearbeitung von Durchlauf-Stammdaten und Modulreihenfolge ergänzen.
+3. Bearbeitung der Modulreihenfolge ergänzen.
 4. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
 5. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene

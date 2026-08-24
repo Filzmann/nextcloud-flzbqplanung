@@ -38,6 +38,9 @@ AD Recruitment.
 Module eines Entwurfs können mit Schutz vor parallelen Änderungen bearbeitet
 werden. Zeitlich überlappende Module eines Durchlaufs werden sichtbar
 gekennzeichnet, ohne daraus eine zusätzliche fachliche Verbotsregel abzuleiten.
+Auch Bezeichnung, Zeitraum und reguläre Kapazität eines Entwurfs bleiben
+bearbeitbar, sofern der neue Zeitraum weiterhin alle terminierten Module
+enthält und den konfigurierten Planungsregeln entspricht.
 
 Der Dozentinnenbereich verwaltet interne PFKs als Nextcloud-UID und externe
 Dozentinnen mit Name und E-Mail. Eine Haupt-PFK gilt für den gesamten

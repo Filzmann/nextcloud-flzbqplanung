@@ -8,6 +8,11 @@ interface RunStore {
     /** @param array<string,mixed> $run */
     public function createRun(array $run): int;
 
+    /** @param array<string,mixed> $run
+     * @return array<string,mixed>
+     */
+    public function updateRun(int $runId, array $run, int $expectedVersion, string $actorUid): array;
+
     /** @return list<array<string,mixed>> */
     public function runs(): array;
 

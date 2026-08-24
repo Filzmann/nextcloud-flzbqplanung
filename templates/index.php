@@ -156,6 +156,20 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <span class="bq-badge"><?php p($statusNames[(string)$run['status']] ?? (string)$run['status']); ?></span>
                 </header>
 
+                <?php if (($run['status'] ?? '') === 'draft'): ?>
+                    <details class="bq-module-editor">
+                        <summary>Durchlauf bearbeiten</summary>
+                        <form class="bq-module-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>" data-method="PUT">
+                            <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">
+                            <label>Bezeichnung <input name="label" maxlength="128" required value="<?php p((string)$run['label']); ?>"></label>
+                            <label>Beginn <input name="startsOn" type="date" required value="<?php p((string)$run['startsOn']); ?>"></label>
+                            <label>Ende <input name="endsOn" type="date" required value="<?php p((string)$run['endsOn']); ?>"></label>
+                            <label>Reguläre Plätze <input name="capacity" type="number" min="1" max="10" required value="<?php p((string)$run['capacity']); ?>"></label>
+                            <button type="submit">Durchlauf speichern</button>
+                        </form>
+                    </details>
+                <?php endif; ?>
+
                 <div class="bq-table-wrap">
                     <table>
                         <thead><tr><th>Modul</th><th>Termin</th><th>Dauer</th><th>Dozentin</th><th>Nachholplätze</th><th>Status</th></tr></thead>

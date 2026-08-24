@@ -22,6 +22,16 @@ final class MemoryRunStore implements RunStore {
         return $id;
     }
 
+    public function updateRun(int $runId, array $run, int $expectedVersion, string $actorUid): array {
+        if (($this->runRows[$runId]['status'] ?? '') !== 'draft'
+            || ($this->runRows[$runId]['version'] ?? 0) !== $expectedVersion) {
+            throw new DomainException('stale');
+        }
+        $this->runRows[$runId] = array_replace($this->runRows[$runId], $run);
+        $this->runRows[$runId]['version']++;
+        return $this->runRows[$runId];
+    }
+
     public function runs(): array {
         return array_values($this->runRows);
     }
@@ -215,4 +225,56 @@ TestRunner::test('module overlap detection reports real intersections but not ad
     ]);
 
     assertSame([['firstModuleId' => 1, 'secondModuleId' => 2]], $conflicts);
+});
+
+TestRunner::test('current draft run details can be updated without replacing the run identity', static function (): void {
+    $store = new MemoryRunStore();
+    $service = new RunService();
+    $runId = $service->createRun($store, 'BQ 09/26', '2026-09-11', '2026-09-21', 10, new PlanningRules(), 'planner');
+
+    $updated = $service->updateRun(
+        $store,
+        $runId,
+        'BQ September 2026',
+        '2026-10-09',
+        '2026-10-19',
+        8,
+        1,
+        new PlanningRules(),
+        'planner',
+    );
+
+    assertSame($runId, $updated['id']);
+    assertSame('BQ September 2026', $store->runRows[$runId]['label']);
+    assertSame('2026-10-09', $store->runRows[$runId]['startsOn']);
+    assertSame(8, $store->runRows[$runId]['capacity']);
+    assertSame(2, $store->runRows[$runId]['version']);
+});
+
+TestRunner::test('run update rejects published stale and module-excluding changes without writes', static function (): void {
+    $store = new MemoryRunStore();
+    $service = new RunService();
+    $runId = $service->createRun($store, 'BQ 09/26', '2026-09-11', '2026-09-21', 10, new PlanningRules(), 'planner');
+    $service->addModule($store, $runId, 'pflege-1', 'Pflege 1', 180, '2026-09-11', '09:00', '12:00', 0, 1, 'planner');
+    $before = $store->runRows[$runId];
+
+    assertThrows(
+        static fn () => $service->updateRun($store, $runId, 'Zu spät', '2026-09-18', '2026-09-28', 10, 2, new PlanningRules(), 'planner'),
+        DomainException::class,
+    );
+    assertSame($before, $store->runRows[$runId]);
+
+    assertThrows(
+        static fn () => $service->updateRun($store, $runId, 'Veraltet', '2026-09-11', '2026-09-21', 10, 1, new PlanningRules(), 'planner'),
+        DomainException::class,
+    );
+    assertSame($before, $store->runRows[$runId]);
+
+    $store->runRows[$runId]['status'] = 'published';
+    $published = $store->runRows[$runId];
+    assertThrows(
+        static fn () => $service->updateRun($store, $runId, 'Publiziert', '2026-09-11', '2026-09-21', 10, 2, new PlanningRules(), 'planner'),
+        DomainException::class,
+    );
+    assertSame($published, $store->runRows[$runId]);
 });

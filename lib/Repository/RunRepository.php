@@ -36,6 +36,26 @@ final class RunRepository implements RunStore {
         return (int)$qb->getLastInsertId();
     }
 
+    public function updateRun(int $runId, array $run, int $expectedVersion, string $actorUid): array {
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('adbq_runs')
+            ->set('label', $qb->createNamedParameter($run['label']))
+            ->set('starts_on', $qb->createNamedParameter($run['startsOn']))
+            ->set('ends_on', $qb->createNamedParameter($run['endsOn']))
+            ->set('capacity', $qb->createNamedParameter($run['capacity'], IQueryBuilder::PARAM_INT))
+            ->set('version', $qb->createFunction('version + 1'))
+            ->set('updated_by', $qb->createNamedParameter($actorUid))
+            ->set('updated_at', $qb->createNamedParameter($this->now()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
+            ->andWhere($qb->expr()->eq('status', $qb->createNamedParameter('draft')))
+            ->andWhere($qb->expr()->eq('version', $qb->createNamedParameter($expectedVersion, IQueryBuilder::PARAM_INT)))
+            ->executeStatement();
+        if ($affected !== 1) {
+            throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
+        }
+        return $this->run($runId);
+    }
+
     public function runs(): array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('*')

@@ -7,6 +7,7 @@ return [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'run#list', 'url' => '/api/runs', 'verb' => 'GET'],
         ['name' => 'run#create', 'url' => '/api/runs', 'verb' => 'POST'],
+        ['name' => 'run#update', 'url' => '/api/runs/{id}', 'verb' => 'PUT'],
         ['name' => 'run#addModule', 'url' => '/api/runs/{id}/modules', 'verb' => 'POST'],
         ['name' => 'run#updateModule', 'url' => '/api/runs/{id}/modules/{moduleId}', 'verb' => 'PUT'],
         ['name' => 'run#publish', 'url' => '/api/runs/{id}/publish', 'verb' => 'POST'],

@@ -51,6 +51,27 @@ final class RunController extends Controller {
         ]);
     }
 
+    public function update(
+        int $id,
+        string $label,
+        string $startsOn,
+        string $endsOn,
+        int $capacity,
+        int $version,
+    ): JSONResponse {
+        return $this->respond(fn (): array => $this->service->updateRun(
+            $this->runs,
+            $id,
+            $label,
+            $startsOn,
+            $endsOn,
+            $capacity,
+            $version,
+            $this->settingsService->rules(),
+            $this->actorUid(),
+        ));
+    }
+
     public function addModule(
         int $id,
         string $moduleKey,

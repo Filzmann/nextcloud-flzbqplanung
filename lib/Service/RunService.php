@@ -22,37 +22,44 @@ final class RunService {
         PlanningRules $rules,
         string $actorUid,
     ): int {
-        $label = trim($label);
         $actorUid = trim($actorUid);
-        if ($label === '' || strlen($label) > 128) {
-            throw new DomainException('Ein BQ-Durchlauf benötigt eine Bezeichnung mit höchstens 128 Zeichen.');
-        }
         if ($actorUid === '') {
             throw new DomainException('Ein BQ-Durchlauf benötigt eine handelnde Person.');
         }
-        if ($capacity < 1 || $capacity > self::MAX_CAPACITY) {
-            throw new DomainException('Die reguläre BQ-Kapazität muss zwischen 1 und 10 liegen.');
-        }
+        $values = $this->validatedRunValues($label, $startsOn, $endsOn, $capacity, $rules);
+        return $store->createRun([...$values, 'createdBy' => $actorUid]);
+    }
 
-        $start = $this->date($startsOn);
-        $end = $this->date($endsOn);
-        if ($end < $start) {
-            throw new DomainException('Das BQ-Ende darf nicht vor dem Beginn liegen.');
+    /** @return array<string,mixed> */
+    public function updateRun(
+        RunStore $store,
+        int $runId,
+        string $label,
+        string $startsOn,
+        string $endsOn,
+        int $capacity,
+        int $expectedVersion,
+        PlanningRules $rules,
+        string $actorUid,
+    ): array {
+        $current = $store->run($runId);
+        if (($current['status'] ?? '') !== 'draft') {
+            throw new DomainException('Nur ein BQ-Entwurf kann bearbeitet werden.');
         }
-        if ((int)$start->format('N') !== $rules->startWeekday) {
-            throw new DomainException('Der BQ-Beginn entspricht nicht dem konfigurierten Startwochentag.');
+        if ((int)($current['version'] ?? 0) !== $expectedVersion) {
+            throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
         }
-        if ($this->workdayCount($start, $end) !== $rules->workdayCount) {
-            throw new DomainException('Der BQ-Zeitraum entspricht nicht der konfigurierten Anzahl an Arbeitstagen.');
+        $actorUid = trim($actorUid);
+        if ($actorUid === '') {
+            throw new DomainException('Die Durchlaufbearbeitung benötigt eine handelnde Person.');
         }
-
-        return $store->createRun([
-            'label' => $label,
-            'startsOn' => $startsOn,
-            'endsOn' => $endsOn,
-            'capacity' => $capacity,
-            'createdBy' => $actorUid,
-        ]);
+        $values = $this->validatedRunValues($label, $startsOn, $endsOn, $capacity, $rules);
+        foreach ($store->modules($runId) as $module) {
+            if ((string)$module['date'] < $startsOn || (string)$module['date'] > $endsOn) {
+                throw new DomainException('Der neue BQ-Zeitraum würde bereits terminierte Module ausschließen.');
+            }
+        }
+        return $store->updateRun($runId, $values, $expectedVersion, $actorUid);
     }
 
     public function addModule(
@@ -248,5 +255,34 @@ final class RunService {
             }
         }
         return $count;
+    }
+
+    /** @return array{label:string,startsOn:string,endsOn:string,capacity:int} */
+    private function validatedRunValues(
+        string $label,
+        string $startsOn,
+        string $endsOn,
+        int $capacity,
+        PlanningRules $rules,
+    ): array {
+        $label = trim($label);
+        if ($label === '' || strlen($label) > 128) {
+            throw new DomainException('Ein BQ-Durchlauf benötigt eine Bezeichnung mit höchstens 128 Zeichen.');
+        }
+        if ($capacity < 1 || $capacity > self::MAX_CAPACITY) {
+            throw new DomainException('Die reguläre BQ-Kapazität muss zwischen 1 und 10 liegen.');
+        }
+        $start = $this->date($startsOn);
+        $end = $this->date($endsOn);
+        if ($end < $start) {
+            throw new DomainException('Das BQ-Ende darf nicht vor dem Beginn liegen.');
+        }
+        if ((int)$start->format('N') !== $rules->startWeekday) {
+            throw new DomainException('Der BQ-Beginn entspricht nicht dem konfigurierten Startwochentag.');
+        }
+        if ($this->workdayCount($start, $end) !== $rules->workdayCount) {
+            throw new DomainException('Der BQ-Zeitraum entspricht nicht der konfigurierten Anzahl an Arbeitstagen.');
+        }
+        return ['label' => $label, 'startsOn' => $startsOn, 'endsOn' => $endsOn, 'capacity' => $capacity];
     }
 }
