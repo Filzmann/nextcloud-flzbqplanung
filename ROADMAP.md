@@ -25,6 +25,8 @@
   veraltete, fehlende oder inkompatible Kalenderdaten
 - Monatsvorschlag in Admin-API und Oberfläche ohne falsches Konfliktfrei-
   Versprechen bei fehlendem Provider
+- Jahresvorschau mit getrenntem Kalenderstatus, Konfliktgründen und sicherer
+  Teilfehlerbehandlung je Monat
 - Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
   Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
 
@@ -33,7 +35,7 @@
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;
    der aktuelle Workflow erfasst ausschließlich den Kommunikationsstatus.
 2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
-3. Jahresansicht, Bearbeitungsdialoge und Konfliktanzeige ausbauen.
+3. Bearbeitungsdialoge und Konfliktanzeige für bestehende Durchläufe ausbauen.
 4. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
 5. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene

@@ -64,3 +64,22 @@ TestRunner::test('proposal controller returns checked data validation errors and
     assertSame('Der BQ-Terminvorschlag konnte nicht erstellt werden.', $failed->data['error']);
     assertTrue($logger->errors !== []);
 });
+
+TestRunner::test('proposal controller exposes a complete annual planning overview', static function (): void {
+    $provider = new ControllerBlockedPeriodProvider();
+    $controller = new ProposalController(
+        new class implements IRequest {},
+        new CalendarProposalService($provider, new DateProposalService()),
+        new PlanningSettingsService(new ProposalControllerConfig()),
+        new ProposalControllerLogger(),
+    );
+
+    $success = $controller->suggestYear(2026);
+    assertSame(200, $success->status);
+    assertSame(12, count($success->data['data']));
+    assertSame(1, $success->data['data'][0]['month']);
+    assertSame(12, $success->data['data'][11]['month']);
+
+    $invalid = $controller->suggestYear(1999);
+    assertSame(422, $invalid->status);
+});

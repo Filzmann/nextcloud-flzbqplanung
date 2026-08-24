@@ -107,6 +107,23 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
         </form>
         </section>
 
+        <section class="bq-runs" aria-labelledby="bq-year-proposal-title">
+            <h2 id="bq-year-proposal-title">Jahresvorschau</h2>
+            <form class="bq-inline-form" data-year-proposal-form>
+                <label>Planungsjahr
+                    <input name="proposalYear" type="number" min="2000" max="2200" required value="<?php p(date('Y')); ?>">
+                </label>
+                <button type="submit">Jahr vollständig prüfen</button>
+            </form>
+            <p id="bq-year-proposal-status" role="status" aria-live="polite">Noch keine Jahresvorschau erstellt.</p>
+            <div class="bq-table-wrap">
+                <table>
+                    <thead><tr><th>Monat</th><th>Vorschlag</th><th>Konflikte/Status</th></tr></thead>
+                    <tbody id="bq-year-proposal-rows"></tbody>
+                </table>
+            </div>
+        </section>
+
     <section class="bq-notice" aria-labelledby="bq-recruitment-title">
         <h2 id="bq-recruitment-title">Teilnehmerinnen aus Recruitment</h2>
         <p>Maximal zehn reguläre Plätze, keine Warteliste. Das Personalreferat ordnet Bewerberinnen in AD Recruitment zu und kann sie zwischen früheren und späteren BQs umbuchen.</p>

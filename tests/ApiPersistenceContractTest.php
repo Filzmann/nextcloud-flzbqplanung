@@ -10,7 +10,7 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
     $controllerPath = $root . '/lib/Controller/RunController.php';
     assertTrue(is_file($controllerPath), 'RunController is missing');
     $controller = (string)file_get_contents($controllerPath);
-    foreach (['run#list', 'run#create', 'run#addModule', 'run#publish', 'run#settings', 'run#updateSettings', 'proposal#suggest'] as $route) {
+    foreach (['run#list', 'run#create', 'run#addModule', 'run#publish', 'run#settings', 'run#updateSettings', 'proposal#suggest', 'proposal#suggestYear'] as $route) {
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
     assertTrue(!str_contains(strtolower($routes), 'waitlist'));

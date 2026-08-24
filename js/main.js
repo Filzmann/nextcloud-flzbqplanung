@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('adbqplanung-app')
     const feedback = document.getElementById('bq-feedback')
     const proposalResult = document.getElementById('bq-proposal-result')
+    const yearProposalRows = document.getElementById('bq-year-proposal-rows')
+    const yearProposalStatus = document.getElementById('bq-year-proposal-status')
     if (!app) return
 
     app.dataset.planningCore = 'ready'
@@ -58,6 +60,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (proposalResult) proposalResult.textContent = `${prefix} Vorschlag: ${proposal.startsOn} bis ${proposal.endsOn}. ${calendar?.message || ''}`
             } catch (error) {
                 if (proposalResult) proposalResult.textContent = error instanceof Error ? error.message : 'Der Terminvorschlag konnte nicht erstellt werden.'
+            }
+            return
+        }
+        if (form.matches('form[data-year-proposal-form]')) {
+            event.preventDefault()
+            const year = Number(new FormData(form).get('proposalYear'))
+            if (!Number.isInteger(year) || year < 2000 || year > 2200) {
+                if (yearProposalStatus) yearProposalStatus.textContent = 'Bitte ein gültiges Planungsjahr zwischen 2000 und 2200 eingeben.'
+                return
+            }
+            if (yearProposalStatus) yearProposalStatus.textContent = 'Alle zwölf Monate werden geprüft …'
+            try {
+                const url = OC.generateUrl('/apps/adbqplanung/api/proposals/year')
+                const response = await fetch(`${url}?year=${year}`)
+                const result = await response.json()
+                if (!response.ok) throw new Error(result.error || 'Die Jahresvorschau konnte nicht erstellt werden.')
+                const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+                const rows = result.data.map(month => {
+                    const row = document.createElement('tr')
+                    const monthCell = document.createElement('th')
+                    monthCell.scope = 'row'
+                    monthCell.textContent = monthNames[month.month - 1] || `Monat ${month.month}`
+                    const proposalCell = document.createElement('td')
+                    proposalCell.textContent = month.proposal
+                        ? `${month.proposal.startsOn} bis ${month.proposal.endsOn}`
+                        : 'Kein automatischer Vorschlag'
+                    const statusCell = document.createElement('td')
+                    if (!month.proposal) {
+                        statusCell.textContent = month.error || month.calendar?.message || 'Kalenderquelle nicht vollständig.'
+                    } else {
+                        const rejected = month.proposal.rejectedCandidates || []
+                        const labels = [...new Set(rejected.flatMap(candidate => candidate.conflicts || []).map(conflict => conflict.label))]
+                        const conflictText = rejected.length === 0
+                            ? 'Keine verworfenen Starttermine.'
+                            : `${rejected.length} verworfene Starttermine${labels.length > 0 ? `: ${labels.join(', ')}` : '.'}`
+                        const coverage = month.calendar?.complete ? 'Kalender vollständig.' : 'Kalenderstand eingeschränkt.'
+                        statusCell.textContent = `${coverage} ${conflictText}`
+                    }
+                    row.append(monthCell, proposalCell, statusCell)
+                    return row
+                })
+                if (yearProposalRows) yearProposalRows.replaceChildren(...rows)
+                if (yearProposalStatus) yearProposalStatus.textContent = `Jahresvorschau ${year} mit ${rows.length} Monaten erstellt.`
+            } catch (error) {
+                if (yearProposalStatus) yearProposalStatus.textContent = error instanceof Error ? error.message : 'Die Jahresvorschau konnte nicht erstellt werden.'
             }
             return
         }

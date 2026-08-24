@@ -45,4 +45,24 @@ final class ProposalController extends Controller {
             return new JSONResponse(['error' => 'Der BQ-Terminvorschlag konnte nicht erstellt werden.'], 500);
         }
     }
+
+    #[NoCSRFRequired]
+    public function suggestYear(int $year): JSONResponse {
+        try {
+            $settings = $this->settings->current();
+            return new JSONResponse(['data' => $this->proposals->suggestYear(
+                $year,
+                $this->settings->rules(),
+                $settings['bridgeDays'],
+            )]);
+        } catch (DomainException $error) {
+            return new JSONResponse(['error' => $error->getMessage()], 422);
+        } catch (Throwable $error) {
+            $this->logger->error('Unexpected BQ annual proposal failure.', [
+                'app' => Application::APP_ID,
+                'exceptionClass' => $error::class,
+            ]);
+            return new JSONResponse(['error' => 'Die BQ-Jahresvorschau konnte nicht erstellt werden.'], 500);
+        }
+    }
 }

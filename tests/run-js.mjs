@@ -19,6 +19,9 @@ assert.match(template, /Haupt-PFK/)
 assert.match(template, /Externe Anfrage erfassen/)
 assert.match(template, /targetStatus/)
 assert.match(template, /data-proposal-form/)
+assert.match(template, /data-year-proposal-form/)
+assert.match(template, /id="bq-year-proposal-rows"/)
+assert.match(template, /Konflikte\/Status/)
 assert.match(template, /name="bridgeDays"/)
 assert.match(template, /role="tablist"/)
 for (const tab of ['runs', 'lecturers', 'settings']) {
@@ -68,6 +71,10 @@ const app = {
 }
 const feedback = { textContent: '', dataset: {} }
 const proposalResult = { textContent: '' }
+const yearProposalRows = {
+    children: [],
+    replaceChildren(...children) { this.children = children },
+}
 let reloads = 0
 const requests = []
 globalThis.document = {
@@ -79,7 +86,16 @@ globalThis.document = {
         if (id === 'adbqplanung-app') return app
         if (id === 'bq-feedback') return feedback
         if (id === 'bq-proposal-result') return proposalResult
+        if (id === 'bq-year-proposal-rows') return yearProposalRows
         return null
+    },
+    createElement(tagName) {
+        return {
+            tagName,
+            children: [],
+            textContent: '',
+            append(...children) { this.children.push(...children) },
+        }
     },
 }
 globalThis.OC = {
@@ -170,6 +186,29 @@ globalThis.fetch = async () => ({
 })
 await listeners.submit({ target: proposalForm, preventDefault() {} })
 assert.equal(proposalResult.textContent, 'Kalenderquelle nicht vollständig.')
+
+const yearForm = {
+    fields: { proposalYear: '2026' },
+    matches: selector => selector === 'form[data-year-proposal-form]',
+}
+globalThis.fetch = async (url, options) => {
+    requests.push({ url, options })
+    return {
+        ok: true,
+        json: async () => ({ data: [
+            { month: 1, proposal: { startsOn: '2026-01-02', endsOn: '2026-01-12', rejectedCandidates: [] }, calendar: { complete: true, message: 'Kalender geprüft.' } },
+            { month: 2, proposal: null, calendar: { complete: true, message: 'Kalender geprüft.' }, error: 'Kein konfliktfreier Termin.' },
+        ] }),
+    }
+}
+await listeners.submit({ target: yearForm, preventDefault() {} })
+assert.equal(requests[2].url, '/nextcloud/apps/adbqplanung/api/proposals/year?year=2026')
+assert.equal(yearProposalRows.children.length, 2)
+assert.equal(yearProposalRows.children[0].children[0].textContent, 'Januar')
+assert.equal(yearProposalRows.children[0].children[1].textContent, '2026-01-02 bis 2026-01-12')
+assert.match(yearProposalRows.children[0].children[2].textContent, /keine verworfenen Starttermine/i)
+assert.equal(yearProposalRows.children[1].children[1].textContent, 'Kein automatischer Vorschlag')
+assert.equal(yearProposalRows.children[1].children[2].textContent, 'Kein konfliktfreier Termin.')
 
 globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'Ungültige Planung' }) })
 await listeners.submit({ target: form, preventDefault() {} })

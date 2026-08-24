@@ -23,6 +23,11 @@ kommagetrennte ISO-Daten konfiguriert. Ein veralteter Kalenderstand bleibt mit
 sichtbarer Einschränkung nutzbar; bei fehlenden oder inkompatiblen Daten wird
 kein automatischer Vorschlag ausgegeben.
 
+Die Jahresvorschau prüft alle zwölf Monate in einem Lauf und weist je Monat
+den automatischen Vorschlag, verworfene Starttermine samt Konfliktgründen oder
+den Grund für einen fehlenden Vorschlag aus. Ein Monat ohne freien Termin
+verdeckt die übrigen Monatsergebnisse nicht.
+
 Der persistente Admin-Arbeitsstand ergänzt BQ-Durchläufe und frei terminierbare
 Curriculum-Module mit optimistischer Versionierung. Reguläre Durchläufe haben
 aktuell höchstens zehn Plätze. Es gibt keine Warteliste; zusätzliche

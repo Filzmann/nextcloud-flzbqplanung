@@ -18,6 +18,17 @@ final class CalendarProposalService {
 
     /** @param list<string> $bridgeDays */
     public function suggest(int $year, int $month, PlanningRules $rules, array $bridgeDays): array {
+        return $this->suggestMonth($year, $month, $rules, $bridgeDays, false);
+    }
+
+    /** @param list<string> $bridgeDays */
+    private function suggestMonth(
+        int $year,
+        int $month,
+        PlanningRules $rules,
+        array $bridgeDays,
+        bool $allowMissingProposal,
+    ): array {
         if ($year < 2000 || $year > 2200 || $month < 1 || $month > 12) {
             throw new DomainException('Planungsjahr oder -monat liegt außerhalb des zulässigen Bereichs.');
         }
@@ -38,7 +49,14 @@ final class CalendarProposalService {
             return ['proposal' => null, 'calendar' => $calendar];
         }
 
-        $proposal = $this->proposals->suggestMonthly($year, $month, $rules, $coverage->calendar);
+        try {
+            $proposal = $this->proposals->suggestMonthly($year, $month, $rules, $coverage->calendar);
+        } catch (DomainException $error) {
+            if (!$allowMissingProposal) {
+                throw $error;
+            }
+            return ['proposal' => null, 'calendar' => $calendar, 'error' => $error->getMessage()];
+        }
         return [
             'proposal' => [
                 'startsOn' => $proposal->startsOn,
@@ -48,5 +66,23 @@ final class CalendarProposalService {
             ],
             'calendar' => $calendar,
         ];
+    }
+
+    /**
+     * @param list<string> $bridgeDays
+     * @return list<array{month:int,proposal:?array,calendar:array,error?:string}>
+     */
+    public function suggestYear(int $year, PlanningRules $rules, array $bridgeDays): array {
+        if ($year < 2000 || $year > 2200) {
+            throw new DomainException('Das Planungsjahr liegt außerhalb des zulässigen Bereichs.');
+        }
+
+        $months = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $result = $this->suggestMonth($year, $month, $rules, $bridgeDays, true);
+            $months[] = ['month' => $month, ...$result];
+        }
+
+        return $months;
     }
 }
