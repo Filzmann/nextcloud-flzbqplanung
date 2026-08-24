@@ -11,6 +11,8 @@ $runs = is_array($_['runs'] ?? null) ? $_['runs'] : [];
 $settings = is_array($_['settings'] ?? null) ? $_['settings'] : [];
 $lecturers = is_array($_['lecturers'] ?? null) ? $_['lecturers'] : [];
 $teachingRequests = is_array($_['teachingRequests'] ?? null) ? $_['teachingRequests'] : [];
+$capabilities = is_array($_['capabilities'] ?? null) ? $_['capabilities'] : ['admin' => false, 'planning' => false, 'teaching' => false, 'publishing' => false];
+$roleSettings = is_array($_['roleSettings'] ?? null) ? $_['roleSettings'] : [];
 $internalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'internal' && ($lecturer['active'] ?? false)));
 $externalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'external' && ($lecturer['active'] ?? false)));
 $lecturersById = [];
@@ -45,10 +47,11 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <nav class="bq-tabs" role="tablist" aria-label="BQ-Planungsbereiche">
         <button type="button" id="bq-tab-runs" class="bq-tab" role="tab" aria-controls="bq-panel-runs" aria-selected="true" tabindex="0" data-tab-target="bq-panel-runs">Durchläufe</button>
-        <button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-lecturers">Dozentinnen</button>
-        <button type="button" id="bq-tab-settings" class="bq-tab" role="tab" aria-controls="bq-panel-settings" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-settings">Einstellungen</button>
+        <?php if ($capabilities['teaching']): ?><button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-lecturers">Dozentinnen</button><?php endif; ?>
+        <?php if ($capabilities['admin']): ?><button type="button" id="bq-tab-settings" class="bq-tab" role="tab" aria-controls="bq-panel-settings" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-settings">Einstellungen</button><?php endif; ?>
     </nav>
 
+    <?php if ($capabilities['admin']): ?>
     <section id="bq-panel-settings" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-settings" hidden>
         <section class="bq-grid" aria-label="BQ-Konfiguration">
         <form class="bq-card bq-form" data-endpoint="/api/settings" data-method="PUT">
@@ -75,10 +78,20 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             </label>
             <button type="submit" class="primary">Regeln speichern</button>
         </form>
+        <form class="bq-card bq-form" data-endpoint="/api/role-settings" data-method="PUT">
+            <h2>Rollengruppen</h2>
+            <p>Leere Gruppen lassen die jeweilige Rolle deaktiviert. Nextcloud-Administrierende behalten vollständigen Zugriff.</p>
+            <label>Planung <input name="planningGroup" value="<?php p((string)($roleSettings['planningGroup'] ?? '')); ?>" placeholder="bq-planning"></label>
+            <label>Lehre <input name="teachingGroup" value="<?php p((string)($roleSettings['teachingGroup'] ?? '')); ?>" placeholder="bq-teaching"></label>
+            <label>Veröffentlichung <input name="publishingGroup" value="<?php p((string)($roleSettings['publishingGroup'] ?? '')); ?>" placeholder="bq-publishing"></label>
+            <button type="submit">Rollengruppen speichern</button>
+        </form>
         </section>
     </section>
+    <?php endif; ?>
 
     <section id="bq-panel-runs" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-runs">
+        <?php if ($capabilities['planning']): ?>
         <section class="bq-grid" aria-label="Neuen BQ-Durchlauf vorbereiten">
         <form class="bq-card bq-form" data-proposal-form>
             <h2>Monat vorschlagen</h2>
@@ -106,6 +119,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <button type="submit" class="primary">Entwurf anlegen</button>
         </form>
         </section>
+        <?php endif; ?>
 
         <section class="bq-runs" aria-labelledby="bq-year-proposal-title">
             <h2 id="bq-year-proposal-title">Jahresvorschau</h2>
@@ -156,7 +170,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <span class="bq-badge"><?php p($statusNames[(string)$run['status']] ?? (string)$run['status']); ?></span>
                 </header>
 
-                <?php if (($run['status'] ?? '') === 'draft'): ?>
+                <?php if (($run['status'] ?? '') === 'draft' && $capabilities['planning']): ?>
                     <details class="bq-module-editor">
                         <summary>Durchlauf bearbeiten</summary>
                         <form class="bq-module-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>" data-method="PUT">
@@ -186,7 +200,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                                 <td><?php p((string)$module['additionalCapacity']); ?></td>
                                 <td>
                                     <?php if (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?>
-                                    <?php if (($run['status'] ?? '') === 'draft'): ?>
+                                    <?php if (($run['status'] ?? '') === 'draft' && $capabilities['planning']): ?>
                                         <div class="bq-inline-actions" aria-label="Reihenfolge von <?php p((string)$module['title']); ?> ändern">
                                             <?php foreach (['up' => 'Nach oben', 'down' => 'Nach unten'] as $direction => $directionLabel): ?>
                                                 <?php $atBoundary = ($direction === 'up' && $moduleIndex === 0) || ($direction === 'down' && $moduleIndex === count($run['modules']) - 1); ?>
@@ -209,6 +223,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                 </div>
 
                 <?php if (($run['status'] ?? '') === 'draft'): ?>
+                    <?php if ($capabilities['planning']): ?>
                     <?php foreach (($run['modules'] ?? []) as $module): ?>
                         <details class="bq-module-editor">
                             <summary>Modul bearbeiten: <?php p((string)$module['title']); ?></summary>
@@ -225,7 +240,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                             </form>
                         </details>
                     <?php endforeach; ?>
-                    <?php if ($internalLecturers !== []): ?>
+                    <?php endif; ?>
+                    <?php if ($capabilities['teaching'] && $internalLecturers !== []): ?>
                         <form class="bq-inline-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/lead-lecturer" data-method="POST">
                             <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">
                             <label>Haupt-PFK
@@ -238,6 +254,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                             <button type="submit">Haupt-PFK festlegen</button>
                         </form>
                     <?php endif; ?>
+                    <?php if ($capabilities['planning']): ?>
                     <form class="bq-module-form" data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/modules" data-method="POST">
                         <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">
                         <label>Modulschlüssel <input name="moduleKey" pattern="[a-z0-9][a-z0-9-]{0,63}" required placeholder="pflege-1"></label>
@@ -249,7 +266,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                         <label>Nachholplätze <input name="additionalCapacity" type="number" min="0" max="10" value="0" required></label>
                         <button type="submit">Modul hinzufügen</button>
                     </form>
-                    <?php if ($externalLecturers !== []): ?>
+                    <?php endif; ?>
+                    <?php if ($capabilities['teaching'] && $externalLecturers !== []): ?>
                         <?php foreach (($run['modules'] ?? []) as $module): ?>
                             <form class="bq-inline-form" data-endpoint="/api/modules/<?php p((string)$module['id']); ?>/teaching-requests" data-method="POST">
                                 <input name="runVersion" type="hidden" value="<?php p((string)$run['version']); ?>">
@@ -265,10 +283,12 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                             </form>
                         <?php endforeach; ?>
                     <?php endif; ?>
+                    <?php if ($capabilities['publishing']): ?>
                     <form data-endpoint="/api/runs/<?php p((string)$run['id']); ?>/publish" data-method="POST">
                         <input name="version" type="hidden" value="<?php p((string)$run['version']); ?>">
                         <button type="submit" class="primary">Terminplanung veröffentlichen</button>
                     </form>
+                    <?php endif; ?>
                 <?php endif; ?>
             </article>
         <?php endforeach; ?>
@@ -280,6 +300,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     </section>
     </section>
 
+    <?php if ($capabilities['teaching']): ?>
     <section id="bq-panel-lecturers" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-lecturers" hidden>
         <section class="bq-runs" aria-labelledby="bq-lecturers-title">
             <h2 id="bq-lecturers-title">Dozentinnenpool</h2>
@@ -343,4 +364,5 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <?php endforeach; ?>
         </section>
     </section>
+    <?php endif; ?>
 </main>

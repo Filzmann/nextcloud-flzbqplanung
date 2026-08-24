@@ -14,12 +14,12 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
     assertTrue(!str_contains(strtolower($routes), 'waitlist'));
-    assertTrue(!str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'NoAdminRequired'));
     assertTrue(!str_contains($controller, '#[NoCSRFRequired]\n    public function create'));
     assertTrue(str_contains($controller, 'LoggerInterface'), 'Unexpected API failures are not connected to Nextcloud logging');
     assertTrue(str_contains($controller, "->error('Unexpected BQ planning failure.'"), 'Unexpected API failures are silently swallowed');
     $proposalController = (string)file_get_contents($root . '/lib/Controller/ProposalController.php');
-    assertTrue(!str_contains($proposalController, 'NoAdminRequired'));
+    assertTrue(str_contains($proposalController, 'NoAdminRequired'));
     assertTrue(str_contains($proposalController, 'Unexpected BQ proposal failure.'));
 });
 

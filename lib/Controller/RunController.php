@@ -6,13 +6,16 @@ namespace OCA\AdBqPlanning\Controller;
 
 use DomainException;
 use OCA\AdBqPlanning\AppInfo\Application;
+use OCA\AdBqPlanning\Exception\AccessDeniedException;
 use OCA\AdBqPlanning\Repository\RunRepository;
 use OCA\AdBqPlanning\Service\PlanningSettingsService;
 use OCA\AdBqPlanning\Service\RunService;
+use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\Http;
 use OCP\IRequest;
-use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -22,14 +25,15 @@ final class RunController extends Controller {
         private RunRepository $runs,
         private RunService $service,
         private PlanningSettingsService $settingsService,
-        private IUserSession $userSession,
+        private AuthorizationService $authorization,
         private LoggerInterface $logger,
     ) {
         parent::__construct(Application::APP_ID, $request);
     }
 
+    #[NoAdminRequired]
     public function list(): JSONResponse {
-        return $this->respond(function (): array {
+        return $this->respond(null, function (): array {
             return array_map(function (array $run): array {
                 $run['modules'] = $this->runs->modules((int)$run['id']);
                 return $run;
@@ -37,8 +41,9 @@ final class RunController extends Controller {
         });
     }
 
+    #[NoAdminRequired]
     public function create(string $label, string $startsOn, string $endsOn, int $capacity): JSONResponse {
-        return $this->respond(fn (): array => [
+        return $this->respond(AuthorizationService::PLANNING, fn (): array => [
             'id' => $this->service->createRun(
                 $this->runs,
                 $label,
@@ -51,6 +56,7 @@ final class RunController extends Controller {
         ]);
     }
 
+    #[NoAdminRequired]
     public function update(
         int $id,
         string $label,
@@ -59,7 +65,7 @@ final class RunController extends Controller {
         int $capacity,
         int $version,
     ): JSONResponse {
-        return $this->respond(fn (): array => $this->service->updateRun(
+        return $this->respond(AuthorizationService::PLANNING, fn (): array => $this->service->updateRun(
             $this->runs,
             $id,
             $label,
@@ -72,6 +78,7 @@ final class RunController extends Controller {
         ));
     }
 
+    #[NoAdminRequired]
     public function addModule(
         int $id,
         string $moduleKey,
@@ -83,7 +90,7 @@ final class RunController extends Controller {
         int $additionalCapacity,
         int $version,
     ): JSONResponse {
-        return $this->respond(fn (): array => [
+        return $this->respond(AuthorizationService::PLANNING, fn (): array => [
             'id' => $this->service->addModule(
                 $this->runs,
                 $id,
@@ -100,6 +107,7 @@ final class RunController extends Controller {
         ]);
     }
 
+    #[NoAdminRequired]
     public function updateModule(
         int $id,
         int $moduleId,
@@ -112,7 +120,7 @@ final class RunController extends Controller {
         int $runVersion,
         int $moduleVersion,
     ): JSONResponse {
-        return $this->respond(fn (): array => $this->service->updateModule(
+        return $this->respond(AuthorizationService::PLANNING, fn (): array => $this->service->updateModule(
             $this->runs,
             $id,
             $moduleId,
@@ -128,8 +136,9 @@ final class RunController extends Controller {
         ));
     }
 
+    #[NoAdminRequired]
     public function moveModule(int $id, int $moduleId, string $direction, int $version): JSONResponse {
-        return $this->respond(fn (): array => $this->service->moveModule(
+        return $this->respond(AuthorizationService::PLANNING, fn (): array => $this->service->moveModule(
             $this->runs,
             $id,
             $moduleId,
@@ -139,8 +148,9 @@ final class RunController extends Controller {
         ));
     }
 
+    #[NoAdminRequired]
     public function publish(int $id, int $version): JSONResponse {
-        return $this->respond(fn (): array => $this->service->publish(
+        return $this->respond(AuthorizationService::PUBLISHING, fn (): array => $this->service->publish(
             $this->runs,
             $id,
             $version,
@@ -148,11 +158,13 @@ final class RunController extends Controller {
         ));
     }
 
+    #[NoAdminRequired]
     public function settings(): JSONResponse {
-        return $this->respond(fn (): array => $this->settingsService->current());
+        return $this->respond(AuthorizationService::ADMIN, fn (): array => $this->settingsService->current());
     }
 
     /** @param list<int> $reflectionMonthOffsets */
+    #[NoAdminRequired]
     public function updateSettings(
         int $workdayCount,
         int $startWeekday,
@@ -160,7 +172,7 @@ final class RunController extends Controller {
         array $reflectionMonthOffsets,
         array $bridgeDays = [],
     ): JSONResponse {
-        return $this->respond(fn (): array => $this->settingsService->update(
+        return $this->respond(AuthorizationService::ADMIN, fn (): array => $this->settingsService->update(
             $workdayCount,
             $startWeekday,
             $defaultCapacity,
@@ -170,16 +182,14 @@ final class RunController extends Controller {
     }
 
     private function actorUid(): string {
-        $uid = $this->userSession->getUser()?->getUID();
-        if ($uid === null || trim($uid) === '') {
-            throw new DomainException('Für diese Aktion ist eine angemeldete Person erforderlich.');
-        }
-        return $uid;
+        return $this->authorization->actorUid();
     }
 
-    private function respond(callable $callback): JSONResponse {
+    private function respond(?string $capability, callable $callback): JSONResponse {
         try {
-            return new JSONResponse(['data' => $callback()]);
+            return new JSONResponse(['data' => $this->authorization->execute($capability, $callback)]);
+        } catch (AccessDeniedException $error) {
+            return new JSONResponse(['error' => $error->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (DomainException $error) {
             return new JSONResponse(['error' => $error->getMessage()], 422);
         } catch (Throwable $error) {

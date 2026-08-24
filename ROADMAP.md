@@ -33,6 +33,8 @@
   bereits terminierten Module
 - Transaktionale Änderung der Modulreihenfolge mit vollständiger
   Permutations- und Nebenläufigkeitsprüfung
+- Granulares, serverseitiges Rollenmodell auf Basis validierter
+  Nextcloud-Gruppen für Planung, Lehre und Veröffentlichung mit Admin-Fallback
 - Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
   Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
 
@@ -40,7 +42,8 @@
 
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;
    der aktuelle Workflow erfasst ausschließlich den Kommunikationsstatus.
-2. Granulares Rollenmodell für Planung, Lehre, Anwesenheit und Veröffentlichung.
+2. Anwesenheitsrolle erst zusammen mit den fachlichen Anwesenheitsfunktionen
+   aktivieren.
 3. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
 4. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene

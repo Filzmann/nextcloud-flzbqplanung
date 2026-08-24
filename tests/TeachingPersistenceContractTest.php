@@ -17,7 +17,7 @@ TestRunner::test('teaching persistence is additive minimal and contains no appli
     assertTrue(!str_contains(strtolower($source), 'request_message'));
 });
 
-TestRunner::test('admin teaching API exposes pool lead request and transition without public access', static function (): void {
+TestRunner::test('role-protected teaching API exposes pool lead request and transition', static function (): void {
     $root = dirname(__DIR__);
     $routes = (string)file_get_contents($root . '/appinfo/routes.php');
     $controllerPath = $root . '/lib/Controller/TeachingController.php';
@@ -26,7 +26,8 @@ TestRunner::test('admin teaching API exposes pool lead request and transition wi
     foreach (['teaching#lecturers', 'teaching#createLecturer', 'teaching#setLead', 'teaching#createRequest', 'teaching#transitionRequest'] as $route) {
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
-    assertTrue(!str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'AuthorizationService::TEACHING'));
     assertTrue(str_contains($controller, 'LoggerInterface'));
     assertTrue(str_contains($controller, 'IUserManager'), 'Internal PFK identities are not checked against Nextcloud');
     assertTrue(str_contains($controller, 'userExists($nextcloudUid)'), 'Unknown Nextcloud UIDs can enter the lecturer pool');

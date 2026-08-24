@@ -74,9 +74,12 @@ beim direkten Öffnen dieses App-Repositories.
 
 - Controller bleiben dünn; Fachlogik, Persistenz, Darstellung und externe
   Provider bleiben getrennt.
-- Rechte gelten deny by default und werden serverseitig geprüft. Solange das
-  granulare Rollenmodell nicht implementiert ist, bleibt die App-Oberfläche
-  auf Nextcloud-Administrierende beschränkt.
+- Rechte gelten deny by default und werden serverseitig geprüft. Planung,
+  Lehre und Veröffentlichung werden getrennten, adminseitig konfigurierten
+  Nextcloud-Gruppen zugeordnet. Ohne konfigurierte Gruppe bleibt die jeweilige
+  Fähigkeit deaktiviert; Nextcloud-Administrierende behalten vollständigen
+  Zugriff. Die Anwesenheitsrolle bleibt bis zu konkreten Anwesenheitsfunktionen
+  reserviert und erteilt aktuell keine Fähigkeit.
 - Dozentinnenprofile enthalten personenbezogene Daten. Interne PFKs werden
   mit Nextcloud-UID referenziert, externe Dozentinnen mit app-eigener stabiler
   ID und minimalen Kontaktdaten. Bewerberakten werden nicht kopiert.

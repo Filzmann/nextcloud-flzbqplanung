@@ -6,12 +6,15 @@ namespace OCA\AdBqPlanning\Controller;
 
 use DomainException;
 use OCA\AdBqPlanning\AppInfo\Application;
+use OCA\AdBqPlanning\Exception\AccessDeniedException;
 use OCA\AdBqPlanning\Repository\TeachingRepository;
 use OCA\AdBqPlanning\Service\TeachingService;
+use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\Http;
 use OCP\IRequest;
-use OCP\IUserSession;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -21,21 +24,24 @@ final class TeachingController extends Controller {
         IRequest $request,
         private TeachingRepository $store,
         private TeachingService $service,
-        private IUserSession $userSession,
+        private AuthorizationService $authorization,
         private IUserManager $userManager,
         private LoggerInterface $logger,
     ) {
         parent::__construct(Application::APP_ID, $request);
     }
 
+    #[NoAdminRequired]
     public function lecturers(): JSONResponse {
         return $this->respond(fn (): array => $this->store->lecturers());
     }
 
+    #[NoAdminRequired]
     public function requests(): JSONResponse {
         return $this->respond(fn (): array => $this->store->requests());
     }
 
+    #[NoAdminRequired]
     public function createLecturer(string $kind, string $nextcloudUid, string $displayName, string $email): JSONResponse {
         return $this->respond(function () use ($kind, $nextcloudUid, $displayName, $email): array {
             $nextcloudUid = trim($nextcloudUid);
@@ -48,12 +54,14 @@ final class TeachingController extends Controller {
         });
     }
 
+    #[NoAdminRequired]
     public function setLead(int $id, int $lecturerId, int $version): JSONResponse {
         return $this->respond(fn (): array => $this->service->setLead(
             $this->store, $id, $lecturerId, $version, $this->actorUid(),
         ));
     }
 
+    #[NoAdminRequired]
     public function createRequest(
         int $id,
         int $lecturerId,
@@ -65,6 +73,7 @@ final class TeachingController extends Controller {
         )]);
     }
 
+    #[NoAdminRequired]
     public function transitionRequest(int $id, string $targetStatus, int $version): JSONResponse {
         return $this->respond(fn (): array => $this->service->transitionRequest(
             $this->store, $id, $targetStatus, $version, $this->actorUid(),
@@ -72,14 +81,14 @@ final class TeachingController extends Controller {
     }
 
     private function actorUid(): string {
-        $uid = $this->userSession->getUser()?->getUID();
-        if ($uid === null || trim($uid) === '') throw new DomainException('Für diese Aktion ist eine Anmeldung erforderlich.');
-        return $uid;
+        return $this->authorization->actorUid();
     }
 
     private function respond(callable $callback): JSONResponse {
         try {
-            return new JSONResponse(['data' => $callback()]);
+            return new JSONResponse(['data' => $this->authorization->execute(AuthorizationService::TEACHING, $callback)]);
+        } catch (AccessDeniedException $error) {
+            return new JSONResponse(['error' => $error->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (DomainException $error) {
             return new JSONResponse(['error' => $error->getMessage()], 422);
         } catch (Throwable $error) {

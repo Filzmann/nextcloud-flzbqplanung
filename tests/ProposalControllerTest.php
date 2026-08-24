@@ -11,14 +11,17 @@ use OCA\AdBqPlanning\Domain\Scheduling\CalendarCoverage;
 use OCA\AdBqPlanning\Domain\Scheduling\DateProposalService;
 use OCA\AdBqPlanning\Service\CalendarProposalService;
 use OCA\AdBqPlanning\Service\PlanningSettingsService;
+use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCP\IAppConfig;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
 
 final class ControllerBlockedPeriodProvider implements BlockedPeriodProvider {
     public bool $fail = false;
+    public int $calls = 0;
 
     public function forProposalMonth(int $year, int $month, array $bridgeDays): CalendarCoverage {
+        $this->calls++;
         if ($this->fail) {
             throw new \RuntimeException('synthetischer unerwarteter Fehler');
         }
@@ -46,6 +49,7 @@ TestRunner::test('proposal controller returns checked data validation errors and
         new class implements IRequest {},
         new CalendarProposalService($provider, new DateProposalService()),
         new PlanningSettingsService(new ProposalControllerConfig()),
+        adminAuthorization(),
         $logger,
     );
 
@@ -71,6 +75,7 @@ TestRunner::test('proposal controller exposes a complete annual planning overvie
         new class implements IRequest {},
         new CalendarProposalService($provider, new DateProposalService()),
         new PlanningSettingsService(new ProposalControllerConfig()),
+        adminAuthorization(),
         new ProposalControllerLogger(),
     );
 
@@ -82,4 +87,24 @@ TestRunner::test('proposal controller exposes a complete annual planning overvie
 
     $invalid = $controller->suggestYear(1999);
     assertSame(422, $invalid->status);
+});
+
+TestRunner::test('proposal controller returns 403 before calendar access for an unassigned user', static function (): void {
+    $provider = new ControllerBlockedPeriodProvider();
+    $authorization = new AuthorizationService(
+        new FrameworkSession(new FrameworkUser('user-a')),
+        new FrameworkGroups(false),
+        new FrameworkConfig(),
+    );
+    $controller = new ProposalController(
+        new class implements IRequest {},
+        new CalendarProposalService($provider, new DateProposalService()),
+        new PlanningSettingsService(new ProposalControllerConfig()),
+        $authorization,
+        new ProposalControllerLogger(),
+    );
+
+    $denied = $controller->suggest(2026, 9);
+    assertSame(403, $denied->status);
+    assertSame(0, $provider->calls);
 });

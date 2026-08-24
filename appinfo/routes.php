@@ -14,6 +14,8 @@ return [
         ['name' => 'run#publish', 'url' => '/api/runs/{id}/publish', 'verb' => 'POST'],
         ['name' => 'run#settings', 'url' => '/api/settings', 'verb' => 'GET'],
         ['name' => 'run#updateSettings', 'url' => '/api/settings', 'verb' => 'PUT'],
+        ['name' => 'roleSettings#current', 'url' => '/api/role-settings', 'verb' => 'GET'],
+        ['name' => 'roleSettings#update', 'url' => '/api/role-settings', 'verb' => 'PUT'],
         ['name' => 'proposal#suggest', 'url' => '/api/proposals', 'verb' => 'GET'],
         ['name' => 'proposal#suggestYear', 'url' => '/api/proposals/year', 'verb' => 'GET'],
         ['name' => 'teaching#lecturers', 'url' => '/api/lecturers', 'verb' => 'GET'],

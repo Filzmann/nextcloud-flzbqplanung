@@ -18,11 +18,12 @@ TestRunner::test('app metadata and route keep the approved identity', static fun
     assertTrue(str_contains($listener, 'StandaloneAppNavigationService'));
 });
 
-TestRunner::test('initial page remains admin-only and documents calendar completeness', static function (): void {
+TestRunner::test('initial page remains centrally protected and documents calendar completeness', static function (): void {
     $root = dirname(__DIR__);
     $controller = (string)file_get_contents($root . '/lib/Controller/PageController.php');
     $template = (string)file_get_contents($root . '/templates/index.php');
-    assertTrue(!str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'requireAnyAccess'));
     assertTrue(str_contains($template, 'Automatische Vorschläge werden erst als konfliktfrei bezeichnet'));
     assertTrue(str_contains($template, 'Monat vorschlagen'));
     assertTrue(str_contains($template, 'Brückentage'));

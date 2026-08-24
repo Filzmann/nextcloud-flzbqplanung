@@ -54,6 +54,14 @@ Die Adminoberfläche gliedert die vorhandenen Funktionen wie die übrigen
 Fachapps in die per Maus und Tastatur bedienbaren Tabs `Durchläufe`,
 `Dozentinnen` und `Einstellungen`.
 
+Das granulare Rollenmodell verwendet ausschließlich Nextcloud-Gruppen für
+Planung, Lehre und Veröffentlichung. Nicht konfigurierte Rollen bleiben
+deaktiviert; Nextcloud-Administrierende behalten vollständigen Zugriff und
+konfigurieren die Gruppen im Tab `Einstellungen`. Die Oberfläche blendet
+unzulässige Aktionen aus, während jeder API-Pfad die Fähigkeit zusätzlich
+serverseitig prüft. Eine Anwesenheitsrolle wird erst mit den zugehörigen
+Fachfunktionen aktiviert.
+
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.
