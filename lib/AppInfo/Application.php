@@ -13,6 +13,10 @@ use OCA\AdBqPlanning\Privacy\NextcloudBqPrivacySource;
 use OCA\AdBqPlanning\Permission\BqPermissionProviderListener;
 use OCA\AdBqPlanning\Permission\BqPermissionSourceInterface;
 use OCA\AdBqPlanning\Permission\NextcloudBqPermissionSource;
+use OCA\AdBqPlanning\Repository\TemporaryAdminAccessRepository;
+use OCA\AdBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\AdBqPlanning\Service\TemporaryAdminAccessChecker;
+use OCA\AdBqPlanning\Service\TemporaryAdminAccessService;
 use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
 use OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
 use OCP\AppFramework\App;
@@ -35,6 +39,8 @@ final class Application extends App implements IBootstrap {
         $context->registerServiceAlias(BlockedPeriodProvider::class, CalendarBlockedPeriodProvider::class);
         $context->registerServiceAlias(BqPrivacySource::class, NextcloudBqPrivacySource::class);
         $context->registerServiceAlias(BqPermissionSourceInterface::class, NextcloudBqPermissionSource::class);
+        $context->registerServiceAlias(TemporaryAdminAccessChecker::class, TemporaryAdminAccessService::class);
+        $context->registerServiceAlias(TemporaryAdminAccessRepositoryInterface::class, TemporaryAdminAccessRepository::class);
     }
 
     public function boot(IBootContext $context): void {

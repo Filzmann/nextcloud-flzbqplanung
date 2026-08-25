@@ -119,6 +119,7 @@ namespace AdBqPlanning\Tests {
     use OCA\AdBqPlanning\AppInfo\Application;
     use OCA\AdBqPlanning\Listener\StandaloneNavigationListener;
     use OCA\AdBqPlanning\Service\AuthorizationService;
+    use OCA\AdBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCA\LocalBase\Service\StandaloneAppNavigationService;
     use OCP\EventDispatcher\Event;
     use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
@@ -148,12 +149,17 @@ namespace AdBqPlanning\Tests {
         public function setValueInt(string $appId, string $key, int $value): void {}
         public function setValueString(string $appId, string $key, string $value): void {}
     }
+    final class FrameworkGrants implements TemporaryAdminAccessChecker {
+        public function __construct(private array $active = ['admin-a']) {}
+        public function hasActiveGrant(string $uid): bool { return in_array($uid,$this->active,true); }
+    }
 
     function adminAuthorization(): AuthorizationService {
         return new AuthorizationService(
             new FrameworkSession(new FrameworkUser('admin-a')),
             new FrameworkGroups(),
             new FrameworkConfig(),
+            new FrameworkGrants(),
         );
     }
 

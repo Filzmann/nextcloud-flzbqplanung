@@ -56,11 +56,20 @@ Fachapps in die per Maus und Tastatur bedienbaren Tabs `Durchläufe`,
 
 Das granulare Rollenmodell verwendet ausschließlich Nextcloud-Gruppen für
 Planung, Lehre und Veröffentlichung. Nicht konfigurierte Rollen bleiben
-deaktiviert; Nextcloud-Administrierende behalten vollständigen Zugriff und
-konfigurieren die Gruppen im Tab `Einstellungen`. Die Oberfläche blendet
+deaktiviert. Native Nextcloud-Administrierende konfigurieren den technischen
+Adminbereich, erhalten fachlichen Vollzugriff jedoch nur über eine app-lokale,
+UID-genaue Freigabe von höchstens 24 Stunden. Beginn, geplantes Ende und
+Widerruf werden protokolliert. Die Oberfläche blendet
 unzulässige Aktionen aus, während jeder API-Pfad die Fähigkeit zusätzlich
 serverseitig prüft. Eine Anwesenheitsrolle wird erst mit den zugehörigen
 Fachfunktionen aktiviert.
+
+Der PermissionProvider weist konfigurierte Rollengruppen und die kombinierte
+Bedingung aus nativer Administration plus aktiver App-Freigabe getrennt aus.
+Der PersonalDataProvider umfasst die eigene Rolle in der Freigabehistorie,
+ohne Kennungen anderer beteiligter Administrator*innen offenzulegen. Externe
+Dozentinnen bleiben bis zu einem sicheren externen Subject-Vertrag
+zurückgestellt.
 
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet

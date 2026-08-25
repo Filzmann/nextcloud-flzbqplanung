@@ -24,5 +24,8 @@ return [
         ['name' => 'teaching#setLead', 'url' => '/api/runs/{id}/lead-lecturer', 'verb' => 'POST'],
         ['name' => 'teaching#createRequest', 'url' => '/api/modules/{id}/teaching-requests', 'verb' => 'POST'],
         ['name' => 'teaching#transitionRequest', 'url' => '/api/teaching-requests/{id}/transition', 'verb' => 'POST'],
+        ['name' => 'temporary_admin_access#status', 'url' => '/api/admin/full-access', 'verb' => 'GET'],
+        ['name' => 'temporary_admin_access#activate', 'url' => '/api/admin/full-access', 'verb' => 'POST'],
+        ['name' => 'temporary_admin_access#revoke', 'url' => '/api/admin/full-access/{targetUid}', 'verb' => 'DELETE'],
     ],
 ];

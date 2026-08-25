@@ -31,6 +31,7 @@ final class BqPersonalDataProvider implements PersonalDataProvider {
 
     private function item(array $row): PersonalDataEntry {
         return match ((string)$row['kind']) {
+            'admin_access' => $this->adminAccess($row),
             'profile' => $this->entry('lecturer_profile', 'Internes Dozentinnenprofil', $row, 'Internes Dozentinnenprofil', 'Verwaltung des internen Lehrendenpools', [
                 'Aktiv'=>(bool)$row['active'], 'Angelegt am'=>self::date($row['created_at']), 'Geändert am'=>self::date($row['updated_at']),
             ]),
@@ -42,6 +43,22 @@ final class BqPersonalDataProvider implements PersonalDataProvider {
             ]),
             default => $this->activity($row),
         };
+    }
+
+    private function adminAccess(array $row): PersonalDataEntry {
+        $subjectRoles=[];
+        foreach (['target_uid'=>'Ziel der Vollzugriffsfreigabe','granted_by'=>'Freigebende Administration','revoked_by'=>'Widerrufende Administration'] as $field=>$label) {
+            if (($row[$field]??null)===$row['subject_uid']) $subjectRoles[]=$label;
+        }
+        $actualEnd=$row['revoked_at']??$row['ends_at'];
+        return new PersonalDataEntry(
+            categoryId:'admin-access',categoryLabel:'Zeitlich begrenzter Admin-Vollzugriff',reference:'admin-access:'.(int)$row['id'],
+            summary:'Admin-Vollzugriff vom '.self::dateTime($row['starts_at']),purpose:'Nachweis einer zeitlich begrenzten administrativen BQ-Freigabe',
+            source:'App-lokale Freigabe im Nextcloud-Adminbereich',recipientCategories:['Nextcloud-Administrierende'],
+            retention:'Keine feste Löschfrist festgelegt; die sicherheitsrelevante Freigabehistorie bleibt bis zu einer gesonderten Aufbewahrungsentscheidung erhalten.',
+            thirdCountryTransfer:'Der BQ-Planer selbst sieht keine Drittlandübermittlung vor.',automatedDecision:'Der Server beendet den Vollzugriff spätestens nach 24 Stunden automatisch.',
+            thirdPartyContentNotice:'Kennungen anderer beteiligter Administrator*innen werden nicht ausgegeben.',attributes:['Eigene Rolle im Vorgang'=>implode(', ',$subjectRoles),'Beginn'=>self::dateTime($row['starts_at']),'Geplantes Ende'=>self::dateTime($row['ends_at']),'Tatsächliches Ende'=>self::dateTime($actualEnd),'Status'=>$row['revoked_at']===null?'planmäßig beendet oder noch aktiv':'widerrufen'],
+        );
     }
 
     private function activity(array $row): PersonalDataEntry {
@@ -65,5 +82,11 @@ final class BqPersonalDataProvider implements PersonalDataProvider {
         if ($value instanceof \DateTimeInterface) return $value->format('d.m.Y');
         $timestamp = strtotime((string)$value);
         return $timestamp === false ? (string)$value : date('d.m.Y', $timestamp);
+    }
+
+    private static function dateTime(mixed $value): string {
+        if ($value instanceof \DateTimeInterface) return $value->format(DATE_ATOM);
+        $timestamp=strtotime((string)$value);
+        return $timestamp===false?(string)$value:date(DATE_ATOM,$timestamp);
     }
 }

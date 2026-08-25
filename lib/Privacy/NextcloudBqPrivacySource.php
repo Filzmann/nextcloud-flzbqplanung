@@ -11,6 +11,7 @@ final class NextcloudBqPrivacySource implements BqPrivacySource {
 
     public function forSubject(string $uid, int $limit): array {
         $records = [];
+        $this->append($records, $this->adminAccess($uid, $limit), 'admin_access', $limit);
         $this->append($records, $this->profiles($uid, $limit), 'profile', $limit);
         $this->append($records, $this->leadAssignments($uid, $limit - count($records)), 'lead', $limit);
         $this->append($records, $this->moduleAssignments($uid, $limit - count($records)), 'module', $limit);
@@ -19,6 +20,20 @@ final class NextcloudBqPrivacySource implements BqPrivacySource {
         $this->append($records, $this->actorRows('adbq_lecturers', true, 'lecturer_updated', $uid, $limit - count($records)), 'activity', $limit);
         $this->append($records, $this->actorRows('adbq_lecturer_requests', true, 'request_updated', $uid, $limit - count($records)), 'activity', $limit);
         return $records;
+    }
+
+    private function adminAccess(string $uid, int $limit): array {
+        if ($limit < 1) return [];
+        $qb = $this->db->getQueryBuilder();
+        $rows = $this->all($qb->select('id','target_uid','granted_by','starts_at','ends_at','revoked_at','revoked_by','created_at')
+            ->from('adbq_admin_access')
+            ->where($qb->expr()->orX(
+                $qb->expr()->eq('target_uid', $qb->createNamedParameter($uid)),
+                $qb->expr()->eq('granted_by', $qb->createNamedParameter($uid)),
+                $qb->expr()->eq('revoked_by', $qb->createNamedParameter($uid)),
+            ))
+            ->orderBy('created_at','DESC')->setMaxResults($limit));
+        return array_map(static fn(array $row): array => ['subject_uid'=>$uid]+$row, $rows);
     }
 
     private function append(array &$target, array $rows, string $kind, int $limit): void {

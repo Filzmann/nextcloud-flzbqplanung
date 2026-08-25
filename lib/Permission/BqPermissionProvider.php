@@ -25,15 +25,19 @@ final class BqPermissionProvider implements PermissionProvider {
 
     public function collect(): PermissionProviderResult {
         $rules = [];
+        $temporaryAdmin = PermissionCondition::all([
+            PermissionCondition::nextcloudAdmin(),
+            PermissionCondition::temporaryAppAdminGrant(),
+        ]);
         foreach (self::CAPABILITIES as [$permission, $label, $detail]) {
-            $rules[] = $this->rule($permission, $label, $detail, 'all', PermissionCondition::nextcloudAdmin());
+            $rules[] = $this->rule($permission, $label, $detail, 'all', $temporaryAdmin);
         }
         $rules[] = $this->rule(
             'bq.settings.manage',
             'BQ-Rollengruppen konfigurieren',
             'Native Nextcloud-Administration',
             'app-settings',
-            PermissionCondition::nextcloudAdmin(),
+            $temporaryAdmin,
         );
 
         foreach ($this->source->roleGroups() as $role => $groupId) {

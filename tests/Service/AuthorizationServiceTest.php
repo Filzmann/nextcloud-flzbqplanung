@@ -25,6 +25,7 @@ namespace AdBqPlanning\Tests {
     use OCA\AdBqPlanning\Exception\AccessDeniedException;
     use OCA\AdBqPlanning\Service\AuthorizationService;
     use OCA\AdBqPlanning\Service\RoleSettingsService;
+    use OCA\AdBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCP\IAppConfig;
     use OCP\IGroup;
     use OCP\IGroupManager;
@@ -67,6 +68,11 @@ namespace AdBqPlanning\Tests {
         }
     }
 
+    final class AuthorizationGrants implements TemporaryAdminAccessChecker {
+        public function __construct(private array $active = []) {}
+        public function hasActiveGrant(string $uid): bool { return in_array($uid, $this->active, true); }
+    }
+
     TestRunner::test('authorization denies anonymous and unassigned users by default', static function (): void {
         $config = new AuthorizationConfig();
         $groups = new AuthorizationGroups();
@@ -84,11 +90,20 @@ namespace AdBqPlanning\Tests {
         ], $unassigned->capabilities());
     });
 
-    TestRunner::test('Nextcloud admins retain all BQ capabilities without configured groups', static function (): void {
+    TestRunner::test('Nextcloud admins need an active app-local grant for all BQ capabilities', static function (): void {
+        $withoutGrant = new AuthorizationService(
+            new AuthorizationSession(new AuthorizationUser('admin-a')),
+            new AuthorizationGroups(admins: ['admin-a']),
+            new AuthorizationConfig(),
+        );
+        assertSame(false, $withoutGrant->hasAnyAccess());
+        assertSame(false, $withoutGrant->capabilities()['admin']);
+
         $service = new AuthorizationService(
             new AuthorizationSession(new AuthorizationUser('admin-a')),
             new AuthorizationGroups(admins: ['admin-a']),
             new AuthorizationConfig(),
+            new AuthorizationGrants(['admin-a']),
         );
         assertSame(true, $service->hasAnyAccess());
         foreach ([AuthorizationService::PLANNING, AuthorizationService::TEACHING, AuthorizationService::PUBLISHING] as $capability) {

@@ -47,7 +47,7 @@ TestRunner::test('role settings API denies non-admin writes and accepts validate
     $admin = new RoleSettingsController(
         new class implements IRequest {},
         new RoleSettingsService($config, $adminGroups),
-        new AuthorizationService(new FrameworkSession(new FrameworkUser('admin-a')), $adminGroups, $config),
+        new AuthorizationService(new FrameworkSession(new FrameworkUser('admin-a')), $adminGroups, $config, new FrameworkGrants()),
         new ProposalControllerLogger(),
     );
     $saved = $admin->update('bq-planning', '', '');

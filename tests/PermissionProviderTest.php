@@ -8,9 +8,11 @@ namespace OCA\FilzmannPermissionMatrix\PublicApi\V1 {
         public function __construct(public string $appId, public string $displayName, public string $version, public array $capabilities) {}
     }
     final class PermissionCondition {
-        private function __construct(public string $operator, public ?string $groupId = null) {}
+        private function __construct(public string $operator, public ?string $groupId = null, public array $children = []) {}
         public static function group(string $groupId): self { return new self('group', $groupId); }
         public static function nextcloudAdmin(): self { return new self('nextcloud-admin'); }
+        public static function temporaryAppAdminGrant(): self { return new self('app-admin-grant'); }
+        public static function all(array $children): self { return new self('all', null, $children); }
     }
     final class PermissionRule {
         public function __construct(
@@ -68,7 +70,11 @@ namespace AdBqPlanning\Tests {
         };
         assertSame('bq-planning', $groupId($byPermission['bq.planning.manage']));
         assertSame('bq-publishing', $groupId($byPermission['bq.publishing.manage']));
-        assertSame('nextcloud-admin', $byPermission['bq.settings.manage'][0]->condition->operator ?? null);
+        foreach (['bq.planning.manage', 'bq.teaching.manage', 'bq.publishing.manage', 'bq.settings.manage'] as $permission) {
+            $nativeRule = $byPermission[$permission][0];
+            assertSame('all', $nativeRule->condition->operator ?? null);
+            assertSame(['nextcloud-admin', 'app-admin-grant'], array_map(static fn($condition): string => $condition->operator, $nativeRule->condition->children));
+        }
         assertSame(null, $groupId($byPermission['bq.teaching.manage']), 'An unconfigured role must have no group grant');
         assertTrue(!isset($byPermission['bq.attendance.manage']), 'The reserved attendance role must grant no current capability');
 

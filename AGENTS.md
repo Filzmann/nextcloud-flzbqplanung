@@ -77,9 +77,11 @@ beim direkten Öffnen dieses App-Repositories.
 - Rechte gelten deny by default und werden serverseitig geprüft. Planung,
   Lehre und Veröffentlichung werden getrennten, adminseitig konfigurierten
   Nextcloud-Gruppen zugeordnet. Ohne konfigurierte Gruppe bleibt die jeweilige
-  Fähigkeit deaktiviert; Nextcloud-Administrierende behalten vollständigen
-  Zugriff. Die Anwesenheitsrolle bleibt bis zu konkreten Anwesenheitsfunktionen
-  reserviert und erteilt aktuell keine Fähigkeit.
+  Fähigkeit deaktiviert. Native Nextcloud-Administrierende erhalten nur nach
+  einer app-lokalen, UID-genauen Freigabe für höchstens 24 Stunden
+  vollständigen Fachzugriff; Beginn, geplantes Ende und Widerruf werden
+  protokolliert. Die Anwesenheitsrolle bleibt bis zu konkreten
+  Anwesenheitsfunktionen reserviert und erteilt aktuell keine Fähigkeit.
 - Dozentinnenprofile enthalten personenbezogene Daten. Interne PFKs werden
   mit Nextcloud-UID referenziert, externe Dozentinnen mit app-eigener stabiler
   ID und minimalen Kontaktdaten. Bewerberakten werden nicht kopiert.
@@ -91,6 +93,9 @@ beim direkten Öffnen dieses App-Repositories.
   bleiben bis zu einem sicher authentifizierten externen Subject-Vertrag aus
   der Selbstauskunft ausgeschlossen; Name oder E-Mail dienen nicht als
   Ersatzidentifikation.
+- PersonalDataProvider und PermissionProvider umfassen auch die app-lokale
+  Adminfreigabe. Die Selbstauskunft nennt nur die eigene Rolle im
+  Freigabevorgang und keine Kennungen anderer beteiligter Administrator*innen.
 - Schreibende Routen sind CSRF-geschützt. UI-Sichtbarkeit erteilt keine
   Rechte. SQL-Werte werden gebunden und Ausgaben escaped.
 - Die Adminoberfläche gruppiert ihre Funktionen in die zugänglichen Tabs

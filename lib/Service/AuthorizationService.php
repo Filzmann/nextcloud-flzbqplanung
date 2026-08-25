@@ -26,6 +26,7 @@ final class AuthorizationService {
         private IUserSession $session,
         private IGroupManager $groups,
         private IAppConfig $config,
+        private ?TemporaryAdminAccessChecker $temporaryAdminAccess = null,
     ) {
     }
 
@@ -39,7 +40,9 @@ final class AuthorizationService {
 
     public function isAdmin(): bool {
         try {
-            return $this->groups->isAdmin($this->actorUid());
+            $uid = $this->actorUid();
+            return $this->groups->isAdmin($uid)
+                && ($this->temporaryAdminAccess?->hasActiveGrant($uid) ?? false);
         } catch (AccessDeniedException) {
             return false;
         }
@@ -57,7 +60,7 @@ final class AuthorizationService {
         } catch (AccessDeniedException) {
             return false;
         }
-        if ($this->groups->isAdmin($uid)) {
+        if ($this->groups->isAdmin($uid) && ($this->temporaryAdminAccess?->hasActiveGrant($uid) ?? false)) {
             return true;
         }
         $groupId = trim($this->config->getValueString(
