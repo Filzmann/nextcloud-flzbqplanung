@@ -1,8 +1,9 @@
 # Roadmap – AD BQ-Planer
 
-Diese Datei enthält ausschließlich offene app-lokale Produktaufgaben und
-Freigabegates. Der implementierte Umfang steht in `README.md`; geltende
-Fach- und Architekturgrenzen stehen in `AGENTS.md`.
+Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
+und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
+erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
+`docs/architecture.md`.
 
 ## Nextcloud-Kompatibilitätsgate
 

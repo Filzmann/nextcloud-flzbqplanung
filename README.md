@@ -87,3 +87,12 @@ node tests/run-js.mjs
 
 Lokale URL nach gesondert freizugebender Aktivierung:
 `https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`.
+
+## Dokumentation
+
+- [Architektur](docs/architecture.md)
+- [Datenschutz](PRIVACY.md)
+- [Manuelle Abnahme](docs/manual-acceptance.md)
+- [Roadmap](ROADMAP.md)
+- [Changelog](CHANGELOG.md)
+- [Arbeitsregeln](AGENTS.md)
