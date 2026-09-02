@@ -10,6 +10,7 @@ beim direkten Öffnen dieses App-Repositories.
 - Lokale URL: `https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`
 - App-ID: `adbqplanung`
 - PHP-Namespace: `OCA\AdBqPlanning`
+- Offene app-lokale Produktplanung: `ROADMAP.md`
 
 ## Fach- und Repositorygrenze
 

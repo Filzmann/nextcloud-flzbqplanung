@@ -1,42 +1,20 @@
-# Roadmap
+# Roadmap – AD BQ-Planer
 
-## Umgesetzt im ersten Kern
+Diese Datei enthält ausschließlich offene app-lokale Produktaufgaben und
+Freigabegates. Der implementierte Umfang steht in `README.md`; geltende
+Fach- und Architekturgrenzen stehen in `AGENTS.md`.
 
-- App- und Repositorygrenze
-- Konfigurierbare Arbeitstage und Startwochentag
-- Erklärbare konfliktfreie Monatsvorschläge
-- Praxisreflexionsvorschläge
-- Veränderbare Curriculum-Snapshots
-- Haupt-PFK und Modulabweichungen
-- Admin-beschränkte, zugängliche Grundoberfläche
-- Persistente BQ-Durchläufe und Curriculum-Module mit additiver Migration
-- Optimistische Versionierung für Durchläufe und Module
-- Konfigurierbare reguläre Kapazität bis maximal zehn Plätze
-- Modulbezogene Nachholkapazität ohne Warteliste
-- Entwurfs- und Veröffentlichungsstatus für terminierte Durchläufe
-- Dozentinnenpool mit Nextcloud-validierten internen PFKs und minimalen
-  externen Kontaktdaten
-- Haupt-PFK je Durchlauf sowie externe Modul-Anfragen mit gekapselten
-  Statusübergängen
-- AD-Suite-Navigation über den kanonischen LocalBase-Produktkatalog mit
-  explizitem Ausschluss aus Release-Bundles
-- Versionierte LocalBase-Kalenderanbindung für Schulferien und gesetzliche
-  Feiertage, konfigurierte Brückentage und sichere Status für aktuelle,
-  veraltete, fehlende oder inkompatible Kalenderdaten
-- Monatsvorschlag in Admin-API und Oberfläche ohne falsches Konfliktfrei-
-  Versprechen bei fehlendem Provider
-- Jahresvorschau mit getrenntem Kalenderstatus, Konfliktgründen und sicherer
-  Teilfehlerbehandlung je Monat
-- Versionierte Bearbeitung bestehender Entwurfsmodule und sichtbare Hinweise
-  auf zeitliche Modulüberschneidungen
-- Versionierte Bearbeitung der Stammdaten eines Entwurfs unter Erhalt aller
-  bereits terminierten Module
-- Transaktionale Änderung der Modulreihenfolge mit vollständiger
-  Permutations- und Nebenläufigkeitsprüfung
-- Granulares, serverseitiges Rollenmodell auf Basis validierter
-  Nextcloud-Gruppen für Planung, Lehre und Veröffentlichung mit Admin-Fallback
-- Zugängliche Tabgliederung in Durchläufe, Dozentinnen und Einstellungen;
-  Bewerberinnenzuordnung bleibt ausschließlich in AD Recruitment
+## Nextcloud-Kompatibilitätsgate
+
+### BQ-NC-COMPAT – OpenDesk-Boden 33 und künftige Majors nachweisen
+
+Status: `info.xml` bleibt bei 34/34. Vor einer Absenkung muss der bereits auf
+NC 33 und 34 ungültige Import `OCP\Http` app-lokal test-first durch
+`OCP\AppFramework\Http` ersetzt werden. Danach sind Fresh Install/Upgrade,
+DI, Migrationen, Rollen-/Adminschutz, Vorschlags- und Curriculumabläufe,
+LocalBase-Kalenderprovider einschließlich Ausfall, Privacy-/PermissionProvider,
+Assets und sichtbare Oberfläche auf NC 33 zu prüfen. Die Obergrenze wird je
+Major lückenlos mit `verify-nextcloud-future-compatibility` bestimmt.
 
 ## Nächste freigabepflichtige Pakete
 
@@ -46,7 +24,18 @@
    aktivieren.
 3. Optionaler Recruitment-Consumervertrag für terminlich vollständige BQs;
    kein direkter Zugriff und keine automatische Eignungsentscheidung.
-4. PersonalDataProvider, Drittpersonensicht und fachlich freigegebene
-   Retention-Regeln für interne und externe Dozentinnen.
+4. Datenschutzumfang vervollständigen:
+   - Interne PFKs und Bearbeitende bleiben typisierte Nextcloud-UIDs.
+   - Externe Dozentinnen verwenden eine app-eigene stabile ID, Name und nur
+     die für Anfragen notwendigen Kontaktdaten.
+   - Bewerberinnen dürfen später nur über eine stabile
+     Recruitment-Referenz, niemals über Akteninhalte übernommen werden.
+   - Auskunft, Drittpersonensicht in Curriculum-Hinweisen und Anfragen sowie
+     Aufbewahrungstrigger für Poolprofile, Anfragen, historische Zuordnungen
+     und Bearbeitungsnachweise fachlich entscheiden.
+   - Je Datenklasse `DELETE`, `REMOVE_PERSON_REFERENCE`, `ANONYMIZE` oder
+     `REVIEW` festlegen und Provider-, Rechte-, Negativ-, Sperr- und
+     Grenztests ergänzen. Bis dahin gibt es keine automatische Löschung und
+     keine erfundene Frist.
 5. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
    Integrations- und Staging-Nachweisen erteilen.

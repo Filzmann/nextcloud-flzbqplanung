@@ -3,6 +3,9 @@
 Der AD BQ-Planer ist eine eigenständige Nextcloud-App für die terminliche und
 inhaltliche Planung von Basisqualifizierungen.
 
+Offene app-lokale Aufgaben stehen in [ROADMAP.md](ROADMAP.md); der geltende
+Produkt- und Architekturvertrag steht in `AGENTS.md` und diesem README.
+
 Er ist über den kanonischen LocalBase-Produktkatalog in die AD-Suite-Navigation
 eingeordnet. Der aktuelle Entwicklungsstand wird noch nicht in Full-Suite-
 oder Einzelprodukt-Bundles ausgeliefert.
