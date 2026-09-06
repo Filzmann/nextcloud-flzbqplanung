@@ -5,18 +5,6 @@ und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
 erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 `docs/architecture.md`.
 
-## Nextcloud-Kompatibilitätsgate
-
-### BQ-NC-COMPAT – OpenDesk-Boden 33 und künftige Majors nachweisen
-
-Status: `info.xml` bleibt bei 34/34. Vor einer Absenkung muss der bereits auf
-NC 33 und 34 ungültige Import `OCP\Http` app-lokal test-first durch
-`OCP\AppFramework\Http` ersetzt werden. Danach sind Fresh Install/Upgrade,
-DI, Migrationen, Rollen-/Adminschutz, Vorschlags- und Curriculumabläufe,
-LocalBase-Kalenderprovider einschließlich Ausfall, Privacy-/PermissionProvider,
-Assets und sichtbare Oberfläche auf NC 33 zu prüfen. Die Obergrenze wird je
-Major lückenlos mit `verify-nextcloud-future-compatibility` bestimmt.
-
 ## Nächste freigabepflichtige Pakete
 
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen ergänzen;

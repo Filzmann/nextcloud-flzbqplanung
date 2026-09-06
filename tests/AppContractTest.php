@@ -22,7 +22,8 @@ TestRunner::test('initial page remains centrally protected and documents calenda
     $root = dirname(__DIR__);
     $controller = (string)file_get_contents($root . '/lib/Controller/PageController.php');
     $template = (string)file_get_contents($root . '/templates/index.php');
-    assertTrue(str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'use OCP\\AppFramework\\Http\\Attribute\\NoAdminRequired;'));
+    assertTrue(str_contains($controller, '#[NoAdminRequired]'));
     assertTrue(str_contains($controller, 'requireAnyAccess'));
     assertTrue(str_contains($template, 'Automatische Vorschläge werden erst als konfliktfrei bezeichnet'));
     assertTrue(str_contains($template, 'Monat vorschlagen'));

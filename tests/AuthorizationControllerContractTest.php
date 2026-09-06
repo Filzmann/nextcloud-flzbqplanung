@@ -26,6 +26,27 @@ TestRunner::test('every BQ surface delegates access to the central authorization
     assertTrue(str_contains($navigation, 'hasAnyAccess'));
 });
 
+TestRunner::test('every BQ controller resolves HTTP status constants through the public AppFramework API', static function (): void {
+    $controllerDirectory = dirname(__DIR__) . '/lib/Controller';
+    foreach ([
+        'PageController.php',
+        'RunController.php',
+        'TeachingController.php',
+        'RoleSettingsController.php',
+        'ProposalController.php',
+    ] as $controllerFile) {
+        $controller = (string)file_get_contents($controllerDirectory . '/' . $controllerFile);
+        assertTrue(
+            str_contains($controller, 'use OCP\\AppFramework\\Http;'),
+            $controllerFile . ' verwendet nicht die öffentliche Nextcloud-HTTP-Klasse.',
+        );
+        assertTrue(
+            !str_contains($controller, 'use OCP\\Http;'),
+            $controllerFile . ' verwendet den auf NC 33/34 ungültigen OCP-Http-Import.',
+        );
+    }
+});
+
 TestRunner::test('role settings have a dedicated admin-only API and no database schema', static function (): void {
     $root = dirname(__DIR__);
     $routes = (string)file_get_contents($root . '/appinfo/routes.php');

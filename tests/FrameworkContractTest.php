@@ -6,8 +6,6 @@ namespace OCP {
     interface IRequest {
     }
 
-    class Http { public const STATUS_FORBIDDEN = 403; }
-
     if (!interface_exists(IUser::class)) {
         interface IUser { public function getUID(): string; }
     }
@@ -36,6 +34,8 @@ namespace OCP {
 }
 
 namespace OCP\AppFramework {
+    class Http { public const STATUS_FORBIDDEN = 403; }
+
     class App {
         public function __construct(public string $appId, public array $urlParams = []) {
         }

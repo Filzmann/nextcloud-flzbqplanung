@@ -31,7 +31,7 @@ namespace OCA\FilzmannPermissionMatrix\PublicApi\V1 {
     final class PermissionProviderResult {
         public function __construct(public array $rules, public bool $complete = true, public array $warnings = []) {}
     }
-    final class RegisterPermissionProvidersEvent {
+    final class RegisterPermissionProvidersEvent extends \OCP\EventDispatcher\Event {
         public array $providers = [];
         public function register(PermissionProvider $provider): void { $this->providers[] = $provider; }
     }
@@ -79,7 +79,9 @@ namespace AdBqPlanning\Tests {
         assertTrue(!isset($byPermission['bq.attendance.manage']), 'The reserved attendance role must grant no current capability');
 
         $event = new RegisterPermissionProvidersEvent();
-        (new BqPermissionProviderListener($provider))->handle($event);
+        $listener = new BqPermissionProviderListener($provider);
+        assertTrue($listener instanceof \OCP\EventDispatcher\IEventListener);
+        $listener->handle($event);
         assertSame($provider, $event->providers[0] ?? null);
 
         $application = (string)file_get_contents(dirname(__DIR__) . '/lib/AppInfo/Application.php');

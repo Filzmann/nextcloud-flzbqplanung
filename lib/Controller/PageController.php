@@ -13,9 +13,10 @@ use OCA\AdBqPlanning\Service\RunService;
 use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCA\AdBqPlanning\Service\RoleSettingsService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\Http;
+use OCP\AppFramework\Http;
 use OCP\IRequest;
 
 final class PageController extends Controller {
