@@ -11,6 +11,7 @@ use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCA\AdBqPlanning\Service\RoleSettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -27,7 +28,7 @@ final class RoleSettingsController extends Controller {
         parent::__construct(Application::APP_ID, $request);
     }
 
-    #[NoAdminRequired]
+    #[NoAdminRequired, NoCSRFRequired]
     public function current(): JSONResponse {
         return $this->respond(fn (): array => $this->settings->current());
     }

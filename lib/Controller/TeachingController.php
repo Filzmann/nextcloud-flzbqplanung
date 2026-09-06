@@ -12,6 +12,7 @@ use OCA\AdBqPlanning\Service\TeachingService;
 use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -31,12 +32,12 @@ final class TeachingController extends Controller {
         parent::__construct(Application::APP_ID, $request);
     }
 
-    #[NoAdminRequired]
+    #[NoAdminRequired, NoCSRFRequired]
     public function lecturers(): JSONResponse {
         return $this->respond(fn (): array => $this->store->lecturers());
     }
 
-    #[NoAdminRequired]
+    #[NoAdminRequired, NoCSRFRequired]
     public function requests(): JSONResponse {
         return $this->respond(fn (): array => $this->store->requests());
     }

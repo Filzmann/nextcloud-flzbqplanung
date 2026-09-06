@@ -47,6 +47,52 @@ TestRunner::test('every BQ controller resolves HTTP status constants through the
     }
 });
 
+TestRunner::test('read-only BQ APIs omit CSRF checks while write APIs keep them', static function (): void {
+    $controllerDirectory = dirname(__DIR__) . '/lib/Controller';
+    $contracts = [
+        'RunController.php' => [
+            'read' => ['list', 'settings'],
+            'write' => ['create', 'update', 'addModule', 'updateModule', 'moveModule', 'publish', 'updateSettings'],
+        ],
+        'RoleSettingsController.php' => [
+            'read' => ['current'],
+            'write' => ['update'],
+        ],
+        'TeachingController.php' => [
+            'read' => ['lecturers', 'requests'],
+            'write' => ['createLecturer', 'setLead', 'createRequest', 'transitionRequest'],
+        ],
+    ];
+
+    $attributesFor = static function (string $controller, string $method): string {
+        $pattern = '/((?:\s*#\[[^\]]+\]\s*)+)public function ' . preg_quote($method, '/') . '\s*\(/';
+        if (preg_match($pattern, $controller, $matches) !== 1) {
+            throw new \RuntimeException('Attribute für Controller-Methode fehlen: ' . $method);
+        }
+        return $matches[1];
+    };
+
+    foreach ($contracts as $controllerFile => $methods) {
+        $controller = (string)file_get_contents($controllerDirectory . '/' . $controllerFile);
+        assertTrue(
+            str_contains($controller, 'use OCP\\AppFramework\\Http\\Attribute\\NoCSRFRequired;'),
+            $controllerFile . ' importiert den öffentlichen NoCSRFRequired-Vertrag nicht.',
+        );
+        foreach ($methods['read'] as $method) {
+            assertTrue(
+                str_contains($attributesFor($controller, $method), 'NoCSRFRequired'),
+                $controllerFile . '::' . $method . ' verlangt für den lesenden GET-Endpunkt einen CSRF-Token.',
+            );
+        }
+        foreach ($methods['write'] as $method) {
+            assertTrue(
+                !str_contains($attributesFor($controller, $method), 'NoCSRFRequired'),
+                $controllerFile . '::' . $method . ' darf die CSRF-Prüfung des schreibenden Endpunkts nicht abschalten.',
+            );
+        }
+    }
+});
+
 TestRunner::test('role settings have a dedicated admin-only API and no database schema', static function (): void {
     $root = dirname(__DIR__);
     $routes = (string)file_get_contents($root . '/appinfo/routes.php');

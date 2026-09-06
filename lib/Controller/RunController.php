@@ -13,6 +13,7 @@ use OCA\AdBqPlanning\Service\RunService;
 use OCA\AdBqPlanning\Service\AuthorizationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -31,7 +32,7 @@ final class RunController extends Controller {
         parent::__construct(Application::APP_ID, $request);
     }
 
-    #[NoAdminRequired]
+    #[NoAdminRequired, NoCSRFRequired]
     public function list(): JSONResponse {
         return $this->respond(null, function (): array {
             return array_map(function (array $run): array {
@@ -158,7 +159,7 @@ final class RunController extends Controller {
         ));
     }
 
-    #[NoAdminRequired]
+    #[NoAdminRequired, NoCSRFRequired]
     public function settings(): JSONResponse {
         return $this->respond(AuthorizationService::ADMIN, fn (): array => $this->settingsService->current());
     }
