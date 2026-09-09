@@ -74,6 +74,14 @@ ohne Kennungen anderer beteiligter Administrator*innen offenzulegen. Externe
 Dozentinnen bleiben bis zu einem sicheren externen Subject-Vertrag
 zurückgestellt.
 
+Der Processing-Metadata-Provider beschreibt ergänzend die vier Verarbeitungen
+Durchlauf/Curriculum/Terminplanung, Dozentinnenprofile und Zuordnungen,
+extern dokumentierte Dozentinnenanfragen sowie temporären Admin-Vollzugriff
+aus `resources/privacy-processing.json`. Der Katalog enthält keine
+personenbezogenen Laufzeitdaten. Offene Rechtsgrundlagen, Empfänger-,
+Retention-, Backup-, Kommunikations- und externe Subject-Entscheidungen
+bleiben als `PRIVACY-DECISION-REQUIRED` sichtbar.
+
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.

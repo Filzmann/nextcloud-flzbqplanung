@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- App-eigenen Processing-Metadata-Katalog für vier BQ-Verarbeitungen über den
+  öffentlichen Datenschutz-V1-Vertrag veröffentlicht.
 - Dokumentations- und Steuerungsstruktur vereinheitlicht.
 - Controller verwenden für HTTP-Statuscodes die auf Nextcloud 33 und 34
   vorhandene öffentliche Klasse `OCP\AppFramework\Http`.

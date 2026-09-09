@@ -11,11 +11,21 @@ für die Dozentinnenplanung:
 Bewerbungsakten, Teilnehmerinnenzuordnungen und Kommunikationsinhalte gehören
 nicht in diese App.
 
+Der app-eigene Processing-Katalog unter
+`resources/privacy-processing.json` beschreibt diese Datenklassen und ihre
+Verarbeitungsgrenzen ohne personenbezogene Laufzeitdaten. Der öffentliche
+V1-Provider veröffentlicht ihn lazy an das Datenschutz-Center. Interne
+Nextcloud-UIDs sind im bestehenden PersonalDataProvider abgedeckt; externe
+Profile und Anfragen bleiben bis zu einem sicher authentifizierten externen
+Subject-Vertrag ausdrücklich `PRIVACY-DECISION-REQUIRED` und werden nicht über
+Name oder E-Mail identifiziert.
+
 Vor der fachlichen Fertigstellung dieses Datenbereichs sind verpflichtend:
 
-1. Ein app-eigener PersonalDataProvider über die öffentliche
-   Datenschutz-Providergrenze liefert interne UID-Referenzen sowie externe
-   Profile, Zuordnungen und Anfragen für die betroffene Person aus.
+1. Der vorhandene app-eigene PersonalDataProvider über die öffentliche
+   Datenschutz-Providergrenze liefert interne UID-Referenzen. Für externe
+   Profile, Zuordnungen und Anfragen ist vor einer Ausgabe ein sicherer
+   authentifizierter externer Subject-Vertrag festzulegen und zu testen.
 2. Die Drittpersonensicht weist Bearbeitungsreferenzen und Dozentinnenbezüge in
    BQ-Durchläufen aus, ohne Bewerbungsdaten aus AD Recruitment zu lesen.
 3. Offene oder bestätigte Anfragen und aktive BQ-Zuordnungen blockieren die

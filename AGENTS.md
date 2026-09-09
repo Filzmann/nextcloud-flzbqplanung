@@ -97,6 +97,14 @@ beim direkten Öffnen dieses App-Repositories.
 - PersonalDataProvider und PermissionProvider umfassen auch die app-lokale
   Adminfreigabe. Die Selbstauskunft nennt nur die eigene Rolle im
   Freigabevorgang und keine Kennungen anderer beteiligter Administrator*innen.
+- Der app-eigene Processing-Katalog unter
+  `resources/privacy-processing.json` ist die kanonische Metadatenquelle für
+  Durchlauf/Curriculum/Terminplanung, Dozentinnenprofile und Zuordnungen,
+  externe Anfragezustände sowie temporären Admin-Vollzugriff. Er enthält keine
+  personenbezogenen Laufzeitdaten und markiert ungeklärte Rechtsgrundlagen,
+  Empfänger-, Retention-, Backup-, Kommunikations- und Betroffenenrechtsfragen
+  mit `PRIVACY-DECISION-REQUIRED`. Der öffentliche V1-Provider liest
+  ausschließlich diesen Katalog; eine zweite Registry ist verboten.
 - Schreibende Routen sind CSRF-geschützt. UI-Sichtbarkeit erteilt keine
   Rechte. SQL-Werte werden gebunden und Ausgaben escaped.
 - Die Adminoberfläche gruppiert ihre Funktionen in die zugänglichen Tabs
