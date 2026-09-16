@@ -25,3 +25,18 @@ Kontaktdaten.
 - Ergebnis:
 - Abweichungen und reproduzierbare Schritte:
 - Belege ohne Echtdaten:
+
+## Automatisierter lokaler Nachweis vom 11.09.2026
+
+Im Rahmen der risikoarmen Luna-Prüfung wurden ausschließlich lokale, nicht
+mutierende Prüfungen ausgeführt:
+
+| Prüfung | Ergebnis | Aussagegrenze |
+|---|---|---|
+| `php tests/run.php` | erfolgreich | 62 PHP-Vertrags- und Fachtests sind grün, einschließlich Rollen/Rechte, Adminfreigabe, Kalenderprovider, Planung, Curriculum-Snapshots, Publikation, Lehrenden und negativer Fälle. |
+| `node tests/run-js.mjs` | erfolgreich | JavaScript- und UI-Verträge sind grün. |
+| `git diff --check` | erfolgreich | Keine Whitespace-Fehler im aktuellen Arbeitsbaum. |
+
+DDEV, `occ`, Installation, App-Aktivierung und BQ-/Lehrendendaten wurden
+nicht verändert. Der Nachweis ersetzt weder die manuelle Oberflächeprüfung
+noch die dokumentierte Release-Reifeentscheidung für diese Entwicklungsapp.
