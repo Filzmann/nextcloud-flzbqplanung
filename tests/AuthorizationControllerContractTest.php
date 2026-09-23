@@ -21,7 +21,8 @@ TestRunner::test('every BQ surface delegates access to the central authorization
     assertTrue(str_contains($run, 'AuthorizationService::ADMIN'));
     assertTrue(str_contains($teaching, 'AuthorizationService::TEACHING'));
     assertTrue(str_contains($proposal, 'AuthorizationService::PLANNING'));
-    assertTrue(str_contains($page, 'requireAnyAccess'));
+    assertTrue(str_contains($page, 'hasAnyAccess'));
+    assertTrue(str_contains($page, 'TemporaryAdminAccessService'));
     assertTrue(str_contains($page, "'core', '403'"));
     assertTrue(str_contains($navigation, 'hasAnyAccess'));
 });
@@ -93,6 +94,18 @@ TestRunner::test('read-only BQ APIs omit CSRF checks while write APIs keep them'
     }
 });
 
+TestRunner::test('privacy officers reach the authenticated grant API while writes keep CSRF protection', static function (): void {
+    $controller = (string)file_get_contents(dirname(__DIR__) . '/lib/Controller/TemporaryAdminAccessController.php');
+    $attributesFor = static function (string $method) use ($controller): string {
+        $pattern = '/((?:\s*#\[[^\]]+\]\s*)+)public function ' . preg_quote($method, '/') . '\s*\(/';
+        if (preg_match($pattern, $controller, $matches) !== 1) throw new \RuntimeException('Attribute fehlen: ' . $method);
+        return $matches[1];
+    };
+    foreach (['status','activate','revoke'] as $method) assertTrue(str_contains($attributesFor($method), 'NoAdminRequired'), $method . ' bleibt fälschlich native-admin-only.');
+    assertTrue(str_contains($attributesFor('status'), 'NoCSRFRequired'));
+    foreach (['activate','revoke'] as $method) assertTrue(!str_contains($attributesFor($method), 'NoCSRFRequired'), $method . ' darf CSRF nicht abschalten.');
+});
+
 TestRunner::test('role settings have a dedicated admin-only API and no database schema', static function (): void {
     $root = dirname(__DIR__);
     $routes = (string)file_get_contents($root . '/appinfo/routes.php');
@@ -109,4 +122,6 @@ TestRunner::test('page response does not expose teaching data without teaching c
 
     assertTrue(str_contains($page, '$capabilities[\'teaching\'] ? $this->teaching->lecturers() : []'));
     assertTrue(str_contains($page, '$capabilities[\'teaching\'] ? $this->teaching->requests() : []'));
+    assertTrue(str_contains($page, '$hasBqAccess ? array_map'));
+    assertTrue(str_contains($page, "'settings' => \$hasBqAccess ? \$this->settingsService->current() : []"));
 });

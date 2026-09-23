@@ -59,6 +59,21 @@
     color: var(--color-error-text);
 }
 
+.bq-access-notice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 2px solid var(--color-warning);
+    border-radius: var(--border-radius-large);
+}
+
+.bq-access-card {
+    margin-bottom: 20px;
+}
+
 .bq-tabs {
     display: flex;
     gap: 8px;

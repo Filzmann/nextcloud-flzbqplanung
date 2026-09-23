@@ -24,7 +24,16 @@ Eignungsentscheidungen und Teilnehmerzuordnungen.
 
 Planung, Lehre und Veröffentlichung sind getrennte serverseitige Fähigkeiten.
 Native Administration benötigt für fachlichen Vollzugriff eine app-lokale,
-zeitlich begrenzte Freigabe. Die App bleibt bis zu den dokumentierten
+zeitlich begrenzte Freigabe. Ausschließlich Mitglieder der nativen Gruppe
+`Datenschutzbeauftragte` dürfen die Freigabehistorie lesen und Freigaben für
+aktuelle native Administrationskonten in der BQ-Fachoberfläche erteilen oder
+widerrufen. Die authentifizierten Endpunkte sind deshalb nicht an die native
+Adminroute gebunden; Schreibrequests bleiben CSRF-geschützt und prüfen Rolle,
+Zielkonto und Dauer serverseitig. Rollenverlust, ungültige Ziele,
+Persistenzfehler, Ablauf und Verlust des nativen Adminstatus verweigern ohne
+zusätzliche Fachrechte. Ein fehlender Vollzugriff wird ausschließlich dem
+betroffenen Administrationskonto angezeigt; der direkte Sprung zur Steuerung
+erscheint nur beim selben Konto mit zusätzlicher Datenschutzrolle. Die App bleibt bis zu den dokumentierten
 Datenschutz-, Rechte-, Integrations- und Stagingnachweisen aus Bundles
 ausgeschlossen.
 

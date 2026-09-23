@@ -81,7 +81,12 @@ beim direkten Öffnen dieses App-Repositories.
   Fähigkeit deaktiviert. Native Nextcloud-Administrierende erhalten nur nach
   einer app-lokalen, UID-genauen Freigabe für höchstens 24 Stunden
   vollständigen Fachzugriff; Beginn, geplantes Ende und Widerruf werden
-  protokolliert. Die Anwesenheitsrolle bleibt bis zu konkreten
+  protokolliert. Ausschließlich Mitglieder der nativen Gruppe
+  `Datenschutzbeauftragte` lesen die Historie und erteilen oder widerrufen
+  Freigaben in der BQ-Fachoberfläche. Ein fehlender Vollzugriff wird nur dem
+  betroffenen Administrationskonto angezeigt; ein direkter Link zur
+  Freigabesteuerung erscheint ausschließlich, wenn dasselbe Konto zugleich
+  Mitglied von `Datenschutzbeauftragte` ist. Die Anwesenheitsrolle bleibt bis zu konkreten
   Anwesenheitsfunktionen reserviert und erteilt aktuell keine Fähigkeit.
 - Dozentinnenprofile enthalten personenbezogene Daten. Interne PFKs werden
   mit Nextcloud-UID referenziert, externe Dozentinnen mit app-eigener stabiler

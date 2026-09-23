@@ -62,7 +62,12 @@ Planung, Lehre und Veröffentlichung. Nicht konfigurierte Rollen bleiben
 deaktiviert. Native Nextcloud-Administrierende konfigurieren den technischen
 Adminbereich, erhalten fachlichen Vollzugriff jedoch nur über eine app-lokale,
 UID-genaue Freigabe von höchstens 24 Stunden. Beginn, geplantes Ende und
-Widerruf werden protokolliert. Die Oberfläche blendet
+Widerruf werden protokolliert. Ausschließlich Mitglieder der nativen Gruppe
+`Datenschutzbeauftragte` können in der BQ-Fachoberfläche die Historie lesen
+und Freigaben für aktuelle Administrationskonten erteilen oder widerrufen;
+native Administration allein genügt nicht. Ein fehlender Vollzugriff wird dem
+betroffenen Administrationskonto sicher angezeigt, während ein Direktlink zur
+Steuerung nur bei gleichzeitiger Datenschutz- und Adminrolle erscheint. Die Oberfläche blendet
 unzulässige Aktionen aus, während jeder API-Pfad die Fähigkeit zusätzlich
 serverseitig prüft. Eine Anwesenheitsrolle wird erst mit den zugehörigen
 Fachfunktionen aktiviert.
@@ -70,7 +75,7 @@ Fachfunktionen aktiviert.
 Der PermissionProvider weist konfigurierte Rollengruppen und die kombinierte
 Bedingung aus nativer Administration plus aktiver App-Freigabe getrennt aus.
 Der PersonalDataProvider umfasst die eigene Rolle in der Freigabehistorie,
-ohne Kennungen anderer beteiligter Administrator*innen offenzulegen. Externe
+ohne Kennungen anderer beteiligter Personen offenzulegen. Externe
 Dozentinnen bleiben bis zu einem sicheren externen Subject-Vertrag
 zurückgestellt.
 

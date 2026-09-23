@@ -39,6 +39,14 @@ final class BqPermissionProvider implements PermissionProvider {
             'app-settings',
             $temporaryAdmin,
         );
+        $rules[] = $this->rule(
+            'bq.admin_access.manage',
+            'Admin-Vollzugriff verwalten',
+            'Historie lesen sowie Freigaben ausschließlich für aktuelle native Administrationskonten erteilen oder widerrufen',
+            'all',
+            PermissionCondition::group('Datenschutzbeauftragte'),
+            'adbqplanung:TemporaryAdminAccessService',
+        );
 
         foreach ($this->source->roleGroups() as $role => $groupId) {
             $groupId = trim((string)$groupId);
@@ -58,6 +66,7 @@ final class BqPermissionProvider implements PermissionProvider {
         string $detail,
         string $scope,
         PermissionCondition $condition,
+        string $source = 'adbqplanung:AuthorizationService',
     ): PermissionRule {
         return new PermissionRule(
             'BQ-Funktion',
@@ -68,7 +77,7 @@ final class BqPermissionProvider implements PermissionProvider {
             'allow',
             $scope,
             $condition,
-            'adbqplanung:AuthorizationService',
+            $source,
             'high',
         );
     }

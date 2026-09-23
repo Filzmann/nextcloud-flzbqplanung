@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use OCA\AdBqPlanning\AppInfo\Application;
 
-script(Application::APP_ID, 'main');
+script(Application::APP_ID, 'admin-access');
+if ($_['hasBqAccess'] ?? false) {
+    script(Application::APP_ID, 'main');
+}
 style(Application::APP_ID, 'style');
 
 $runs = is_array($_['runs'] ?? null) ? $_['runs'] : [];
@@ -13,6 +16,7 @@ $lecturers = is_array($_['lecturers'] ?? null) ? $_['lecturers'] : [];
 $teachingRequests = is_array($_['teachingRequests'] ?? null) ? $_['teachingRequests'] : [];
 $capabilities = is_array($_['capabilities'] ?? null) ? $_['capabilities'] : ['admin' => false, 'planning' => false, 'teaching' => false, 'publishing' => false];
 $roleSettings = is_array($_['roleSettings'] ?? null) ? $_['roleSettings'] : [];
+$hasBqAccess = (bool)($_['hasBqAccess'] ?? false);
 $internalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'internal' && ($lecturer['active'] ?? false)));
 $externalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'external' && ($lecturer['active'] ?? false)));
 $lecturersById = [];
@@ -45,6 +49,29 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <p id="bq-feedback" class="bq-feedback" role="status" aria-live="polite"></p>
 
+    <?php if ($_['showMissingAdminGrant'] ?? false): ?>
+        <aside class="bq-access-notice" role="status">
+            <strong>Für dieses Administrationskonto ist kein zeitlich begrenzter fachlicher Vollzugriff aktiv.</strong>
+            <?php if ($_['showAdminAccessLink'] ?? false): ?><a href="#adbq-full-access-heading">Freigabesteuerung öffnen</a><?php endif; ?>
+        </aside>
+    <?php endif; ?>
+
+    <?php if ($_['canManageAdminAccess'] ?? false): ?>
+        <section id="adbq-full-access" class="bq-card bq-access-card" aria-labelledby="adbq-full-access-heading">
+            <h2 id="adbq-full-access-heading" tabindex="-1">Zeitlich begrenzter Admin-Vollzugriff</h2>
+            <p>Ausschließlich Mitglieder der Gruppe Datenschutzbeauftragte dürfen aktuellen Nextcloud-Administrationskonten fachlichen Vollzugriff erteilen. Maximal 24 Stunden sind zulässig.</p>
+            <form id="adbq-full-access-form" class="bq-form">
+                <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
+                <label>Dauer <select name="durationMinutes" required><option value="60">1 Stunde</option><option value="240">4 Stunden</option><option value="480">8 Stunden</option><option value="1440">24 Stunden</option></select></label>
+                <label><input id="adbq-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
+                <button type="submit" class="primary">Freigabe aktivieren</button>
+            </form>
+            <p id="adbq-full-access-status" role="status" aria-live="polite"></p>
+            <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="adbq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
+        </section>
+    <?php endif; ?>
+
+    <?php if ($hasBqAccess): ?>
     <nav class="bq-tabs" role="tablist" aria-label="BQ-Planungsbereiche">
         <button type="button" id="bq-tab-runs" class="bq-tab" role="tab" aria-controls="bq-panel-runs" aria-selected="true" tabindex="0" data-tab-target="bq-panel-runs">Durchläufe</button>
         <?php if ($capabilities['teaching']): ?><button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-lecturers">Dozentinnen</button><?php endif; ?>
@@ -80,7 +107,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
         </form>
         <form class="bq-card bq-form" data-endpoint="/api/role-settings" data-method="PUT">
             <h2>Rollengruppen</h2>
-            <p>Leere Gruppen lassen die jeweilige Rolle deaktiviert. Nextcloud-Administrierende behalten vollständigen Zugriff.</p>
+            <p>Leere Gruppen lassen die jeweilige Rolle deaktiviert. Nextcloud-Administrierende benötigen zusätzlich eine aktive app-lokale Freigabe.</p>
             <label>Planung <input name="planningGroup" value="<?php p((string)($roleSettings['planningGroup'] ?? '')); ?>" placeholder="bq-planning"></label>
             <label>Lehre <input name="teachingGroup" value="<?php p((string)($roleSettings['teachingGroup'] ?? '')); ?>" placeholder="bq-teaching"></label>
             <label>Veröffentlichung <input name="publishingGroup" value="<?php p((string)($roleSettings['publishingGroup'] ?? '')); ?>" placeholder="bq-publishing"></label>
@@ -364,5 +391,6 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <?php endforeach; ?>
         </section>
     </section>
+    <?php endif; ?>
     <?php endif; ?>
 </main>

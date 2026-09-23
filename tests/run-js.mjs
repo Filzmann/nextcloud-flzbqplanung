@@ -242,4 +242,6 @@ const moveRequest = requests.at(-1)
 assert.equal(moveRequest.url, '/nextcloud/apps/adbqplanung/api/runs/1/modules/reorder')
 assert.deepEqual(JSON.parse(moveRequest.options.body), { version: 4, moduleId: 3, direction: 'up' })
 
+await import('./admin-access-smoke.mjs')
+
 console.log('AD BQ-Planer JavaScript/UI contracts passed')

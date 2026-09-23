@@ -17,7 +17,7 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
     $source = new class implements BqPrivacySource {
         public function forSubject(string $uid, int $limit): array {
             return array_slice([
-                ['kind'=>'admin_access','id'=>5,'subject_uid'=>$uid,'target_uid'=>$uid,'granted_by'=>'other-admin','starts_at'=>'2026-08-04 10:00:00','ends_at'=>'2026-08-04 14:00:00','revoked_at'=>null,'revoked_by'=>null],
+                ['kind'=>'admin_access','id'=>5,'subject_uid'=>$uid,'target_uid'=>'other-admin','granted_by'=>$uid,'starts_at'=>'2026-08-04 10:00:00','ends_at'=>'2026-08-04 14:00:00','revoked_at'=>'2026-08-04 12:00:00','revoked_by'=>$uid],
                 ['kind'=>'profile','id'=>1,'active'=>true,'created_at'=>'2026-08-01','updated_at'=>'2026-08-02','display_name'=>'Externe Person','email'=>'external@example.invalid'],
                 ['kind'=>'lead','id'=>2,'run_id'=>10,'label'=>'BQ Herbst','starts_on'=>'2026-09-04','ends_on'=>'2026-09-14','status'=>'published','other_lecturer_uid'=>'other-person'],
                 ['kind'=>'module','id'=>3,'run_id'=>10,'title'=>'Datenschutz','module_date'=>'2026-09-08','starts_at'=>'09:00','ends_at'=>'12:00','external_name'=>'Externe Person'],
@@ -36,9 +36,9 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
     assertSame('complete', $page->status());
     assertSame(5, count($page->entries()));
     $json = json_encode(array_map(static fn($entry): array => [
-        'category'=>$entry->categoryId(), 'reference'=>$entry->reference(), 'summary'=>$entry->summary(), 'attributes'=>$entry->attributes(),
+        'category'=>$entry->categoryId(), 'reference'=>$entry->reference(), 'summary'=>$entry->summary(), 'source'=>$entry->source(), 'recipientCategories'=>$entry->recipientCategories(), 'attributes'=>$entry->attributes(),
     ], $page->entries()), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
-    foreach (['Admin-Vollzugriff','Ziel der Vollzugriffsfreigabe','Internes Dozentinnenprofil','BQ Herbst','04.09.2026','Datenschutz','08.09.2026','Durchlauf bearbeitet'] as $expected) {
+    foreach (['Admin-Vollzugriff','Freigebendes Mitglied von Datenschutzbeauftragte','Widerrufendes Mitglied von Datenschutzbeauftragte','Freigabesteuerung in der BQ-Fachoberfläche','Internes Dozentinnenprofil','BQ Herbst','04.09.2026','Datenschutz','08.09.2026','Durchlauf bearbeitet'] as $expected) {
         assertTrue(str_contains($json, $expected), "BQ-Metadatum fehlt: {$expected}");
     }
     foreach (['Externe Person','external@example.invalid','other-person','other-admin'] as $forbidden) {

@@ -11,6 +11,7 @@ use OCA\AdBqPlanning\Service\TemporaryAdminAccessDeniedException;
 use OCA\AdBqPlanning\Service\TemporaryAdminAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
@@ -21,12 +22,14 @@ final class TemporaryAdminAccessController extends Controller {
     public function __construct(IRequest $request, private TemporaryAdminAccessService $service, private LoggerInterface $logger) { parent::__construct(Application::APP_ID, $request); }
 
     #[NoCSRFRequired]
+    #[NoAdminRequired]
     public function status(): JSONResponse {
         try { $state=$this->service->state();$state['history']=array_map([$this,'serializeGrant'],$state['history']);return new JSONResponse($state); }
         catch (TemporaryAdminAccessDeniedException) { return $this->denied(); }
         catch (Throwable $error) { return $this->failed($error); }
     }
 
+    #[NoAdminRequired]
     public function activate(string $targetUid, int $durationMinutes): JSONResponse {
         try { return new JSONResponse(['grant'=>$this->serializeGrant($this->service->activate($targetUid,$durationMinutes))]); }
         catch (InvalidArgumentException $error) { return new JSONResponse(['message'=>$error->getMessage()],Http::STATUS_BAD_REQUEST); }
@@ -34,8 +37,10 @@ final class TemporaryAdminAccessController extends Controller {
         catch (Throwable $error) { return $this->failed($error); }
     }
 
+    #[NoAdminRequired]
     public function revoke(string $targetUid): JSONResponse {
         try { return new JSONResponse(['revoked'=>$this->service->revoke($targetUid)]); }
+        catch (InvalidArgumentException $error) { return new JSONResponse(['message'=>$error->getMessage()],Http::STATUS_BAD_REQUEST); }
         catch (TemporaryAdminAccessDeniedException) { return $this->denied(); }
         catch (Throwable $error) { return $this->failed($error); }
     }

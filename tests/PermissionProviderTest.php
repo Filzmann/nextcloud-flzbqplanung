@@ -76,6 +76,7 @@ namespace AdBqPlanning\Tests {
             assertSame(['nextcloud-admin', 'app-admin-grant'], array_map(static fn($condition): string => $condition->operator, $nativeRule->condition->children));
         }
         assertSame(null, $groupId($byPermission['bq.teaching.manage']), 'An unconfigured role must have no group grant');
+        assertSame('Datenschutzbeauftragte', $groupId($byPermission['bq.admin_access.manage']));
         assertTrue(!isset($byPermission['bq.attendance.manage']), 'The reserved attendance role must grant no current capability');
 
         $event = new RegisterPermissionProvidersEvent();

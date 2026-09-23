@@ -25,6 +25,9 @@ TestRunner::test('BQ processing metadata publishes only the stable app-owned cat
         'temporary_admin_full_access',
     ], $catalog->processingIds());
     assertTrue(!array_key_exists('personal_runtime_data', $catalog->toArray()));
+    $encodedCatalog=json_encode($catalog->toArray(),JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);
+    assertTrue(str_contains($encodedCatalog,'Freigabesteuerung in der BQ-Fachoberfläche'));
+    assertTrue(!str_contains($encodedCatalog,'Allow-, Deny- und Manipulationsprüfungen stehen aus'));
 
     $registration = new RegisterProcessingMetadataProvidersEvent();
     $listener = new BqProcessingMetadataProviderListener($provider);
