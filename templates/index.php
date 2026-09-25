@@ -43,14 +43,14 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     <div class="orgsuite-host" data-orgsuite data-suite="ad" data-current-app="adbqplanung"></div>
     <header class="bq-hero">
         <p class="bq-eyebrow">Basisqualifizierung</p>
-        <h1 id="bq-page-title">BQ-Planer</h1>
+        <div class="bq-title-row"><h1 id="bq-page-title">BQ-Planer</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="bq-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="bq-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#adbq-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?></div>
         <p>Termine, Curriculum, Dozentinnen und Praxisreflexionen verlässlich vorbereiten.</p>
     </header>
 
     <p id="bq-feedback" class="bq-feedback" role="status" aria-live="polite"></p>
 
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
-        <aside class="bq-access-notice" role="status">
+        <aside hidden class="bq-access-notice" role="status">
             <strong>Für dieses Administrationskonto ist kein zeitlich begrenzter fachlicher Vollzugriff aktiv.</strong>
             <?php if ($_['showAdminAccessLink'] ?? false): ?><a href="#adbq-full-access-heading">Freigabesteuerung öffnen</a><?php endif; ?>
         </aside>

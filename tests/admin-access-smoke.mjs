@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+
+const template = readFileSync(new URL('../templates/index.php', import.meta.url), 'utf8')
+const style = readFileSync(new URL('../css/style.css', import.meta.url), 'utf8')
 
 const element = () => ({
     children: [],
@@ -54,3 +58,5 @@ assert.deepEqual(calls.map(([url, method]) => [url, method]), [
 assert.equal(calls[1][2], 'csrf-token')
 assert.equal(calls[3][2], 'csrf-token')
 assert.match(status.textContent, /widerrufen/)
+for (const contract of ['bq-admin-grant-warning', '<details', 'Datenschutzbeauftragte', 'target="_blank"']) assert.ok(template.includes(contract), `Titelwarnung für fehlenden Admin-Vollzugriff fehlt: ${contract}`)
+assert.ok(style.includes('.bq-admin-grant-warning'), 'Titelwarnung für fehlenden Admin-Vollzugriff ist nicht als kleines Floating-Icon gestaltet.')
