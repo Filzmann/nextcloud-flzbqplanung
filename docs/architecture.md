@@ -57,6 +57,19 @@ eine eigene, UID-genaue und höchstens 24 Stunden wirksame Verarbeitung.
 Der PersonalDataProvider liefert interne PFK- und Bearbeitungsbezüge. Externe
 Profile und Anfragen bleiben bis zu einem authentifizierten externen
 Subject-Vertrag ausgeschlossen; Name oder E-Mail sind keine Identifikation.
-Rechtsgrundlagen, Retention, Backup/Restore, externer Kommunikationskanal und
-Lösch-/Anonymisierungsmaßnahmen werden im Katalog sichtbar
-`PRIVACY-DECISION-REQUIRED` gehalten.
+Fachlicher Data Owner ist das Personalreferat beziehungsweise die
+BQ-Koordination; IKT bleibt auf den technischen Betrieb begrenzt und
+Datenschutzbeauftragte entscheiden über Policies und begründete Holds.
+Externe Profile und Anfragen werden zwölf Monate nach Ablehnung, Absage oder
+Ende des letzten zugehörigen Kurses gelöscht, sofern kein aktiver oder
+zukünftiger Bezug besteht. In fachlich erforderlichen historischen
+Curriculumstrukturen wird dabei die Personenreferenz entfernt.
+
+Rechtsgrundlagen, Backup/Restore, der Lifecycle interner PFK-Bezüge und der
+externe Kommunikationsanbieter bleiben explizite
+`PRIVACY-DECISION-REQUIRED`-Einträge. Externe Betroffenenrechte benötigen
+denselben dokumentierten, bereits verifizierten Kontaktkanal; Name oder E-Mail
+genügen nicht. Kommunikation über
+einen externen Dienst bleibt bis zur anbieterbezogenen Freigabe deaktiviert.
+Die Aufbewahrungsregel ist Policy, kein Ausführungsnachweis; Löschung,
+Referenzintegrität, Restore und Fehlerpfade müssen app-lokal getestet werden.
