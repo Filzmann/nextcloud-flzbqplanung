@@ -6,6 +6,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const yearProposalStatus = document.getElementById('bq-year-proposal-status')
     if (!app) return
 
+    let horizontalScrollCleanup = () => {}
+    const bindPersistentHorizontalScroll = () => {
+        horizontalScrollCleanup()
+        const target = app.querySelector?.('.bq-tab-panel:not([hidden]) .bq-table-wrap')
+        if (!target) return
+        const proxy = document.createElement('div')
+        proxy.className = 'app-horizontal-scroll-proxy'
+        proxy.tabIndex = 0
+        proxy.setAttribute('role', 'region')
+        proxy.setAttribute('aria-label', 'Horizontal durch die sichtbare BQ-Ansicht scrollen')
+        const track = document.createElement('div')
+        track.className = 'app-horizontal-scroll-proxy__track'
+        track.setAttribute('aria-hidden', 'true')
+        proxy.append(track)
+        app.append(proxy)
+        const update = () => {
+            const visible = target.scrollWidth > target.clientWidth
+            proxy.hidden = !visible
+            track.style.width = `${target.scrollWidth}px`
+            if (visible) proxy.scrollLeft = target.scrollLeft
+        }
+        const fromProxy = () => { target.scrollLeft = proxy.scrollLeft }
+        const fromTarget = () => { proxy.scrollLeft = target.scrollLeft }
+        proxy.addEventListener('scroll', fromProxy)
+        target.addEventListener('scroll', fromTarget)
+        const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(update) : null
+        observer?.observe(app)
+        observer?.observe(target)
+        globalThis.addEventListener('resize', update)
+        update()
+        horizontalScrollCleanup = () => {
+            observer?.disconnect()
+            globalThis.removeEventListener('resize', update)
+            proxy.removeEventListener('scroll', fromProxy)
+            target.removeEventListener('scroll', fromTarget)
+            proxy.remove()
+            horizontalScrollCleanup = () => {}
+        }
+    }
+
     app.dataset.planningCore = 'ready'
     const tabs = Array.from(app.querySelectorAll('[role="tab"][data-tab-target]'))
     const tabPanels = Array.from(app.querySelectorAll('[role="tabpanel"]'))
@@ -19,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             panel.hidden = panel.id !== tab.dataset.tabTarget
         })
         if (moveFocus) tab.focus()
+        bindPersistentHorizontalScroll()
     }
     tabs.forEach((tab, index) => {
         tab.addEventListener('click', () => activateTab(tab))
@@ -33,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activateTab(tabs[targetIndex], true)
         })
     })
+    bindPersistentHorizontalScroll()
 
     app.addEventListener('submit', async event => {
         const form = event.target
