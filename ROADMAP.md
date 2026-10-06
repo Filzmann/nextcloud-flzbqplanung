@@ -7,6 +7,25 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 ## Nächste freigabepflichtige Pakete
 
+### ADBQ-STAGING-FOLLOWUP – Nacharbeit aus der manuellen Abnahme
+
+- Die Vollständigkeit von Ferien-, Feiertags- und BQ-eigenen Sperrtagsquellen
+  in der Vorschlagsoberfläche so deutlich darstellen wie im Urlaubsplaner;
+  ohne vollständige Quelle darf kein Vorschlag als konfliktfrei erscheinen.
+- Die zentrale versionierte Curriculum-Vorlage verständlich bearbeiten und
+  daraus je Durchlauf einen weiterhin editier- und verschiebbaren Snapshot
+  verwenden. Die bereits geltende Trennung von Vorlage und Snapshot bleibt
+  dabei die einzige Datenwahrheit.
+- Das Feld für interne PFKs als Suche über die in Nextcloud vorhandenen
+  Mitglieder der konfigurierten PFK-Gruppe ausführen und Auswahl sowie
+  serverseitige UID-Prüfung abnehmen.
+- Bedeutung und Übergänge des Dozentinnenstatus erklären und die zulässigen
+  Werte in allen Zeilen der Dozentinnentabelle zugänglich bearbeitbar machen.
+- Die systemweite UI-Bündelung der temporären Adminfreigabe folgt `DP-11` im
+  Parent-Zukunftsplan; Rechte, Audit und Persistenz bleiben app-lokal.
+- Das manuelle Abnahmeformular enthält für jeden Fall konkrete Schritte,
+  erwartete Ergebnisse und ein eigenes Evidenzfeld.
+
 1. Optionalen, fehlertoleranten Versandkanal für externe Anfragen erst nach
    ausdrücklicher anbieterbezogener Datenschutzfreigabe ergänzen; der aktuelle
    Workflow erfasst ausschließlich den Kommunikationsstatus.
