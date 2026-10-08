@@ -57,6 +57,21 @@ assert.doesNotMatch(script, /window\./)
 
 const listeners = {}
 const tabListeners = new Map()
+const globalListeners = new Map()
+const observed = []
+globalThis.addEventListener = (type, callback) => globalListeners.set(type, callback)
+globalThis.removeEventListener = (type, callback) => {
+    if (globalListeners.get(type) === callback) globalListeners.delete(type)
+}
+globalThis.ResizeObserver = class {
+    constructor(callback) {
+        this.callback = callback
+        this.disconnected = false
+        observed.push(this)
+    }
+    observe(target) { this.targets = [...(this.targets || []), target] }
+    disconnect() { this.disconnected = true }
+}
 const panels = ['runs', 'lecturers', 'settings'].map((name, index) => ({
     id: `bq-panel-${name}`,
     hidden: index !== 0,
@@ -78,8 +93,20 @@ const tabs = ['runs', 'lecturers', 'settings'].map((name, index) => ({
         this.focused = true
     },
 }))
+const tableWrap = {
+    scrollWidth: 640,
+    clientWidth: 320,
+    scrollLeft: 12,
+    listeners: new Map(),
+    addEventListener(type, callback) { this.listeners.set(type, callback) },
+    removeEventListener(type, callback) {
+        if (this.listeners.get(type) === callback) this.listeners.delete(type)
+    },
+}
 const app = {
     dataset: {},
+    children: [],
+    append(child) { this.children.push(child) },
     addEventListener(type, callback) {
         listeners[type] = callback
     },
@@ -88,9 +115,13 @@ const app = {
         if (selector === '[role="tabpanel"]') return panels
         return []
     },
+    querySelector(selector) {
+        return selector === '.bq-tab-panel:not([hidden]) .bq-table-wrap' ? tableWrap : null
+    },
 }
 const feedback = { textContent: '', dataset: {} }
 const proposalResult = { textContent: '' }
+const yearProposalStatus = { textContent: '' }
 const yearProposalRows = {
     children: [],
     replaceChildren(...children) { this.children = children },
@@ -107,6 +138,7 @@ globalThis.document = {
         if (id === 'bq-feedback') return feedback
         if (id === 'bq-proposal-result') return proposalResult
         if (id === 'bq-year-proposal-rows') return yearProposalRows
+        if (id === 'bq-year-proposal-status') return yearProposalStatus
         return null
     },
     createElement(tagName) {
@@ -114,7 +146,16 @@ globalThis.document = {
             tagName,
             children: [],
             textContent: '',
+            style: {},
+            listeners: new Map(),
+            attributes: new Map(),
             append(...children) { this.children.push(...children) },
+            addEventListener(type, callback) { this.listeners.set(type, callback) },
+            removeEventListener(type, callback) {
+                if (this.listeners.get(type) === callback) this.listeners.delete(type)
+            },
+            setAttribute(name, value) { this.attributes.set(name, value) },
+            remove() { this.removed = true },
         }
     },
 }
@@ -140,8 +181,20 @@ globalThis.fetch = async (url, options) => {
 }
 await import('../js/main.js')
 assert.equal(app.dataset.planningCore, 'ready')
+const firstProxy = app.children[0]
+assert.equal(firstProxy.hidden, false)
+assert.equal(firstProxy.children[0].style.width, '640px')
+firstProxy.scrollLeft = 48
+firstProxy.listeners.get('scroll')()
+assert.equal(tableWrap.scrollLeft, 48)
+tableWrap.scrollLeft = 96
+tableWrap.listeners.get('scroll')()
+assert.equal(firstProxy.scrollLeft, 96)
+globalListeners.get('resize')()
 
 tabListeners.get('bq-tab-lecturers:click')({ currentTarget: tabs[1] })
+assert.equal(firstProxy.removed, true)
+assert.equal(observed[0].disconnected, true)
 assert.equal(tabs[0].attributes['aria-selected'], 'false')
 assert.equal(tabs[1].attributes['aria-selected'], 'true')
 assert.equal(tabs[1].attributes.tabindex, '0')
@@ -183,6 +236,10 @@ const proposalForm = {
     fields: { proposalMonth: '2026-09' },
     matches: selector => selector === 'form[data-proposal-form]',
 }
+proposalForm.fields.proposalMonth = 'invalid'
+await listeners.submit({ target: proposalForm, preventDefault() {} })
+assert.equal(proposalResult.textContent, 'Bitte einen gültigen Planungsmonat auswählen.')
+proposalForm.fields.proposalMonth = '2026-09'
 globalThis.fetch = async (url, options) => {
     requests.push({ url, options })
     return {
@@ -206,11 +263,18 @@ globalThis.fetch = async () => ({
 })
 await listeners.submit({ target: proposalForm, preventDefault() {} })
 assert.equal(proposalResult.textContent, 'Kalenderquelle nicht vollständig.')
+globalThis.fetch = async () => { throw new Error('Kalender offline') }
+await listeners.submit({ target: proposalForm, preventDefault() {} })
+assert.equal(proposalResult.textContent, 'Kalender offline')
 
 const yearForm = {
     fields: { proposalYear: '2026' },
     matches: selector => selector === 'form[data-year-proposal-form]',
 }
+yearForm.fields.proposalYear = '1999'
+await listeners.submit({ target: yearForm, preventDefault() {} })
+assert.equal(yearProposalStatus.textContent, 'Bitte ein gültiges Planungsjahr zwischen 2000 und 2200 eingeben.')
+yearForm.fields.proposalYear = '2026'
 globalThis.fetch = async (url, options) => {
     requests.push({ url, options })
     return {
@@ -229,6 +293,9 @@ assert.equal(yearProposalRows.children[0].children[1].textContent, '2026-01-02 b
 assert.match(yearProposalRows.children[0].children[2].textContent, /keine verworfenen Starttermine/i)
 assert.equal(yearProposalRows.children[1].children[1].textContent, 'Kein automatischer Vorschlag')
 assert.equal(yearProposalRows.children[1].children[2].textContent, 'Kein konfliktfreier Termin.')
+globalThis.fetch = async () => { throw new Error('Jahresvorschau offline') }
+await listeners.submit({ target: yearForm, preventDefault() {} })
+assert.equal(yearProposalStatus.textContent, 'Jahresvorschau offline')
 
 globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'Ungültige Planung' }) })
 await listeners.submit({ target: form, preventDefault() {} })
@@ -248,6 +315,17 @@ await listeners.submit({ target: moveForm, preventDefault() {} })
 const moveRequest = requests.at(-1)
 assert.equal(moveRequest.url, '/nextcloud/apps/flzbqplanung/api/runs/1/modules/reorder')
 assert.deepEqual(JSON.parse(moveRequest.options.body), { version: 4, moduleId: 3, direction: 'up' })
+
+const bridgeDaysForm = {
+    dataset: { endpoint: '/api/settings/planning', method: 'POST' },
+    fields: { bridgeDays: '2026-12-24, ,2026-12-31', workdayCount: '7' },
+    matches: selector => selector === 'form[data-endpoint]',
+}
+await listeners.submit({ target: bridgeDaysForm, preventDefault() {} })
+assert.deepEqual(JSON.parse(requests.at(-1).options.body), {
+    bridgeDays: ['2026-12-24', '2026-12-31'],
+    workdayCount: 7,
+})
 
 await import('./admin-access-smoke.mjs')
 
