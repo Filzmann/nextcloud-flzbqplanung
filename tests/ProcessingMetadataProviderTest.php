@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
-use OCA\AdBqPlanning\Privacy\BqProcessingMetadataProvider;
-use OCA\AdBqPlanning\Privacy\BqProcessingMetadataProviderListener;
-use OCA\FilzmannDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
+use OCA\FlzBqPlanning\Privacy\BqProcessingMetadataProvider;
+use OCA\FlzBqPlanning\Privacy\BqProcessingMetadataProviderListener;
+use OCA\FlzDataProtection\PublicApi\V1\RegisterProcessingMetadataProvidersEvent;
 use OCP\EventDispatcher\Event;
 
 TestRunner::test('BQ processing metadata publishes only the stable app-owned catalog', static function (): void {
@@ -14,10 +14,10 @@ TestRunner::test('BQ processing metadata publishes only the stable app-owned cat
     $catalog = $provider->catalog();
     $descriptor = $provider->descriptor();
 
-    assertSame('adbqplanung', $descriptor->appId());
-    assertSame('AD BQ-Planer', $descriptor->displayName());
+    assertSame('flzbqplanung', $descriptor->appId());
+    assertSame('Filzmann BQ-Planer', $descriptor->displayName());
     assertSame('1.0', $descriptor->contractVersion());
-    assertSame('adbqplanung', $catalog->appId());
+    assertSame('flzbqplanung', $catalog->appId());
     assertSame([
         'bq_run_curriculum_and_schedule_management',
         'lecturer_profile_and_assignment_management',
@@ -34,7 +34,7 @@ TestRunner::test('BQ processing metadata publishes only the stable app-owned cat
     $listener->handle(new Event());
     assertSame([], $registration->providers());
     $listener->handle($registration);
-    assertSame(['adbqplanung'], array_keys($registration->providers()));
+    assertSame(['flzbqplanung'], array_keys($registration->providers()));
 
     $application = (string)file_get_contents(dirname(__DIR__) . '/lib/AppInfo/Application.php');
     assertTrue(str_contains($application, 'registerEventListener(RegisterProcessingMetadataProvidersEvent::class, BqProcessingMetadataProviderListener::class)'));

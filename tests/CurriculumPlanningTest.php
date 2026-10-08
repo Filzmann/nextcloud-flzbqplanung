@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use DomainException;
-use OCA\AdBqPlanning\Domain\Curriculum\CurriculumSnapshot;
-use OCA\AdBqPlanning\Domain\Curriculum\CurriculumTemplate;
-use OCA\AdBqPlanning\Domain\Lecturer\LecturerProfile;
-use OCA\AdBqPlanning\Domain\Lecturer\TeachingTeamPlan;
+use OCA\FlzBqPlanning\Domain\Curriculum\CurriculumSnapshot;
+use OCA\FlzBqPlanning\Domain\Curriculum\CurriculumTemplate;
+use OCA\FlzBqPlanning\Domain\Lecturer\LecturerProfile;
+use OCA\FlzBqPlanning\Domain\Lecturer\TeachingTeamPlan;
 
 TestRunner::test('run curriculum is a movable snapshot and never mutates its template', static function (): void {
     $template = new CurriculumTemplate('basis-2026', 3, [

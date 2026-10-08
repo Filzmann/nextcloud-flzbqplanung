@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Repository;
+namespace OCA\FlzBqPlanning\Repository;
 
 use DateTimeImmutable;
 

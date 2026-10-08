@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Privacy;
+namespace OCA\FlzBqPlanning\Privacy;
 
 use DomainException;
 use InvalidArgumentException;
 use JsonException;
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataCatalog;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataProvider;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProcessingMetadataProviderDescriptor;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataCatalog;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataProvider;
+use OCA\FlzDataProtection\PublicApi\V1\ProcessingMetadataProviderDescriptor;
 
 final class BqProcessingMetadataProvider implements ProcessingMetadataProvider {
     public function descriptor(): ProcessingMetadataProviderDescriptor {
-        return new ProcessingMetadataProviderDescriptor(Application::APP_ID, 'AD BQ-Planer', '1.0');
+        return new ProcessingMetadataProviderDescriptor(Application::APP_ID, 'Filzmann BQ-Planer', '1.0');
     }
 
     public function catalog(): ProcessingMetadataCatalog {

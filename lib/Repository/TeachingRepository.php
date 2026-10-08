@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Repository;
+namespace OCA\FlzBqPlanning\Repository;
 
 use DomainException;
-use OCA\AdBqPlanning\Contract\TeachingStore;
+use OCA\FlzBqPlanning\Contract\TeachingStore;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -18,7 +18,7 @@ final class TeachingRepository implements TeachingStore {
     public function createLecturer(array $lecturer): int {
         $now = $this->now();
         $qb = $this->db->getQueryBuilder();
-        $qb->insert('adbq_lecturers')->values([
+        $qb->insert('flz_bq_lecturers')->values([
             'kind' => $qb->createNamedParameter($lecturer['kind']),
             'nextcloud_uid' => $qb->createNamedParameter($lecturer['nextcloudUid']),
             'display_name' => $qb->createNamedParameter($lecturer['displayName']),
@@ -35,7 +35,7 @@ final class TeachingRepository implements TeachingStore {
 
     public function lecturers(): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('*')->from('adbq_lecturers')
+        $result = $qb->select('*')->from('flz_bq_lecturers')
             ->orderBy('kind', 'ASC')->addOrderBy('id', 'ASC')->executeQuery();
         try {
             return array_map([$this, 'mapLecturer'], $result->fetchAllAssociative());
@@ -45,11 +45,11 @@ final class TeachingRepository implements TeachingStore {
     }
 
     public function lecturer(int $lecturerId): array {
-        return $this->one('adbq_lecturers', $lecturerId, [$this, 'mapLecturer'], 'Die Dozentin wurde nicht gefunden.');
+        return $this->one('flz_bq_lecturers', $lecturerId, [$this, 'mapLecturer'], 'Die Dozentin wurde nicht gefunden.');
     }
 
     public function run(int $runId): array {
-        return $this->one('adbq_runs', $runId, static fn (array $row): array => [
+        return $this->one('flz_bq_runs', $runId, static fn (array $row): array => [
             'id' => (int)$row['id'],
             'status' => (string)$row['status'],
             'version' => (int)$row['version'],
@@ -58,7 +58,7 @@ final class TeachingRepository implements TeachingStore {
     }
 
     public function module(int $moduleId): array {
-        return $this->one('adbq_modules', $moduleId, static fn (array $row): array => [
+        return $this->one('flz_bq_modules', $moduleId, static fn (array $row): array => [
             'id' => (int)$row['id'],
             'runId' => (int)$row['run_id'],
             'version' => (int)$row['version'],
@@ -68,7 +68,7 @@ final class TeachingRepository implements TeachingStore {
 
     public function setLead(int $runId, int $lecturerId, int $expectedVersion, string $actorUid): array {
         $qb = $this->db->getQueryBuilder();
-        $affected = $qb->update('adbq_runs')
+        $affected = $qb->update('flz_bq_runs')
             ->set('lead_lecturer_id', $qb->createNamedParameter($lecturerId, IQueryBuilder::PARAM_INT))
             ->set('version', $qb->createFunction('version + 1'))
             ->set('updated_by', $qb->createNamedParameter($actorUid))
@@ -83,7 +83,7 @@ final class TeachingRepository implements TeachingStore {
 
     public function activeRequestForModule(int $moduleId): ?array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('*')->from('adbq_lecturer_requests')
+        $result = $qb->select('*')->from('flz_bq_lecturer_requests')
             ->where($qb->expr()->eq('module_id', $qb->createNamedParameter($moduleId, IQueryBuilder::PARAM_INT)))
             ->andWhere($qb->expr()->orX(
                 $qb->expr()->eq('status', $qb->createNamedParameter('requested')),
@@ -102,7 +102,7 @@ final class TeachingRepository implements TeachingStore {
         $this->db->beginTransaction();
         try {
             $run = $this->db->getQueryBuilder();
-            $runAffected = $run->update('adbq_runs')
+            $runAffected = $run->update('flz_bq_runs')
                 ->set('version', $run->createFunction('version + 1'))
                 ->set('updated_by', $run->createNamedParameter($actorUid))
                 ->set('updated_at', $run->createNamedParameter($this->now()))
@@ -113,7 +113,7 @@ final class TeachingRepository implements TeachingStore {
             if ($runAffected !== 1) throw new DomainException('Der BQ-Durchlauf wurde zwischenzeitlich geändert.');
 
             $moduleQb = $this->db->getQueryBuilder();
-            $moduleAffected = $moduleQb->update('adbq_modules')
+            $moduleAffected = $moduleQb->update('flz_bq_modules')
                 ->set('version', $moduleQb->createFunction('version + 1'))
                 ->where($moduleQb->expr()->eq('id', $moduleQb->createNamedParameter($request['moduleId'], IQueryBuilder::PARAM_INT)))
                 ->andWhere($moduleQb->expr()->eq('version', $moduleQb->createNamedParameter($expectedModuleVersion, IQueryBuilder::PARAM_INT)))
@@ -122,7 +122,7 @@ final class TeachingRepository implements TeachingStore {
 
             $now = $this->now();
             $qb = $this->db->getQueryBuilder();
-            $qb->insert('adbq_lecturer_requests')->values([
+            $qb->insert('flz_bq_lecturer_requests')->values([
                 'module_id' => $qb->createNamedParameter($request['moduleId'], IQueryBuilder::PARAM_INT),
                 'lecturer_id' => $qb->createNamedParameter($request['lecturerId'], IQueryBuilder::PARAM_INT),
                 'status' => $qb->createNamedParameter('requested'),
@@ -142,12 +142,12 @@ final class TeachingRepository implements TeachingStore {
     }
 
     public function request(int $requestId): array {
-        return $this->one('adbq_lecturer_requests', $requestId, [$this, 'mapRequest'], 'Die Dozentinnenanfrage wurde nicht gefunden.');
+        return $this->one('flz_bq_lecturer_requests', $requestId, [$this, 'mapRequest'], 'Die Dozentinnenanfrage wurde nicht gefunden.');
     }
 
     public function requests(): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('*')->from('adbq_lecturer_requests')
+        $result = $qb->select('*')->from('flz_bq_lecturer_requests')
             ->orderBy('id', 'DESC')->executeQuery();
         try {
             return array_map([$this, 'mapRequest'], $result->fetchAllAssociative());
@@ -168,7 +168,7 @@ final class TeachingRepository implements TeachingStore {
         $this->db->beginTransaction();
         try {
             $qb = $this->db->getQueryBuilder();
-            $affected = $qb->update('adbq_lecturer_requests')
+            $affected = $qb->update('flz_bq_lecturer_requests')
                 ->set('status', $qb->createNamedParameter($to))
                 ->set('version', $qb->createFunction('version + 1'))
                 ->set('updated_by', $qb->createNamedParameter($actorUid))
@@ -184,7 +184,7 @@ final class TeachingRepository implements TeachingStore {
                 $value = $assignmentAction === 'assign'
                     ? $module->createNamedParameter($request['lecturerId'], IQueryBuilder::PARAM_INT)
                     : $module->createNamedParameter(null);
-                $module->update('adbq_modules')
+                $module->update('flz_bq_modules')
                     ->set('lecturer_id', $value)
                     ->set('version', $module->createFunction('version + 1'))
                     ->where($module->expr()->eq('id', $module->createNamedParameter($request['moduleId'], IQueryBuilder::PARAM_INT)));

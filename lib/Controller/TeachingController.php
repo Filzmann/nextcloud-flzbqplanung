@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Controller;
+namespace OCA\FlzBqPlanning\Controller;
 
 use DomainException;
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\AdBqPlanning\Exception\AccessDeniedException;
-use OCA\AdBqPlanning\Repository\TeachingRepository;
-use OCA\AdBqPlanning\Service\TeachingService;
-use OCA\AdBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\Exception\AccessDeniedException;
+use OCA\FlzBqPlanning\Repository\TeachingRepository;
+use OCA\FlzBqPlanning\Service\TeachingService;
+use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;

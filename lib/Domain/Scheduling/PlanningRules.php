@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Domain\Scheduling;
+namespace OCA\FlzBqPlanning\Domain\Scheduling;
 
 use DomainException;
 

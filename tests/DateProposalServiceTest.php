@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use DateTimeImmutable;
 use DomainException;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedCalendar;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedPeriod;
-use OCA\AdBqPlanning\Domain\Scheduling\DateProposalService;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
-use OCA\AdBqPlanning\Domain\Scheduling\ReflectionPlanner;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedCalendar;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedPeriod;
+use OCA\FlzBqPlanning\Domain\Scheduling\DateProposalService;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\Domain\Scheduling\ReflectionPlanner;
 
 TestRunner::test('monthly proposal uses seven workdays from Friday and explains rejected conflicts', static function (): void {
     $calendar = new BlockedCalendar([

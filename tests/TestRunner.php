@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use RuntimeException;
 use Throwable;

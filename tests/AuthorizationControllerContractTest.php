@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 TestRunner::test('every BQ surface delegates access to the central authorization service', static function (): void {
     $root = dirname(__DIR__);

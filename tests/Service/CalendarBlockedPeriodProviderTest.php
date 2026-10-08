@@ -34,9 +34,9 @@ namespace Psr\Log {
     }
 }
 
-namespace AdBqPlanning\Tests {
+namespace FlzBqPlanning\Tests {
     use DateTimeImmutable;
-    use OCA\AdBqPlanning\Service\CalendarBlockedPeriodProvider;
+    use OCA\FlzBqPlanning\Service\CalendarBlockedPeriodProvider;
     use OCA\LocalBase\Calendar\HolidayCalendarService;
     use Psr\Log\LoggerInterface;
 

@@ -115,11 +115,11 @@ namespace Psr\Log {
     }
 }
 
-namespace AdBqPlanning\Tests {
-    use OCA\AdBqPlanning\AppInfo\Application;
-    use OCA\AdBqPlanning\Listener\StandaloneNavigationListener;
-    use OCA\AdBqPlanning\Service\AuthorizationService;
-    use OCA\AdBqPlanning\Service\TemporaryAdminAccessChecker;
+namespace FlzBqPlanning\Tests {
+    use OCA\FlzBqPlanning\AppInfo\Application;
+    use OCA\FlzBqPlanning\Listener\StandaloneNavigationListener;
+    use OCA\FlzBqPlanning\Service\AuthorizationService;
+    use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCA\LocalBase\Service\StandaloneAppNavigationService;
     use OCP\EventDispatcher\Event;
     use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
@@ -165,7 +165,7 @@ namespace AdBqPlanning\Tests {
 
     TestRunner::test('framework entrypoint uses the approved app and template identities', static function (): void {
         $application = new Application(['sample' => 'value']);
-        assertSame('adbqplanung', $application->appId);
+        assertSame('flzbqplanung', $application->appId);
     });
 
     TestRunner::test('standalone navigation delegates only the Nextcloud navigation event', static function (): void {
@@ -176,7 +176,7 @@ namespace AdBqPlanning\Tests {
         assertSame([], $navigation->calls);
 
         $listener->handle(new LoadAdditionalEntriesEvent());
-        assertSame([['adbqplanung', 'BQ-Planer', 'app.svg']], $navigation->calls);
+        assertSame([['flzbqplanung', 'BQ-Planer', 'app.svg']], $navigation->calls);
     });
 
     TestRunner::test('standalone navigation stays absent without BQ access', static function (): void {

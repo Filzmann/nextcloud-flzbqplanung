@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use InvalidArgumentException;
-use OCA\AdBqPlanning\Privacy\BqPersonalDataProvider;
-use OCA\AdBqPlanning\Privacy\BqPrivacyProviderListener;
-use OCA\AdBqPlanning\Privacy\BqPrivacySource;
-use OCA\FilzmannDataProtection\PublicApi\V1\DataSubjectRef;
-use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataRequest;
-use OCA\FilzmannDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
+use OCA\FlzBqPlanning\Privacy\BqPersonalDataProvider;
+use OCA\FlzBqPlanning\Privacy\BqPrivacyProviderListener;
+use OCA\FlzBqPlanning\Privacy\BqPrivacySource;
+use OCA\FlzDataProtection\PublicApi\V1\DataSubjectRef;
+use OCA\FlzDataProtection\PublicApi\V1\PersonalDataRequest;
+use OCA\FlzDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
 
 TestRunner::test('internal BQ lecturer privacy excludes external identities and foreign teaching data', static function (): void {
     assertTrue(class_exists(BqPersonalDataProvider::class), 'BQ privacy provider is missing');
@@ -27,7 +27,7 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
     };
     $provider = new BqPersonalDataProvider($source);
     $descriptor = $provider->descriptor();
-    assertSame('adbqplanung', $descriptor->appId());
+    assertSame('flzbqplanung', $descriptor->appId());
     assertSame('1.0', $descriptor->contractVersion());
     assertTrue($descriptor->supportsSubjectType('nextcloud-user'));
 
@@ -51,12 +51,12 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
     $unsupported = $provider->collect(new PersonalDataRequest(new DataSubjectRef('external-lecturer', 'ext:1'), 'de', 'access-report', 50, []));
     assertSame('not_applicable', $unsupported->status());
     assertSame([], $unsupported->entries());
-    assertThrows(static fn() => $provider->collect((new PersonalDataRequest($subject, 'de', 'access-report', 50, ['adbqplanung'=>'opaque']))->forProvider('adbqplanung', 50)), InvalidArgumentException::class);
+    assertThrows(static fn() => $provider->collect((new PersonalDataRequest($subject, 'de', 'access-report', 50, ['flzbqplanung'=>'opaque']))->forProvider('flzbqplanung', 50)), InvalidArgumentException::class);
 
     $listener = new BqPrivacyProviderListener($provider);
     $event = new RegisterPersonalDataProvidersEvent();
     $listener->handle($event);
-    assertSame(['adbqplanung'], array_keys($event->providers()));
+    assertSame(['flzbqplanung'], array_keys($event->providers()));
     $application = (string)file_get_contents(dirname(__DIR__) . '/lib/AppInfo/Application.php');
     assertTrue(str_contains($application, 'registerEventListener(RegisterPersonalDataProvidersEvent::class, BqPrivacyProviderListener::class)'));
 });

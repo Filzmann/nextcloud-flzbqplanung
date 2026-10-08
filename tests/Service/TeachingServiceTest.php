@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use DomainException;
-use OCA\AdBqPlanning\Contract\TeachingStore;
-use OCA\AdBqPlanning\Service\TeachingService;
+use OCA\FlzBqPlanning\Contract\TeachingStore;
+use OCA\FlzBqPlanning\Service\TeachingService;
 
 final class MemoryTeachingStore implements TeachingStore {
     public array $lecturerRows = [];
@@ -70,9 +70,9 @@ final class MemoryTeachingStore implements TeachingStore {
 TestRunner::test('internal PFK and external lecturer keep separate minimal identities', static function (): void {
     $store = new MemoryTeachingStore();
     $service = new TeachingService();
-    $internal = $service->createLecturer($store, 'internal', 'ad-demo-pfk-a', '', '', 'admin');
+    $internal = $service->createLecturer($store, 'internal', 'flz-demo-pfk-a', '', '', 'admin');
     $external = $service->createLecturer($store, 'external', '', 'Erika Beispiel', 'erika@example.invalid', 'admin');
-    assertSame('ad-demo-pfk-a', $store->lecturerRows[$internal]['nextcloudUid']);
+    assertSame('flz-demo-pfk-a', $store->lecturerRows[$internal]['nextcloudUid']);
     assertSame(null, $store->lecturerRows[$internal]['email']);
     assertSame('Erika Beispiel', $store->lecturerRows[$external]['displayName']);
     assertSame(null, $store->lecturerRows[$external]['nextcloudUid']);
@@ -83,7 +83,7 @@ TestRunner::test('internal PFK and external lecturer keep separate minimal ident
 TestRunner::test('only an active internal PFK can lead a draft run', static function (): void {
     $store = new MemoryTeachingStore();
     $service = new TeachingService();
-    $pfk = $service->createLecturer($store, 'internal', 'ad-demo-pfk-a', '', '', 'admin');
+    $pfk = $service->createLecturer($store, 'internal', 'flz-demo-pfk-a', '', '', 'admin');
     $external = $service->createLecturer($store, 'external', '', 'Erika Beispiel', 'erika@example.invalid', 'admin');
     $run = $service->setLead($store, 1, $pfk, 1, 'admin');
     assertSame($pfk, $run['leadLecturerId']);

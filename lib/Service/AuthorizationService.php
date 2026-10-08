@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\AdBqPlanning\Exception\AccessDeniedException;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\Exception\AccessDeniedException;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 use OCP\IUserSession;

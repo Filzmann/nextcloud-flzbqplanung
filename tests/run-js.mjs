@@ -103,7 +103,7 @@ globalThis.document = {
         callback()
     },
     getElementById(id) {
-        if (id === 'adbqplanung-app') return app
+        if (id === 'flzbqplanung-app') return app
         if (id === 'bq-feedback') return feedback
         if (id === 'bq-proposal-result') return proposalResult
         if (id === 'bq-year-proposal-rows') return yearProposalRows
@@ -170,7 +170,7 @@ const form = {
     matches: selector => selector === 'form[data-endpoint]',
 }
 await listeners.submit({ target: form, preventDefault() {} })
-assert.equal(requests[0].url, '/nextcloud/apps/adbqplanung/api/runs')
+assert.equal(requests[0].url, '/nextcloud/apps/flzbqplanung/api/runs')
 assert.equal(requests[0].options.headers.requesttoken, 'csrf-token')
 assert.deepEqual(JSON.parse(requests[0].options.body), {
     label: 'BQ 09/26',
@@ -196,7 +196,7 @@ globalThis.fetch = async (url, options) => {
     }
 }
 await listeners.submit({ target: proposalForm, preventDefault() {} })
-assert.equal(requests[1].url, '/nextcloud/apps/adbqplanung/api/proposals?year=2026&month=9')
+assert.equal(requests[1].url, '/nextcloud/apps/flzbqplanung/api/proposals?year=2026&month=9')
 assert.match(proposalResult.textContent, /Kalender vollständig geprüft/)
 assert.match(proposalResult.textContent, /2026-09-04 bis 2026-09-14/)
 
@@ -222,7 +222,7 @@ globalThis.fetch = async (url, options) => {
     }
 }
 await listeners.submit({ target: yearForm, preventDefault() {} })
-assert.equal(requests[2].url, '/nextcloud/apps/adbqplanung/api/proposals/year?year=2026')
+assert.equal(requests[2].url, '/nextcloud/apps/flzbqplanung/api/proposals/year?year=2026')
 assert.equal(yearProposalRows.children.length, 2)
 assert.equal(yearProposalRows.children[0].children[0].textContent, 'Januar')
 assert.equal(yearProposalRows.children[0].children[1].textContent, '2026-01-02 bis 2026-01-12')
@@ -246,9 +246,9 @@ globalThis.fetch = async (url, options) => {
 }
 await listeners.submit({ target: moveForm, preventDefault() {} })
 const moveRequest = requests.at(-1)
-assert.equal(moveRequest.url, '/nextcloud/apps/adbqplanung/api/runs/1/modules/reorder')
+assert.equal(moveRequest.url, '/nextcloud/apps/flzbqplanung/api/runs/1/modules/reorder')
 assert.deepEqual(JSON.parse(moveRequest.options.body), { version: 4, moduleId: 3, direction: 'up' })
 
 await import('./admin-access-smoke.mjs')
 
-console.log('AD BQ-Planer JavaScript/UI contracts passed')
+console.log('Filzmann BQ-Planer JavaScript/UI contracts passed')

@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>adbqplanung</id>
-    <name>AD BQ-Planer</name>
+    <id>flzbqplanung</id>
+    <name>Filzmann BQ-Planer</name>
     <summary>Plant Basisqualifizierungen, Curricula und Praxisreflexionen.</summary>
     <description>Erstellt erklärbare Terminvorschläge und plant Curriculum sowie Dozentinnen für Basisqualifizierungen.</description>
     <version>0.5.0-dev.2</version>
     <licence>agpl</licence>
-    <author>Simon</author>
-    <namespace>AdBqPlanning</namespace>
+    <author>Filzmann Software</author>
+    <namespace>FlzBqPlanning</namespace>
     <category>organization</category>
     <dependencies>
         <php min-version="8.3"/>
         <nextcloud min-version="33" max-version="34"/>
     </dependencies>
     <settings>
-        <admin>OCA\AdBqPlanning\Settings\Admin</admin>
-        <admin-section>OCA\AdBqPlanning\Settings\AdminSection</admin-section>
+        <admin>OCA\FlzBqPlanning\Settings\Admin</admin>
+        <admin-section>OCA\FlzBqPlanning\Settings\AdminSection</admin-section>
     </settings>
 </info>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 TestRunner::test('admin API exposes runs modules publication and settings without a waitlist endpoint', static function (): void {
     $root = dirname(__DIR__);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Exception;
+namespace OCA\FlzBqPlanning\Exception;
 
 use RuntimeException;
 

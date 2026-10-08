@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Controller;
+namespace OCA\FlzBqPlanning\Controller;
 
 use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\AdBqPlanning\Service\TemporaryAdminAccessDeniedException;
-use OCA\AdBqPlanning\Service\TemporaryAdminAccessService;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\Service\TemporaryAdminAccessDeniedException;
+use OCA\FlzBqPlanning\Service\TemporaryAdminAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;

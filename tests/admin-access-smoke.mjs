@@ -22,9 +22,9 @@ const calls = []
 
 globalThis.document = {
     getElementById: id => ({
-        'adbq-full-access-form': form,
-        'adbq-full-access-history': history,
-        'adbq-full-access-status': status,
+        'flz-bq-full-access-form': form,
+        'flz-bq-full-access-history': history,
+        'flz-bq-full-access-status': status,
     }[id] ?? null),
     createElement: () => element(),
 }
@@ -49,11 +49,11 @@ const button = { dataset: { revokeUid: 'admin-target' }, disabled: false }
 await history.listeners.click({ target: { closest: () => button } })
 
 assert.deepEqual(calls.map(([url, method]) => [url, method]), [
-    ['/nextcloud/apps/adbqplanung/api/admin/full-access', 'GET'],
-    ['/nextcloud/apps/adbqplanung/api/admin/full-access', 'POST'],
-    ['/nextcloud/apps/adbqplanung/api/admin/full-access', 'GET'],
-    ['/nextcloud/apps/adbqplanung/api/admin/full-access/admin-target', 'DELETE'],
-    ['/nextcloud/apps/adbqplanung/api/admin/full-access', 'GET'],
+    ['/nextcloud/apps/flzbqplanung/api/admin/full-access', 'GET'],
+    ['/nextcloud/apps/flzbqplanung/api/admin/full-access', 'POST'],
+    ['/nextcloud/apps/flzbqplanung/api/admin/full-access', 'GET'],
+    ['/nextcloud/apps/flzbqplanung/api/admin/full-access/admin-target', 'DELETE'],
+    ['/nextcloud/apps/flzbqplanung/api/admin/full-access', 'GET'],
 ])
 assert.equal(calls[1][2], 'csrf-token')
 assert.equal(calls[3][2], 'csrf-token')

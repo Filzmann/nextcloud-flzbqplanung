@@ -1,10 +1,10 @@
-# Architektur – AD BQ-Planer
+# Architektur – Filzmann BQ-Planer
 
 ## Verantwortung
 
 Der BQ-Planer ist die kanonische Quelle für BQ-Durchläufe,
 Curriculum-Snapshots, Unterrichtstermine, Lehrendenprofile und
-Praxisreflexionen. AD Recruitment bleibt Eigentümerin von Bewerbungen,
+Praxisreflexionen. Filzmann Recruitment bleibt Eigentümerin von Bewerbungen,
 Eignungsentscheidungen und Teilnehmerzuordnungen.
 
 ## Verträge
@@ -43,7 +43,7 @@ ausgeschlossen.
 für `bq_run_curriculum_and_schedule_management`,
 `lecturer_profile_and_assignment_management`,
 `external_lecturer_request_tracking` und `temporary_admin_full_access`. Der
-öffentliche V1-Provider von `filzmann_data_protection` lädt den Katalog lazy
+öffentliche V1-Provider von `flz_data_protection` lädt den Katalog lazy
 und veröffentlicht keine personenbezogenen Laufzeitdaten.
 
 Die Trennung folgt dem vorhandenen Modell: Durchläufe und Module halten

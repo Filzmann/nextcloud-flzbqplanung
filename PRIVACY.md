@@ -27,7 +27,7 @@ Vor der fachlichen Fertigstellung dieses Datenbereichs sind verpflichtend:
    Profile, Zuordnungen und Anfragen ist vor einer Ausgabe ein sicherer
    authentifizierter externer Subject-Vertrag festzulegen und zu testen.
 2. Die Drittpersonensicht weist Bearbeitungsreferenzen und Dozentinnenbezüge in
-   BQ-Durchläufen aus, ohne Bewerbungsdaten aus AD Recruitment zu lesen.
+   BQ-Durchläufen aus, ohne Bewerbungsdaten aus Filzmann Recruitment zu lesen.
 3. Offene oder bestätigte Anfragen und aktive BQ-Zuordnungen blockieren die
    Löschung eines externen Profils. Nach dem letzten fachlichen Bezug werden
    Name und E-Mail gemäß einer noch festzulegenden, konfigurierbaren Frist

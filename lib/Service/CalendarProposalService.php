@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
 use DomainException;
-use OCA\AdBqPlanning\Contract\BlockedPeriodProvider;
-use OCA\AdBqPlanning\Domain\Scheduling\DateProposalService;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\FlzBqPlanning\Domain\Scheduling\DateProposalService;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
 
 final class CalendarProposalService {
     public function __construct(

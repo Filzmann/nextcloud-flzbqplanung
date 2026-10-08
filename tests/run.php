@@ -7,13 +7,13 @@ require_once __DIR__ . '/TestRunner.php';
 
 $coverageTool = trim((string)getenv('PHP_COVERAGE_COMMAND'));
 $coverageOutput = trim((string)getenv('PHP_COVERAGE_OUTPUT_DIR'));
-if ($coverageTool !== '' && $coverageOutput !== '' && getenv('ADBQ_COVERAGE_CHILD') !== '1') {
+if ($coverageTool !== '' && $coverageOutput !== '' && getenv('FLZBQ_COVERAGE_CHILD') !== '1') {
     if (!is_file($coverageTool) || !is_executable($coverageTool) || !is_dir($coverageOutput)) {
         throw new RuntimeException('Die konfigurierte Coverage-Umgebung ist nicht ausführbar.');
     }
-    $wrapper = rtrim($coverageOutput, '/') . '/adbqplanung-tests.php';
-    $report = rtrim($coverageOutput, '/') . '/adbqplanung-tests.xml';
-    $wrapperCode = "<?php\nputenv('ADBQ_COVERAGE_CHILD=1');\nrequire "
+    $wrapper = rtrim($coverageOutput, '/') . '/flzbqplanung-tests.php';
+    $report = rtrim($coverageOutput, '/') . '/flzbqplanung-tests.xml';
+    $wrapperCode = "<?php\nputenv('FLZBQ_COVERAGE_CHILD=1');\nrequire "
         . var_export(__FILE__, true) . ";\n";
     if (file_put_contents($wrapper, $wrapperCode) === false) {
         throw new RuntimeException('Der temporäre Coverage-Wrapper konnte nicht geschrieben werden.');
@@ -38,4 +38,4 @@ foreach (['*Test.php', '*/*Test.php'] as $pattern) {
     }
 }
 
-\AdBqPlanning\Tests\TestRunner::finish();
+\FlzBqPlanning\Tests\TestRunner::finish();

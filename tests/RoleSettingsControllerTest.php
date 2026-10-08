@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
-use OCA\AdBqPlanning\Controller\RoleSettingsController;
-use OCA\AdBqPlanning\Service\AuthorizationService;
-use OCA\AdBqPlanning\Service\RoleSettingsService;
+use OCA\FlzBqPlanning\Controller\RoleSettingsController;
+use OCA\FlzBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\Service\RoleSettingsService;
 use OCP\IAppConfig;
 use OCP\IGroup;
 use OCP\IGroupManager;

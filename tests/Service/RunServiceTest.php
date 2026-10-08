@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use DomainException;
-use OCA\AdBqPlanning\Contract\RunStore;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
-use OCA\AdBqPlanning\Service\RunService;
+use OCA\FlzBqPlanning\Contract\RunStore;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\Service\RunService;
 
 final class MemoryRunStore implements RunStore {
     /** @var array<int,array<string,mixed>> */

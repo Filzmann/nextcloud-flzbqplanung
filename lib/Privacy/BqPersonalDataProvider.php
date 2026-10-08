@@ -2,25 +2,25 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Privacy;
+namespace OCA\FlzBqPlanning\Privacy;
 
 use InvalidArgumentException;
-use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataEntry;
-use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataPage;
-use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataProvider;
-use OCA\FilzmannDataProtection\PublicApi\V1\PersonalDataRequest;
-use OCA\FilzmannDataProtection\PublicApi\V1\ProviderDescriptor;
+use OCA\FlzDataProtection\PublicApi\V1\PersonalDataEntry;
+use OCA\FlzDataProtection\PublicApi\V1\PersonalDataPage;
+use OCA\FlzDataProtection\PublicApi\V1\PersonalDataProvider;
+use OCA\FlzDataProtection\PublicApi\V1\PersonalDataRequest;
+use OCA\FlzDataProtection\PublicApi\V1\ProviderDescriptor;
 
 final class BqPersonalDataProvider implements PersonalDataProvider {
     public function __construct(private BqPrivacySource $source) {}
 
     public function descriptor(): ProviderDescriptor {
-        return new ProviderDescriptor('adbqplanung', 'AD BQ-Planer', '1.0', ['nextcloud-user'], ['personal-data'], 500);
+        return new ProviderDescriptor('flzbqplanung', 'Filzmann BQ-Planer', '1.0', ['nextcloud-user'], ['personal-data'], 500);
     }
 
     public function collect(PersonalDataRequest $request): PersonalDataPage {
         if ($request->subject()->subjectType() !== 'nextcloud-user') return new PersonalDataPage('not_applicable');
-        if ($request->cursor() !== null) throw new InvalidArgumentException('AD BQ-Planer does not support cursor paging.');
+        if ($request->cursor() !== null) throw new InvalidArgumentException('Filzmann BQ-Planer does not support cursor paging.');
         $rows = $this->source->forSubject($request->subject()->subjectId(), $request->pageLimit() + 1);
         $limited = count($rows) > $request->pageLimit();
         if ($limited) $rows = array_slice($rows, 0, $request->pageLimit());
