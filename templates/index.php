@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use OCA\AdBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\AppInfo\Application;
 
 script(Application::APP_ID, 'admin-access');
 if ($_['hasBqAccess'] ?? false) {
@@ -39,11 +39,11 @@ $statusNames = [
 ];
 $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'declined' => 'Abgelehnt', 'cancelled' => 'Abgesagt'];
 ?>
-<main id="adbqplanung-app" class="bq-app" aria-labelledby="bq-page-title">
-    <div class="orgsuite-host" data-orgsuite data-suite="ad" data-current-app="adbqplanung"></div>
+<main id="flzbqplanung-app" class="bq-app" aria-labelledby="bq-page-title">
+    <div class="orgsuite-host" data-orgsuite data-suite="flz" data-current-app="flzbqplanung"></div>
     <header class="bq-hero">
         <p class="bq-eyebrow">Basisqualifizierung</p>
-        <div class="bq-title-row"><h1 id="bq-page-title">BQ-Planer</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="bq-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="bq-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#adbq-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?></div>
+        <div class="bq-title-row"><h1 id="bq-page-title">BQ-Planer</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="bq-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="bq-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#flz-bq-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?></div>
         <p>Termine, Curriculum, Dozentinnen und Praxisreflexionen verlässlich vorbereiten.</p>
     </header>
 
@@ -52,22 +52,22 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
         <aside hidden class="bq-access-notice" role="status">
             <strong>Für dieses Administrationskonto ist kein zeitlich begrenzter fachlicher Vollzugriff aktiv.</strong>
-            <?php if ($_['showAdminAccessLink'] ?? false): ?><a href="#adbq-full-access-heading">Freigabesteuerung öffnen</a><?php endif; ?>
+            <?php if ($_['showAdminAccessLink'] ?? false): ?><a href="#flz-bq-full-access-heading">Freigabesteuerung öffnen</a><?php endif; ?>
         </aside>
     <?php endif; ?>
 
     <?php if ($_['canManageAdminAccess'] ?? false): ?>
-        <section id="adbq-full-access" class="bq-card bq-access-card" aria-labelledby="adbq-full-access-heading">
-            <h2 id="adbq-full-access-heading" tabindex="-1">Zeitlich begrenzter Admin-Vollzugriff</h2>
+        <section id="flz-bq-full-access" class="bq-card bq-access-card" aria-labelledby="flz-bq-full-access-heading">
+            <h2 id="flz-bq-full-access-heading" tabindex="-1">Zeitlich begrenzter Admin-Vollzugriff</h2>
             <p>Ausschließlich Mitglieder der Gruppe Datenschutzbeauftragte dürfen aktuellen Nextcloud-Administrationskonten fachlichen Vollzugriff erteilen. Maximal 24 Stunden sind zulässig.</p>
-            <form id="adbq-full-access-form" class="bq-form">
+            <form id="flz-bq-full-access-form" class="bq-form">
                 <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
                 <label>Dauer <select name="durationMinutes" required><option value="60">1 Stunde</option><option value="240">4 Stunden</option><option value="480">8 Stunden</option><option value="1440">24 Stunden</option></select></label>
-                <label><input id="adbq-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
+                <label><input id="flz-bq-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
                 <button type="submit" class="primary">Freigabe aktivieren</button>
             </form>
-            <p id="adbq-full-access-status" role="status" aria-live="polite"></p>
-            <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="adbq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
+            <p id="flz-bq-full-access-status" role="status" aria-live="polite"></p>
+            <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="flz-bq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
         </section>
     <?php endif; ?>
 
@@ -167,7 +167,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <section class="bq-notice" aria-labelledby="bq-recruitment-title">
         <h2 id="bq-recruitment-title">Teilnehmerinnen aus Recruitment</h2>
-        <p>Maximal zehn reguläre Plätze, keine Warteliste. Das Personalreferat ordnet Bewerberinnen in AD Recruitment zu und kann sie zwischen früheren und späteren BQs umbuchen.</p>
+        <p>Maximal zehn reguläre Plätze, keine Warteliste. Das Personalreferat ordnet Bewerberinnen in Filzmann Recruitment zu und kann sie zwischen früheren und späteren BQs umbuchen.</p>
         <p>Nachholplätze werden ausschließlich für einzelne Curriculum-Module geplant und verändern die reguläre BQ-Kapazität nicht.</p>
     </section>
 
@@ -337,7 +337,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <input name="kind" type="hidden" value="internal">
                     <input name="displayName" type="hidden" value="">
                     <input name="email" type="hidden" value="">
-                    <label>Nextcloud-UID <input name="nextcloudUid" maxlength="64" required placeholder="ad-demo-pfk-a"></label>
+                    <label>Nextcloud-UID <input name="nextcloudUid" maxlength="64" required placeholder="flz-demo-pfk-a"></label>
                     <button type="submit">PFK aufnehmen</button>
                 </form>
                 <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">

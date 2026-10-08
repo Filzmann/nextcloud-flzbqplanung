@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace OCP { interface IDBConnection { public function getQueryBuilder(); } }
 
-namespace AdBqPlanning\Tests {
-    use OCA\AdBqPlanning\Privacy\NextcloudBqPrivacySource;
+namespace FlzBqPlanning\Tests {
+    use OCA\FlzBqPlanning\Privacy\NextcloudBqPrivacySource;
     use OCP\IDBConnection;
 
     final class PrivacySourceResult {

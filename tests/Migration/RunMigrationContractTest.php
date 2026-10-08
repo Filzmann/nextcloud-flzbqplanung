@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 TestRunner::test('initial persistence is additive and deliberately has no waitlist table', static function (): void {
     $migration = dirname(__DIR__, 2) . '/lib/Migration/Version000001Date202608150101.php';
     assertTrue(is_file($migration), 'Initial BQ migration is missing');
     $source = (string)file_get_contents($migration);
-    assertTrue(str_contains($source, "hasTable('adbq_runs')"));
-    assertTrue(str_contains($source, "hasTable('adbq_modules')"));
-    assertTrue(str_contains($source, "getTable('adbq_runs')"), 'Partial migration retry cannot reuse the run table');
+    assertTrue(str_contains($source, "hasTable('flz_bq_runs')"));
+    assertTrue(str_contains($source, "hasTable('flz_bq_modules')"));
+    assertTrue(str_contains($source, "getTable('flz_bq_runs')"), 'Partial migration retry cannot reuse the run table');
     assertTrue(str_contains($source, "'capacity'"));
     assertTrue(str_contains($source, "'additional_capacity'"));
     assertTrue(str_contains($source, 'Types::DATE_IMMUTABLE'), 'Nextcloud-compatible date type is missing');

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Repository;
+namespace OCA\FlzBqPlanning\Repository;
 
 use DateTimeInterface;
 use DomainException;
-use OCA\AdBqPlanning\Contract\RunStore;
+use OCA\FlzBqPlanning\Contract\RunStore;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -19,7 +19,7 @@ final class RunRepository implements RunStore {
     public function createRun(array $run): int {
         $now = $this->now();
         $qb = $this->db->getQueryBuilder();
-        $qb->insert('adbq_runs')
+        $qb->insert('flz_bq_runs')
             ->values([
                 'label' => $qb->createNamedParameter($run['label']),
                 'starts_on' => $qb->createNamedParameter($run['startsOn']),
@@ -38,7 +38,7 @@ final class RunRepository implements RunStore {
 
     public function updateRun(int $runId, array $run, int $expectedVersion, string $actorUid): array {
         $qb = $this->db->getQueryBuilder();
-        $affected = $qb->update('adbq_runs')
+        $affected = $qb->update('flz_bq_runs')
             ->set('label', $qb->createNamedParameter($run['label']))
             ->set('starts_on', $qb->createNamedParameter($run['startsOn']))
             ->set('ends_on', $qb->createNamedParameter($run['endsOn']))
@@ -59,7 +59,7 @@ final class RunRepository implements RunStore {
     public function runs(): array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('*')
-            ->from('adbq_runs')
+            ->from('flz_bq_runs')
             ->orderBy('starts_on', 'ASC')
             ->addOrderBy('id', 'ASC')
             ->executeQuery();
@@ -73,7 +73,7 @@ final class RunRepository implements RunStore {
     public function run(int $runId): array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('*')
-            ->from('adbq_runs')
+            ->from('flz_bq_runs')
             ->where($qb->expr()->eq('id', $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
             ->executeQuery();
         try {
@@ -91,7 +91,7 @@ final class RunRepository implements RunStore {
         $this->db->beginTransaction();
         try {
             $version = $this->db->getQueryBuilder();
-            $affected = $version->update('adbq_runs')
+            $affected = $version->update('flz_bq_runs')
                 ->set('version', $version->createFunction('version + 1'))
                 ->set('updated_by', $version->createNamedParameter($actorUid))
                 ->set('updated_at', $version->createNamedParameter($this->now()))
@@ -105,7 +105,7 @@ final class RunRepository implements RunStore {
 
             $position = count($this->modules($runId));
             $qb = $this->db->getQueryBuilder();
-            $qb->insert('adbq_modules')
+            $qb->insert('flz_bq_modules')
                 ->values([
                     'run_id' => $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT),
                     'module_key' => $qb->createNamedParameter($module['moduleKey']),
@@ -133,7 +133,7 @@ final class RunRepository implements RunStore {
     public function modules(int $runId): array {
         $qb = $this->db->getQueryBuilder();
         $result = $qb->select('*')
-            ->from('adbq_modules')
+            ->from('flz_bq_modules')
             ->where($qb->expr()->eq('run_id', $qb->createNamedParameter($runId, IQueryBuilder::PARAM_INT)))
             ->orderBy('position', 'ASC')
             ->addOrderBy('id', 'ASC')
@@ -156,7 +156,7 @@ final class RunRepository implements RunStore {
         $this->db->beginTransaction();
         try {
             $run = $this->db->getQueryBuilder();
-            $runAffected = $run->update('adbq_runs')
+            $runAffected = $run->update('flz_bq_runs')
                 ->set('version', $run->createFunction('version + 1'))
                 ->set('updated_by', $run->createNamedParameter($actorUid))
                 ->set('updated_at', $run->createNamedParameter($this->now()))
@@ -169,7 +169,7 @@ final class RunRepository implements RunStore {
             }
 
             $qb = $this->db->getQueryBuilder();
-            $moduleAffected = $qb->update('adbq_modules')
+            $moduleAffected = $qb->update('flz_bq_modules')
                 ->set('title', $qb->createNamedParameter($module['title']))
                 ->set('minutes', $qb->createNamedParameter($module['minutes'], IQueryBuilder::PARAM_INT))
                 ->set('module_date', $qb->createNamedParameter($module['date']))
@@ -202,7 +202,7 @@ final class RunRepository implements RunStore {
         $this->db->beginTransaction();
         try {
             $run = $this->db->getQueryBuilder();
-            $runAffected = $run->update('adbq_runs')
+            $runAffected = $run->update('flz_bq_runs')
                 ->set('version', $run->createFunction('version + 1'))
                 ->set('updated_by', $run->createNamedParameter($actorUid))
                 ->set('updated_at', $run->createNamedParameter($this->now()))
@@ -216,7 +216,7 @@ final class RunRepository implements RunStore {
 
             foreach ($orderedModuleIds as $position => $moduleId) {
                 $qb = $this->db->getQueryBuilder();
-                $affected = $qb->update('adbq_modules')
+                $affected = $qb->update('flz_bq_modules')
                     ->set('position', $qb->createNamedParameter($position, IQueryBuilder::PARAM_INT))
                     ->set('version', $qb->createFunction('version + 1'))
                     ->where($qb->expr()->eq('id', $qb->createNamedParameter($moduleId, IQueryBuilder::PARAM_INT)))
@@ -236,7 +236,7 @@ final class RunRepository implements RunStore {
 
     public function changeStatus(int $runId, string $from, string $to, int $expectedVersion, string $actorUid): array {
         $qb = $this->db->getQueryBuilder();
-        $affected = $qb->update('adbq_runs')
+        $affected = $qb->update('flz_bq_runs')
             ->set('status', $qb->createNamedParameter($to))
             ->set('version', $qb->createFunction('version + 1'))
             ->set('updated_by', $qb->createNamedParameter($actorUid))

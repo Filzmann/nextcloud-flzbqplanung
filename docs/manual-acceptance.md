@@ -1,4 +1,4 @@
-# Manuelle Abnahme – AD BQ-Planer
+# Manuelle Abnahme – Filzmann BQ-Planer
 
 Dieses Formular dokumentiert ausschließlich wiederholbare manuelle Prüfungen.
 Es ist keine Produktivfreigabe und enthält keine echten Personen- oder
@@ -15,7 +15,7 @@ Kontaktdaten.
 
 | ID | Was wird geprüft? | Auszuführende Schritte | Erwartetes Ergebnis | Ergebnis | Warum/Beleg/Abweichung |
 |---|---|---|---|---|---|
-| A1 | Start und Assets | BQ-Planer direkt sowie über den AD-Einstieg öffnen; Browserkonsole und geladene CSS-/JavaScript-Ressourcen prüfen. | App, Styles und Skripte laden ohne Fehler; ein fehlender Menüeintrag erteilt keine Fachrechte. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
+| A1 | Start und Assets | BQ-Planer direkt sowie über den FLZ-Einstieg öffnen; Browserkonsole und geladene CSS-/JavaScript-Ressourcen prüfen. | App, Styles und Skripte laden ohne Fehler; ein fehlender Menüeintrag erteilt keine Fachrechte. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 | A2 | Durchlauf und Curriculum-Snapshot | Einen synthetischen Durchlauf aus der zentralen Curriculum-Vorlage anlegen, Module im Durchlauf umordnen und einen Termin ändern; Vorlage und Durchlauf danach neu laden. | Der Durchlauf besitzt einen eigenen stabilen Snapshot; dessen Änderungen verändern die zentrale Vorlage nicht rückwirkend. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 | A3 | Kalenderquellen und Vorschlag | Je einen Stand mit vollständigen Ferien-, Feiertags- und Sperrtagsquellen sowie mit fehlendem oder nicht verfügbarem Provider prüfen. | Nur der vollständige Stand darf als konfliktfrei erscheinen; unvollständige Quellen bleiben sichtbar und erzeugen keinen automatischen Vorschlag. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 | A4 | Interne und externe Dozentinnen | Eine interne PFK über die Nextcloud-Suche auswählen und ein minimales externes Profil anlegen; anschließend Anzeige, Bearbeitung und direkte Requests mit unberechtigtem Konto prüfen. | Interne Profile verwenden eine geprüfte Nextcloud-UID, externe nur die erlaubten Minimaldaten; fremde oder unberechtigte Zugriffe werden serverseitig verweigert. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
@@ -35,7 +35,7 @@ Kontaktdaten.
 ## Ergebnis
 
 - Ergebnis: Die app-spezifische Nacharbeit ist unter
-  `ADBQ-STAGING-FOLLOWUP` in `ROADMAP.md` erfasst. Die systemweite
+  `FLZBQ-STAGING-FOLLOWUP` in `ROADMAP.md` erfasst. Die systemweite
   UI-Bündelung der temporären Adminfreigabe steht als `DP-11` im
   Parent-Zukunftsplan.
 - Abweichungen und reproduzierbare Schritte:

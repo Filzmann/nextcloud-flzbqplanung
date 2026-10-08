@@ -53,7 +53,7 @@ jobs:
           PHP_COVERAGE_COMMAND="$GITHUB_WORKSPACE/localbase/tests/coverage/vendor/bin/phpcov" \
           PHP_COVERAGE_OUTPUT_DIR="$RUNNER_TEMP/php-coverage" \
           php tests/run.php
-          php "$GITHUB_WORKSPACE/localbase/tests/coverage/merge-clover.php" adbqplanung "$RUNNER_TEMP/php-coverage" 85
+          php "$GITHUB_WORKSPACE/localbase/tests/coverage/merge-clover.php" flzbqplanung "$RUNNER_TEMP/php-coverage" 85
 
   javascript:
     name: JavaScript
@@ -86,3 +86,12 @@ jobs:
             --check-coverage \
             --lines=100 \
             node tests/run-js.mjs
+
+  deploy-staging:
+    name: Staging-Deployment
+    if: github.event_name == 'push'
+    needs: [php, javascript]
+    uses: Filzmann/br-nextcloud-apps/.github/workflows/deploy-staging.yml@main
+    with:
+      app-id: flzbqplanung
+    secrets: inherit

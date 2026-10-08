@@ -1,12 +1,12 @@
-# AD BQ-Planer
+# Filzmann BQ-Planer
 
-Der AD BQ-Planer ist eine eigenständige Nextcloud-App für die terminliche und
+Der Filzmann BQ-Planer ist eine eigenständige Nextcloud-App für die terminliche und
 inhaltliche Planung von Basisqualifizierungen.
 
 Offene app-lokale Aufgaben stehen in [ROADMAP.md](ROADMAP.md); der geltende
 Produkt- und Architekturvertrag steht in `AGENTS.md` und diesem README.
 
-Er ist über den kanonischen LocalBase-Produktkatalog in die AD-Suite-Navigation
+Er ist über den kanonischen LocalBase-Produktkatalog in die Filzmann Nextcloud Plugins-Navigation
 eingeordnet. Der aktuelle Entwicklungsstand wird noch nicht in Full-Suite-
 oder Einzelprodukt-Bundles ausgeliefert.
 
@@ -36,7 +36,7 @@ Curriculum-Module mit optimistischer Versionierung. Reguläre Durchläufe haben
 aktuell höchstens zehn Plätze. Es gibt keine Warteliste; zusätzliche
 Nachholplätze werden ausschließlich an einzelnen Modulen ausgewiesen.
 Teilnehmerinnen und Umbuchungen zwischen früheren und späteren BQs bleiben in
-AD Recruitment.
+Filzmann Recruitment.
 
 Module eines Entwurfs können mit Schutz vor parallelen Änderungen bearbeitet
 werden. Zeitlich überlappende Module eines Durchlaufs werden sichtbar
@@ -88,7 +88,7 @@ Retention-, Backup-, Kommunikations- und externe Subject-Entscheidungen
 bleiben als `PRIVACY-DECISION-REQUIRED` sichtbar.
 
 Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
-Einstellungsentscheidung. Eine spätere Anbindung an AD Recruitment verwendet
+Einstellungsentscheidung. Eine spätere Anbindung an Filzmann Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.
 
 Der nachgewiesene Plattformbereich umfasst Nextcloud 33 und 34 mit PHP ab
@@ -104,7 +104,7 @@ node tests/run-js.mjs
 ```
 
 Lokale URL nach gesondert freizugebender Aktivierung:
-`https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`.
+`https://nextcloud-dev.ddev.site/index.php/apps/flzbqplanung/`.
 
 ## Dokumentation
 

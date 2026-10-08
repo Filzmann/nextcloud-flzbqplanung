@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Permission;
+namespace OCA\FlzBqPlanning\Permission;
 
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\PermissionCondition;
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\PermissionProvider;
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\PermissionProviderDescriptor;
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\PermissionProviderResult;
-use OCA\FilzmannPermissionMatrix\PublicApi\V1\PermissionRule;
+use OCA\FlzPermissionMatrix\PublicApi\V1\PermissionCondition;
+use OCA\FlzPermissionMatrix\PublicApi\V1\PermissionProvider;
+use OCA\FlzPermissionMatrix\PublicApi\V1\PermissionProviderDescriptor;
+use OCA\FlzPermissionMatrix\PublicApi\V1\PermissionProviderResult;
+use OCA\FlzPermissionMatrix\PublicApi\V1\PermissionRule;
 
 final class BqPermissionProvider implements PermissionProvider {
     private const CAPABILITIES = [
@@ -20,7 +20,7 @@ final class BqPermissionProvider implements PermissionProvider {
     public function __construct(private BqPermissionSourceInterface $source) {}
 
     public function descriptor(): PermissionProviderDescriptor {
-        return new PermissionProviderDescriptor('adbqplanung', 'AD BQ-Planer', '1.0', ['permissions']);
+        return new PermissionProviderDescriptor('flzbqplanung', 'Filzmann BQ-Planer', '1.0', ['permissions']);
     }
 
     public function collect(): PermissionProviderResult {
@@ -45,7 +45,7 @@ final class BqPermissionProvider implements PermissionProvider {
             'Historie lesen sowie Freigaben ausschließlich für aktuelle native Administrationskonten erteilen oder widerrufen',
             'all',
             PermissionCondition::group('Datenschutzbeauftragte'),
-            'adbqplanung:TemporaryAdminAccessService',
+            'flzbqplanung:TemporaryAdminAccessService',
         );
 
         foreach ($this->source->roleGroups() as $role => $groupId) {
@@ -66,7 +66,7 @@ final class BqPermissionProvider implements PermissionProvider {
         string $detail,
         string $scope,
         PermissionCondition $condition,
-        string $source = 'adbqplanung:AuthorizationService',
+        string $source = 'flzbqplanung:AuthorizationService',
     ): PermissionRule {
         return new PermissionRule(
             'BQ-Funktion',

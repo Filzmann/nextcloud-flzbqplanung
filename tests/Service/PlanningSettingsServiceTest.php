@@ -13,9 +13,9 @@ namespace OCP {
     }
 }
 
-namespace AdBqPlanning\Tests {
+namespace FlzBqPlanning\Tests {
     use DomainException;
-    use OCA\AdBqPlanning\Service\PlanningSettingsService;
+    use OCA\FlzBqPlanning\Service\PlanningSettingsService;
     use OCP\IAppConfig;
 
     final class MemoryAppConfig implements IAppConfig {

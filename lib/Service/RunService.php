@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
 use DateTimeImmutable;
 use DomainException;
-use OCA\AdBqPlanning\Contract\RunStore;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\Contract\RunStore;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
 
 final class RunService {
     public const MAX_CAPACITY = 10;

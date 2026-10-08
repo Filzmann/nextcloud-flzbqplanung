@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
 use InvalidArgumentException;
-use OCA\AdBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\FlzBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
 use OCP\IUserSession;

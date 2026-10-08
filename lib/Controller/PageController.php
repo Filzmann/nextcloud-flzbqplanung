@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Controller;
+namespace OCA\FlzBqPlanning\Controller;
 
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\AdBqPlanning\Repository\RunRepository;
-use OCA\AdBqPlanning\Repository\TeachingRepository;
-use OCA\AdBqPlanning\Service\PlanningSettingsService;
-use OCA\AdBqPlanning\Service\RunService;
-use OCA\AdBqPlanning\Service\AuthorizationService;
-use OCA\AdBqPlanning\Service\RoleSettingsService;
-use OCA\AdBqPlanning\Service\TemporaryAdminAccessService;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\Repository\RunRepository;
+use OCA\FlzBqPlanning\Repository\TeachingRepository;
+use OCA\FlzBqPlanning\Service\PlanningSettingsService;
+use OCA\FlzBqPlanning\Service\RunService;
+use OCA\FlzBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\Service\RoleSettingsService;
+use OCA\FlzBqPlanning\Service\TemporaryAdminAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\FilzmannPermissionMatrix\PublicApi\V1 {
+namespace OCA\FlzPermissionMatrix\PublicApi\V1 {
     interface PermissionProvider { public function descriptor(): PermissionProviderDescriptor; public function collect(): PermissionProviderResult; }
     final class PermissionProviderDescriptor {
         public function __construct(public string $appId, public string $displayName, public string $version, public array $capabilities) {}
@@ -37,11 +37,11 @@ namespace OCA\FilzmannPermissionMatrix\PublicApi\V1 {
     }
 }
 
-namespace AdBqPlanning\Tests {
-    use OCA\AdBqPlanning\Permission\BqPermissionProvider;
-    use OCA\AdBqPlanning\Permission\BqPermissionProviderListener;
-    use OCA\AdBqPlanning\Permission\BqPermissionSourceInterface;
-    use OCA\FilzmannPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
+namespace FlzBqPlanning\Tests {
+    use OCA\FlzBqPlanning\Permission\BqPermissionProvider;
+    use OCA\FlzBqPlanning\Permission\BqPermissionProviderListener;
+    use OCA\FlzBqPlanning\Permission\BqPermissionSourceInterface;
+    use OCA\FlzPermissionMatrix\PublicApi\V1\RegisterPermissionProvidersEvent;
 
     TestRunner::test('permission provider exposes only configured canonical BQ roles', static function (): void {
         $source = new class implements BqPermissionSourceInterface {

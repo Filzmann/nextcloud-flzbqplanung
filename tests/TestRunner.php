@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 use RuntimeException;
 use Throwable;
@@ -22,9 +22,11 @@ final class TestRunner {
         }
     }
 
-    public static function finish(): never {
+    public static function finish(): void {
         fwrite(STDOUT, sprintf("%d passed, %d failed\n", self::$passed, self::$failed));
-        exit(self::$failed === 0 ? 0 : 1);
+        if (self::$failed > 0) {
+            throw new RuntimeException('The test suite contains failures.');
+        }
     }
 }
 

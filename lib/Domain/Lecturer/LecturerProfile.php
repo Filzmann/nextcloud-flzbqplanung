@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Domain\Lecturer;
+namespace OCA\FlzBqPlanning\Domain\Lecturer;
 
 use DomainException;
 

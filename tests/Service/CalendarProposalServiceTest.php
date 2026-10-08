@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
-use OCA\AdBqPlanning\Contract\BlockedPeriodProvider;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedCalendar;
-use OCA\AdBqPlanning\Domain\Scheduling\CalendarCoverage;
-use OCA\AdBqPlanning\Domain\Scheduling\DateProposalService;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
-use OCA\AdBqPlanning\Service\CalendarProposalService;
+use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedCalendar;
+use OCA\FlzBqPlanning\Domain\Scheduling\CalendarCoverage;
+use OCA\FlzBqPlanning\Domain\Scheduling\DateProposalService;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\Service\CalendarProposalService;
 
 final class FakeBlockedPeriodProvider implements BlockedPeriodProvider {
     public int $calls = 0;
@@ -56,7 +56,7 @@ TestRunner::test('calendar proposal service keeps all twelve annual results when
     for ($day = 1; $day <= 31; $day++) {
         $date = new \DateTimeImmutable(sprintf('2026-05-%02d', $day));
         if ((int)$date->format('N') === 5) {
-            $blockedFridays[] = new \OCA\AdBqPlanning\Domain\Scheduling\BlockedPeriod(
+            $blockedFridays[] = new \OCA\FlzBqPlanning\Domain\Scheduling\BlockedPeriod(
                 $date->format('Y-m-d'),
                 $date->format('Y-m-d'),
                 'blocked',

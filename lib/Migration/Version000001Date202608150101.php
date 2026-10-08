@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Migration;
+namespace OCA\FlzBqPlanning\Migration;
 
 use Closure;
 use OCP\DB\ISchemaWrapper;
@@ -15,8 +15,8 @@ final class Version000001Date202608150101 extends SimpleMigrationStep {
         /** @var ISchemaWrapper $schema */
         $schema = $schemaClosure();
 
-        if (!$schema->hasTable('adbq_runs')) {
-            $runs = $schema->createTable('adbq_runs');
+        if (!$schema->hasTable('flz_bq_runs')) {
+            $runs = $schema->createTable('flz_bq_runs');
             $runs->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true, 'unsigned' => true]);
             $runs->addColumn('label', Types::STRING, ['notnull' => true, 'length' => 128]);
             $runs->addColumn('starts_on', Types::DATE_IMMUTABLE, ['notnull' => true]);
@@ -29,14 +29,14 @@ final class Version000001Date202608150101 extends SimpleMigrationStep {
             $runs->addColumn('updated_by', Types::STRING, ['notnull' => true, 'length' => 64]);
             $runs->addColumn('updated_at', Types::DATETIME_IMMUTABLE, ['notnull' => true]);
             $runs->setPrimaryKey(['id']);
-            $runs->addIndex(['starts_on'], 'adbq_runs_start_idx');
-            $runs->addIndex(['status'], 'adbq_runs_status_idx');
+            $runs->addIndex(['starts_on'], 'flz_bq_runs_start_idx');
+            $runs->addIndex(['status'], 'flz_bq_runs_status_idx');
         } else {
-            $runs = $schema->getTable('adbq_runs');
+            $runs = $schema->getTable('flz_bq_runs');
         }
 
-        if (!$schema->hasTable('adbq_modules')) {
-            $modules = $schema->createTable('adbq_modules');
+        if (!$schema->hasTable('flz_bq_modules')) {
+            $modules = $schema->createTable('flz_bq_modules');
             $modules->addColumn('id', Types::BIGINT, ['autoincrement' => true, 'notnull' => true, 'unsigned' => true]);
             $modules->addColumn('run_id', Types::BIGINT, ['notnull' => true, 'unsigned' => true]);
             $modules->addColumn('module_key', Types::STRING, ['notnull' => true, 'length' => 64]);
@@ -51,9 +51,9 @@ final class Version000001Date202608150101 extends SimpleMigrationStep {
             $modules->addColumn('created_by', Types::STRING, ['notnull' => true, 'length' => 64]);
             $modules->addColumn('created_at', Types::DATETIME_IMMUTABLE, ['notnull' => true]);
             $modules->setPrimaryKey(['id']);
-            $modules->addUniqueIndex(['run_id', 'module_key'], 'adbq_module_key_uniq');
-            $modules->addIndex(['run_id', 'position'], 'adbq_module_order_idx');
-            $modules->addForeignKeyConstraint($runs, ['run_id'], ['id'], ['onDelete' => 'CASCADE'], 'adbq_module_run_fk');
+            $modules->addUniqueIndex(['run_id', 'module_key'], 'flz_bq_module_key_uniq');
+            $modules->addIndex(['run_id', 'position'], 'flz_bq_module_order_idx');
+            $modules->addForeignKeyConstraint($runs, ['run_id'], ['id'], ['onDelete' => 'CASCADE'], 'flz_bq_module_run_fk');
         }
 
         return $schema;

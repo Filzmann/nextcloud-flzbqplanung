@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
 use DomainException;
-use OCA\AdBqPlanning\AppInfo\Application;
-use OCA\AdBqPlanning\Domain\Scheduling\PlanningRules;
+use OCA\FlzBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\Domain\Scheduling\PlanningRules;
 use OCP\IAppConfig;
 
 final class PlanningSettingsService {

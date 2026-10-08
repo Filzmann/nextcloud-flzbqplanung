@@ -1,4 +1,4 @@
-# Roadmap – AD BQ-Planer
+# Roadmap – Filzmann BQ-Planer
 
 Diese Datei enthält ausschließlich offene Arbeit, zurückgestellte Vorhaben
 und Freigabegates. Der aktuelle Funktionsumfang steht in `README.md`,
@@ -7,7 +7,7 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
 
 ## Nächste freigabepflichtige Pakete
 
-### ADBQ-STAGING-FOLLOWUP – Nacharbeit aus der manuellen Abnahme
+### FLZBQ-STAGING-FOLLOWUP – Nacharbeit aus der manuellen Abnahme
 
 - Die Vollständigkeit von Ferien-, Feiertags- und BQ-eigenen Sperrtagsquellen
   in der Vorschlagsoberfläche so deutlich darstellen wie im Urlaubsplaner;

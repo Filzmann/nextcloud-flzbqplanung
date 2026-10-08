@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const app = document.getElementById('adbqplanung-app')
+    const app = document.getElementById('flzbqplanung-app')
     const feedback = document.getElementById('bq-feedback')
     const proposalResult = document.getElementById('bq-proposal-result')
     const yearProposalRows = document.getElementById('bq-year-proposal-rows')
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (proposalResult) proposalResult.textContent = 'Ferien, Feiertage und Brückentage werden geprüft …'
             try {
-                const url = OC.generateUrl('/apps/adbqplanung/api/proposals')
+                const url = OC.generateUrl('/apps/flzbqplanung/api/proposals')
                 const response = await fetch(`${url}?year=${Number(match[1])}&month=${Number(match[2])}`)
                 const result = await response.json()
                 if (!response.ok) throw new Error(result.error || 'Der Terminvorschlag konnte nicht erstellt werden.')
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (yearProposalStatus) yearProposalStatus.textContent = 'Alle zwölf Monate werden geprüft …'
             try {
-                const url = OC.generateUrl('/apps/adbqplanung/api/proposals/year')
+                const url = OC.generateUrl('/apps/flzbqplanung/api/proposals/year')
                 const response = await fetch(`${url}?year=${year}`)
                 const result = await response.json()
                 if (!response.ok) throw new Error(result.error || 'Die Jahresvorschau konnte nicht erstellt werden.')
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.dataset.state = 'pending'
         }
         try {
-            const response = await fetch(OC.generateUrl(`/apps/adbqplanung${form.dataset.endpoint}`), {
+            const response = await fetch(OC.generateUrl(`/apps/flzbqplanung${form.dataset.endpoint}`), {
                 method: form.dataset.method,
                 headers: {
                     'Content-Type': 'application/json',

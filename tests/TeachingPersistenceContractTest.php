@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
 TestRunner::test('teaching persistence is additive minimal and contains no applicant data', static function (): void {
     $root = dirname(__DIR__);
     $migration = $root . '/lib/Migration/Version000002Date202608150202.php';
     assertTrue(is_file($migration), 'Teaching migration is missing');
     $source = (string)file_get_contents($migration);
-    foreach (['adbq_lecturers', 'adbq_lecturer_requests', "'lead_lecturer_id'", "'lecturer_id'"] as $expected) {
+    foreach (['flz_bq_lecturers', 'flz_bq_lecturer_requests', "'lead_lecturer_id'", "'lecturer_id'"] as $expected) {
         assertTrue(str_contains($source, $expected), 'Missing teaching schema part ' . $expected);
     }
     assertTrue(!str_contains(strtolower($source), 'applicant'));

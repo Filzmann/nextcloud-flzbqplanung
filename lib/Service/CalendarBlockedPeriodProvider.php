@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
-use OCA\AdBqPlanning\Contract\BlockedPeriodProvider;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedCalendar;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedPeriod;
-use OCA\AdBqPlanning\Domain\Scheduling\CalendarCoverage;
+use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedCalendar;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedPeriod;
+use OCA\FlzBqPlanning\Domain\Scheduling\CalendarCoverage;
 use OCA\LocalBase\Calendar\HolidayCalendarService;
 use Psr\Log\LoggerInterface;
 use Throwable;

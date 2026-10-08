@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Permission;
+namespace OCA\FlzBqPlanning\Permission;
 
-use OCA\AdBqPlanning\Service\RoleSettingsService;
+use OCA\FlzBqPlanning\Service\RoleSettingsService;
 
 final class NextcloudBqPermissionSource implements BqPermissionSourceInterface {
     public function __construct(private RoleSettingsService $settings) {}

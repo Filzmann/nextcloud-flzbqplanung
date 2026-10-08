@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Contract;
+namespace OCA\FlzBqPlanning\Contract;
 
-use OCA\AdBqPlanning\Domain\Scheduling\CalendarCoverage;
+use OCA\FlzBqPlanning\Domain\Scheduling\CalendarCoverage;
 
 interface BlockedPeriodProvider {
     /** @param list<string> $bridgeDays */

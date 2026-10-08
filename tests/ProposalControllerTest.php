@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace AdBqPlanning\Tests;
+namespace FlzBqPlanning\Tests;
 
-use OCA\AdBqPlanning\Contract\BlockedPeriodProvider;
-use OCA\AdBqPlanning\Controller\ProposalController;
-use OCA\AdBqPlanning\Domain\Scheduling\BlockedCalendar;
-use OCA\AdBqPlanning\Domain\Scheduling\CalendarCoverage;
-use OCA\AdBqPlanning\Domain\Scheduling\DateProposalService;
-use OCA\AdBqPlanning\Service\CalendarProposalService;
-use OCA\AdBqPlanning\Service\PlanningSettingsService;
-use OCA\AdBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\FlzBqPlanning\Controller\ProposalController;
+use OCA\FlzBqPlanning\Domain\Scheduling\BlockedCalendar;
+use OCA\FlzBqPlanning\Domain\Scheduling\CalendarCoverage;
+use OCA\FlzBqPlanning\Domain\Scheduling\DateProposalService;
+use OCA\FlzBqPlanning\Service\CalendarProposalService;
+use OCA\FlzBqPlanning\Service\PlanningSettingsService;
+use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCP\IAppConfig;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;

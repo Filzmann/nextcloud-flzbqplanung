@@ -1,15 +1,15 @@
-# AGENTS.md – AD BQ-Planer
+# AGENTS.md – Filzmann BQ-Planer
 
 ## Projekt
 
-Nextcloud-App `adbqplanung` für die Planung von Basisqualifizierungen,
+Nextcloud-App `flzbqplanung` für die Planung von Basisqualifizierungen,
 Curricula, Lehrenden und zeitlich folgenden Praxisreflexionen.
 Diese Datei und die beiden lokal mitgeführten Skills bilden die vollständige Repository-Steuerung
 beim direkten Öffnen dieses App-Repositories.
 
-- Lokale URL: `https://nextcloud-dev.ddev.site/index.php/apps/adbqplanung/`
-- App-ID: `adbqplanung`
-- PHP-Namespace: `OCA\AdBqPlanning`
+- Lokale URL: `https://nextcloud-dev.ddev.site/index.php/apps/flzbqplanung/`
+- App-ID: `flzbqplanung`
+- PHP-Namespace: `OCA\FlzBqPlanning`
 - Offene app-lokale Produktplanung: `ROADMAP.md`
 
 ## Fach- und Repositorygrenze
@@ -17,7 +17,7 @@ beim direkten Öffnen dieses App-Repositories.
 - Diese App ist die kanonische Quelle für BQ-Durchlaufprogramme,
   Unterrichtstermine, Curriculum-Snapshots, Lehrendenzuordnungen und später
   Kapazität sowie Anwesenheit.
-- AD Recruitment bleibt die kanonische Quelle für Bewerbungen,
+- Filzmann Recruitment bleibt die kanonische Quelle für Bewerbungen,
   BQ-Zuordnungen, Eignungsentscheidungen und Einstellungsfreigaben. Es gibt
   keine direkten Zugriffe auf dessen Tabellen, Controller, Assets oder
   private Konfiguration.
@@ -35,7 +35,7 @@ beim direkten Öffnen dieses App-Repositories.
 - Fehlt ein Kalenderprovider, darf die App keine vermeintlich konfliktfreien
   automatischen Vorschläge behaupten. Manuelle Planung bleibt mit sichtbarem
   Vollständigkeitsstatus möglich.
-- AD Recruitment erhält später ausschließlich stabile externe Durchlauf-IDs
+- Filzmann Recruitment erhält später ausschließlich stabile externe Durchlauf-IDs
   und notwendige terminliche Snapshots. Sein lokaler Fallback bleibt gültig.
 
 ## Fachregeln des ersten Kerns
@@ -46,7 +46,7 @@ beim direkten Öffnen dieses App-Repositories.
   ist konfigurierbar. Die App führt keine Warteliste.
 - Zusätzliche Nachholplätze gelten ausschließlich für einzelne
   Curriculum-Module und erhöhen nicht die reguläre Durchlaufkapazität.
-- Teilnehmerinnen werden ausschließlich aus AD Recruitment zugeordnet. Das
+- Teilnehmerinnen werden ausschließlich aus Filzmann Recruitment zugeordnet. Das
   Personalreferat kann dort Zuordnungen zwischen früheren und späteren BQs
   ändern; die BQ-App kopiert weder Zuordnungen noch Bewerbungsakten.
 - Arbeitstage sind Montag bis Freitag. Automatische Vorschläge überspringen
@@ -67,7 +67,7 @@ beim direkten Öffnen dieses App-Repositories.
   sondern dokumentiert den extern erfolgten Kommunikationsstatus.
 - Nur veröffentlichte, terminlich vollständige und nicht abgesagte
   Durchläufe dürfen später als verfügbare BQs an Recruitment gemeldet werden.
-- Die App ist im AD-Menü als Entwicklungsprodukt registriert, bleibt aber bis
+- Die App ist im FLZ-Menü als Entwicklungsprodukt registriert, bleibt aber bis
   zur dokumentierten Release-Reife aus Full-Suite- und Einzelprodukt-Bundles
   ausgeschlossen.
 
@@ -125,7 +125,7 @@ beim direkten Öffnen dieses App-Repositories.
 - Migrationen benötigen Fresh-Install-, Wiederholungs- und Integritätsnachweise
   in DDEV; historische App-Upgrades nur bei einem Erhaltungsgrund nach der
   unten projizierten Entwicklungsphasenregel.
-- DDEV-Mount: `/var/www/html/html/custom_apps/adbqplanung`.
+- DDEV-Mount: `/var/www/html/html/custom_apps/flzbqplanung`.
 - Keine Commits, Pushes, Releases, Deployments oder Nextcloud-Aktivierung ohne
   ausdrückliche Freigabe.
 

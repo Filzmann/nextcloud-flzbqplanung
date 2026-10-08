@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Domain\Curriculum;
+namespace OCA\FlzBqPlanning\Domain\Curriculum;
 
 use DomainException;
 

@@ -6,12 +6,12 @@ namespace OCP\AppFramework\Utility {
     if (!interface_exists(ITimeFactory::class)) { interface ITimeFactory { public function now(): \DateTimeImmutable; } }
 }
 
-namespace AdBqPlanning\Tests {
+namespace FlzBqPlanning\Tests {
     use DateTimeImmutable;
     use InvalidArgumentException;
-    use OCA\AdBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
-    use OCA\AdBqPlanning\Service\TemporaryAdminAccessDeniedException;
-    use OCA\AdBqPlanning\Service\TemporaryAdminAccessService;
+    use OCA\FlzBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
+    use OCA\FlzBqPlanning\Service\TemporaryAdminAccessDeniedException;
+    use OCA\FlzBqPlanning\Service\TemporaryAdminAccessService;
     use OCP\AppFramework\Utility\ITimeFactory;
     use OCP\IGroup;
     use OCP\IGroupManager;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Settings;
+namespace OCA\FlzBqPlanning\Settings;
 
-use OCA\AdBqPlanning\AppInfo\Application;
+use OCA\FlzBqPlanning\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 

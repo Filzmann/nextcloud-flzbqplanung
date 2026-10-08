@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Service;
+namespace OCA\FlzBqPlanning\Service;
 
 use DomainException;
-use OCA\AdBqPlanning\Contract\TeachingStore;
+use OCA\FlzBqPlanning\Contract\TeachingStore;
 
 final class TeachingService {
     private const REQUEST_TRANSITIONS = [

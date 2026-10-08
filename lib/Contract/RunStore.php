@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Contract;
+namespace OCA\FlzBqPlanning\Contract;
 
 interface RunStore {
     /** @param array<string,mixed> $run */

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\AdBqPlanning\Listener;
+namespace OCA\FlzBqPlanning\Listener;
 
-use OCA\AdBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCA\LocalBase\Service\StandaloneAppNavigationService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -26,6 +26,6 @@ final class StandaloneNavigationListener implements IEventListener {
             return;
         }
 
-        $this->navigation->addCatalogProductWhenStandalone('adbqplanung', 'BQ-Planer', 'app.svg');
+        $this->navigation->addCatalogProductWhenStandalone('flzbqplanung', 'BQ-Planer', 'app.svg');
     }
 }

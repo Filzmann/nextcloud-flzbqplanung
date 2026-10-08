@@ -21,11 +21,11 @@ namespace OCP {
     }
 }
 
-namespace AdBqPlanning\Tests {
-    use OCA\AdBqPlanning\Exception\AccessDeniedException;
-    use OCA\AdBqPlanning\Service\AuthorizationService;
-    use OCA\AdBqPlanning\Service\RoleSettingsService;
-    use OCA\AdBqPlanning\Service\TemporaryAdminAccessChecker;
+namespace FlzBqPlanning\Tests {
+    use OCA\FlzBqPlanning\Exception\AccessDeniedException;
+    use OCA\FlzBqPlanning\Service\AuthorizationService;
+    use OCA\FlzBqPlanning\Service\RoleSettingsService;
+    use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCP\IAppConfig;
     use OCP\IGroup;
     use OCP\IGroupManager;
