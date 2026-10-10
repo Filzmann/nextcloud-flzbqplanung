@@ -12,7 +12,7 @@
     <category>organization</category>
     <dependencies>
         <php min-version="8.3"/>
-        <nextcloud min-version="33" max-version="34"/>
+        <nextcloud min-version="33" max-version="35"/>
     </dependencies>
     <settings>
         <admin>OCA\FlzBqPlanning\Settings\Admin</admin>

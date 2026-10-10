@@ -91,10 +91,11 @@ Die App führt keine Bewerbungsakte und trifft keine Eignungs- oder
 Einstellungsentscheidung. Eine spätere Anbindung an Filzmann Recruitment verwendet
 nur einen kleinen optionalen, versionierten Vertrag.
 
-Der nachgewiesene Plattformbereich umfasst Nextcloud 33 und 34 mit PHP ab
-Version 8.3. Der OpenDesk-Boden wurde über Fresh Install auf Nextcloud 33.0.7
-und ein Upgrade mit synthetischen BQ-Bestandsdaten auf Nextcloud 34.0.2
-geprüft.
+Der nachgewiesene Plattformbereich umfasst Nextcloud 33 bis 35 mit PHP ab
+Version 8.3. Die Untergrenze wurde über Fresh Install auf Nextcloud 33.0.9
+und Upgrades mit synthetischen BQ-Bestandsdaten auf Nextcloud 34.0.4 und
+35.0.1 geprüft. Die aktuelle openDesk-Zielversion war nicht Teil dieses
+Kompatibilitätslaufs.
 
 ## Lokale Entwicklung
 
