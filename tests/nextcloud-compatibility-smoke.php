@@ -16,9 +16,10 @@ return [
         ],
     ],
     'uiPath' => '/index.php/apps/flzbqplanung/',
-    'preGrantUiStatuses' => [403],
+    'preGrantUiStatuses' => [200],
     'postGrantUiStatuses' => [200],
     'grantService' => TemporaryAdminAccessService::class,
+    'grantManagerGroups' => ['Datenschutzbeauftragte'],
     'permissionProbe' => static fn(string $uid): bool => OCP\Server::get(AuthorizationService::class)
         ->can(AuthorizationService::ADMIN),
     'apiSmokes' => [
