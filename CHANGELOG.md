@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Die Nacharbeit aus der manuellen Staging-Abnahme zeigt Ferien-, Feiertags-
+  und BQ-Sperrtagsquellen einzeln an, begrenzt interne PFK-Auswahl auf eine
+  konfigurierte Nextcloud-Gruppe, macht den versionsgesicherten
+  Aktiv/Inaktiv-Status jeder Dozentin zugänglich bearbeitbar und bündelt die
+  unverändert app-lokale Adminfreigabe in einem Tastatur-fähigen Klappbereich.
+  Die zentrale Curriculum-Vorlage ist versionsgesichert bearbeitbar; neue
+  Durchläufe erhalten daraus unabhängige, zunächst unterminierte Snapshots,
+  während vorhandene Durchläufe unverändert bleiben.
 - Nextcloud 35.0.1 durch Fresh Install, Upgrade 34→35 sowie Provider-,
   Berechtigungs-, Runtime-, UI-/API- und Asset-Smokes nachgewiesen und den
   unterstützten Bereich auf die lückenlosen Hauptversionen 33 bis 35

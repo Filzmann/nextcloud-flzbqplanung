@@ -23,12 +23,12 @@ TestRunner::test('role-protected teaching API exposes pool lead request and tran
     $controllerPath = $root . '/lib/Controller/TeachingController.php';
     assertTrue(is_file($controllerPath), 'TeachingController is missing');
     $controller = (string)file_get_contents($controllerPath);
-    foreach (['teaching#lecturers', 'teaching#createLecturer', 'teaching#setLead', 'teaching#createRequest', 'teaching#transitionRequest'] as $route) {
+    foreach (['teaching#lecturers', 'teaching#createLecturer', 'teaching#internalPfkMembers', 'teaching#updateLecturerStatus', 'teaching#setLead', 'teaching#createRequest', 'teaching#transitionRequest'] as $route) {
         assertTrue(str_contains($routes, $route), 'Missing route ' . $route);
     }
     assertTrue(str_contains($controller, 'NoAdminRequired'));
     assertTrue(str_contains($controller, 'AuthorizationService::TEACHING'));
     assertTrue(str_contains($controller, 'LoggerInterface'));
-    assertTrue(str_contains($controller, 'IUserManager'), 'Internal PFK identities are not checked against Nextcloud');
-    assertTrue(str_contains($controller, 'userExists($nextcloudUid)'), 'Unknown Nextcloud UIDs can enter the lecturer pool');
+    assertTrue(str_contains($controller, 'InternalPfkDirectory'), 'Internal PFK identities are not checked against the configured Nextcloud group');
+    assertTrue(str_contains($controller, 'assertSelectable($nextcloudUid)'), 'Unknown or out-of-group Nextcloud UIDs can enter the lecturer pool');
 });

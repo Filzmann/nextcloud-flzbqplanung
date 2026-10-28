@@ -16,6 +16,11 @@ $lecturers = is_array($_['lecturers'] ?? null) ? $_['lecturers'] : [];
 $teachingRequests = is_array($_['teachingRequests'] ?? null) ? $_['teachingRequests'] : [];
 $capabilities = is_array($_['capabilities'] ?? null) ? $_['capabilities'] : ['admin' => false, 'planning' => false, 'teaching' => false, 'publishing' => false];
 $roleSettings = is_array($_['roleSettings'] ?? null) ? $_['roleSettings'] : [];
+$curriculumTemplate = is_array($_['curriculumTemplate'] ?? null) ? $_['curriculumTemplate'] : null;
+$curriculumTemplateModules = is_array($curriculumTemplate['modules'] ?? null) ? $curriculumTemplate['modules'] : [];
+if ($curriculumTemplateModules === []) {
+    $curriculumTemplateModules = [['moduleKey' => '', 'title' => '', 'minutes' => '']];
+}
 $hasBqAccess = (bool)($_['hasBqAccess'] ?? false);
 $internalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'internal' && ($lecturer['active'] ?? false)));
 $externalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'external' && ($lecturer['active'] ?? false)));
@@ -57,8 +62,9 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     <?php endif; ?>
 
     <?php if ($_['canManageAdminAccess'] ?? false): ?>
-        <section id="flz-bq-full-access" class="bq-card bq-access-card" aria-labelledby="flz-bq-full-access-heading">
-            <h2 id="flz-bq-full-access-heading" tabindex="-1">Zeitlich begrenzter Admin-Vollzugriff</h2>
+        <details id="flz-bq-full-access" class="bq-card bq-access-card" <?php if ($_['showAdminAccessLink'] ?? false): ?>open<?php endif; ?>>
+            <summary id="flz-bq-full-access-heading">Zeitlich begrenzten Admin-Vollzugriff verwalten</summary>
+            <div class="bq-access-card__content">
             <p>Ausschließlich Mitglieder der Gruppe Datenschutzbeauftragte dürfen aktuellen Nextcloud-Administrationskonten fachlichen Vollzugriff erteilen. Maximal 24 Stunden sind zulässig.</p>
             <form id="flz-bq-full-access-form" class="bq-form">
                 <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
@@ -68,7 +74,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             </form>
             <p id="flz-bq-full-access-status" role="status" aria-live="polite"></p>
             <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="flz-bq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
-        </section>
+            </div>
+        </details>
     <?php endif; ?>
 
     <?php if ($hasBqAccess): ?>
@@ -111,6 +118,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <label>Planung <input name="planningGroup" value="<?php p((string)($roleSettings['planningGroup'] ?? '')); ?>" placeholder="bq-planning"></label>
             <label>Lehre <input name="teachingGroup" value="<?php p((string)($roleSettings['teachingGroup'] ?? '')); ?>" placeholder="bq-teaching"></label>
             <label>Veröffentlichung <input name="publishingGroup" value="<?php p((string)($roleSettings['publishingGroup'] ?? '')); ?>" placeholder="bq-publishing"></label>
+            <label>Interne PFK-Auswahl <input name="pfkGroup" value="<?php p((string)($roleSettings['pfkGroup'] ?? '')); ?>" placeholder="bq-pfk"></label>
+            <small>Nur vorhandene Mitglieder dieser Gruppe können als interne PFK in den Pool aufgenommen werden. Die Gruppe erteilt selbst keine BQ-Fähigkeit.</small>
             <button type="submit">Rollengruppen speichern</button>
         </form>
         </section>
@@ -119,6 +128,51 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <section id="bq-panel-runs" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-runs">
         <?php if ($capabilities['planning']): ?>
+        <form class="bq-card bq-form" data-curriculum-template-form data-endpoint="/api/curriculum-template" data-method="PUT">
+            <h2>Zentrale Curriculum-Vorlage</h2>
+            <p>Die Vorlage enthält nur Reihenfolge, Titel und Dauer der Module. Änderungen an der Vorlage gelten nur für neue Durchläufe; vorhandene Durchlauf-Snapshots bleiben unverändert. Neue Snapshots sind zunächst noch nicht terminiert.</p>
+            <p><strong><?php p($curriculumTemplate === null ? 'Noch keine Vorlage gespeichert.' : 'Aktuelle Version ' . (string)$curriculumTemplate['version']); ?></strong></p>
+            <input name="expectedVersion" type="hidden" value="<?php p((string)($curriculumTemplate['version'] ?? 0)); ?>">
+            <label>Bezeichnung der Vorlage
+                <input name="title" maxlength="128" required value="<?php p((string)($curriculumTemplate['title'] ?? 'Basisqualifizierung')); ?>">
+            </label>
+            <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Module der zentralen Curriculum-Vorlage">
+                <table class="bq-curriculum-template-table">
+                    <thead><tr><th>Modulschlüssel</th><th>Titel</th><th>Minuten</th><th>Reihenfolge und Entfernung</th></tr></thead>
+                    <tbody id="bq-curriculum-template-modules">
+                    <?php foreach ($curriculumTemplateModules as $module): ?>
+                        <tr data-curriculum-module-row>
+                            <td><label><span class="bq-visually-hidden">Stabiler Modulschlüssel</span><input name="moduleKey[]" pattern="[a-z0-9][a-z0-9-]{0,63}" maxlength="64" required value="<?php p((string)($module['moduleKey'] ?? '')); ?>"></label></td>
+                            <td><label><span class="bq-visually-hidden">Modultitel</span><input name="moduleTitle[]" maxlength="128" required value="<?php p((string)($module['title'] ?? '')); ?>"></label></td>
+                            <td><label><span class="bq-visually-hidden">Moduldauer in Minuten</span><input name="moduleMinutes[]" type="number" min="1" max="600" required value="<?php p((string)($module['minutes'] ?? '')); ?>"></label></td>
+                            <td><div class="bq-inline-actions">
+                                <button type="button" data-curriculum-move="up">Nach oben</button>
+                                <button type="button" data-curriculum-move="down">Nach unten</button>
+                                <button type="button" data-curriculum-remove>Entfernen</button>
+                            </div></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="bq-inline-actions">
+                <button type="button" data-add-curriculum-module>Modul hinzufügen</button>
+                <button type="submit" class="primary">Vorlage speichern</button>
+            </div>
+        </form>
+        <template id="bq-curriculum-module-template">
+            <tr data-curriculum-module-row>
+                <td><label><span class="bq-visually-hidden">Stabiler Modulschlüssel</span><input name="moduleKey[]" pattern="[a-z0-9][a-z0-9-]{0,63}" maxlength="64" required></label></td>
+                <td><label><span class="bq-visually-hidden">Modultitel</span><input name="moduleTitle[]" maxlength="128" required></label></td>
+                <td><label><span class="bq-visually-hidden">Moduldauer in Minuten</span><input name="moduleMinutes[]" type="number" min="1" max="600" required></label></td>
+                <td><div class="bq-inline-actions">
+                    <button type="button" data-curriculum-move="up">Nach oben</button>
+                    <button type="button" data-curriculum-move="down">Nach unten</button>
+                    <button type="button" data-curriculum-remove>Entfernen</button>
+                </div></td>
+            </tr>
+        </template>
+
         <section class="bq-grid" aria-label="Neuen BQ-Durchlauf vorbereiten">
         <form class="bq-card bq-form" data-proposal-form>
             <h2>Monat vorschlagen</h2>
@@ -127,6 +181,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             </label>
             <button type="submit">Terminvorschlag prüfen</button>
             <p id="bq-proposal-result" role="status" aria-live="polite"></p>
+            <ul id="bq-calendar-sources" class="bq-source-status" aria-label="Vollständigkeit der geprüften Kalenderquellen"></ul>
         </form>
 
         <form class="bq-card bq-form" data-endpoint="/api/runs" data-method="POST">
@@ -218,7 +273,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                         <?php foreach (($run['modules'] ?? []) as $moduleIndex => $module): ?>
                             <tr>
                                 <td><?php p((string)$module['title']); ?></td>
-                                <td><?php p((string)$module['date']); ?>, <?php p((string)$module['startsAt']); ?>–<?php p((string)$module['endsAt']); ?></td>
+                                <td><?php if (($module['scheduleStatus'] ?? '') === 'unscheduled'): ?><span class="bq-state">Noch nicht terminiert</span><?php else: ?><?php p((string)$module['date']); ?>, <?php p((string)$module['startsAt']); ?>–<?php p((string)$module['endsAt']); ?><?php endif; ?></td>
                                 <td><?php p((string)$module['minutes']); ?> Minuten</td>
                                 <td><?php
                                     $moduleLecturer = $lecturersById[(int)($module['lecturerId'] ?? 0)] ?? $lead;
@@ -226,7 +281,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                                 ?></td>
                                 <td><?php p((string)$module['additionalCapacity']); ?></td>
                                 <td>
-                                    <?php if (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?>
+                                    <?php if (($module['scheduleStatus'] ?? '') === 'unscheduled'): ?>Termin offen<?php elseif (isset($conflictingModuleIds[(int)$module['id']])): ?><span class="bq-conflict">Terminüberschneidung</span><?php else: ?>Keine Überschneidung<?php endif; ?>
                                     <?php if (($run['status'] ?? '') === 'draft' && $capabilities['planning']): ?>
                                         <div class="bq-inline-actions" aria-label="Reihenfolge von <?php p((string)$module['title']); ?> ändern">
                                             <?php foreach (['up' => 'Nach oben', 'down' => 'Nach unten'] as $direction => $directionLabel): ?>
@@ -337,7 +392,9 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <input name="kind" type="hidden" value="internal">
                     <input name="displayName" type="hidden" value="">
                     <input name="email" type="hidden" value="">
-                    <label>Nextcloud-UID <input name="nextcloudUid" maxlength="64" required placeholder="flz-demo-pfk-a"></label>
+                    <label>PFK suchen <input name="nextcloudUid" maxlength="64" required autocomplete="off" list="bq-pfk-candidates" data-pfk-search data-pfk-options="bq-pfk-candidates" data-pfk-status="bq-pfk-search-status" placeholder="Name oder Nextcloud-UID"></label>
+                    <datalist id="bq-pfk-candidates"></datalist>
+                    <p id="bq-pfk-search-status" role="status" aria-live="polite">Die Auswahl ist auf Mitglieder der konfigurierten PFK-Gruppe begrenzt.</p>
                     <button type="submit">PFK aufnehmen</button>
                 </form>
                 <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
@@ -352,12 +409,24 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             <?php if ($lecturers === []): ?><p class="bq-empty">Noch keine Dozentinnen im Pool.</p><?php endif; ?>
             <?php if ($lecturers !== []): ?>
                 <div class="bq-table-wrap"><table>
+                    <caption>Dozentinnenstatus. Aktiv bedeutet für neue Zuordnungen auswählbar; inaktiv bewahrt bestehende Planungsbezüge, verhindert aber neue Zuordnungen.</caption>
                     <thead><tr><th>Typ</th><th>Referenz</th><th>Kontakt</th><th>Status</th></tr></thead>
                     <tbody><?php foreach ($lecturers as $lecturer): ?><tr>
                         <td><?php p(($lecturer['kind'] ?? '') === 'internal' ? 'Interne PFK' : 'Extern'); ?></td>
                         <td><?php p($lecturerLabel($lecturer)); ?></td>
                         <td><?php p((string)($lecturer['email'] ?? '–')); ?></td>
-                        <td><?php p(($lecturer['active'] ?? false) ? 'Aktiv' : 'Inaktiv'); ?></td>
+                        <td>
+                            <form class="bq-inline-form" data-endpoint="/api/lecturers/<?php p((string)$lecturer['id']); ?>/status" data-method="POST">
+                                <input name="version" type="hidden" value="<?php p((string)$lecturer['version']); ?>">
+                                <label><span class="bq-visually-hidden">Dozentinnenstatus für <?php p($lecturerLabel($lecturer)); ?></span>
+                                    <select name="targetStatus">
+                                        <option value="active" <?php if ($lecturer['active'] ?? false): ?>selected<?php endif; ?>>Aktiv</option>
+                                        <option value="inactive" <?php if (!($lecturer['active'] ?? false)): ?>selected<?php endif; ?>>Inaktiv</option>
+                                    </select>
+                                </label>
+                                <button type="submit">Status speichern</button>
+                            </form>
+                        </td>
                     </tr><?php endforeach; ?></tbody>
                 </table></div>
             <?php endif; ?>

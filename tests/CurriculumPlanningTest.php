@@ -22,6 +22,9 @@ TestRunner::test('run curriculum is a movable snapshot and never mutates its tem
         ->schedule('datenschutz', '2026-09-11', '09:00', '10:30');
 
     assertSame(['pflege-1', 'pflege-2', 'datenschutz'], array_column($template->modules, 'id'));
+    assertSame(null, CurriculumSnapshot::fromTemplate($template)->module('pflege-1')['date']);
+    assertSame(null, CurriculumSnapshot::fromTemplate($template)->module('pflege-1')['startsAt']);
+    assertSame(null, CurriculumSnapshot::fromTemplate($template)->module('pflege-1')['endsAt']);
     assertSame(['datenschutz', 'pflege-2', 'pflege-1'], array_column($snapshot->modules(), 'id'));
     assertSame('2026-09-11', $snapshot->module('datenschutz')['date']);
     assertSame(3, $snapshot->templateVersion);

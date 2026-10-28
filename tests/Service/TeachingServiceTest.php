@@ -23,6 +23,13 @@ final class MemoryTeachingStore implements TeachingStore {
 
     public function lecturers(): array { return array_values($this->lecturerRows); }
     public function lecturer(int $lecturerId): array { return $this->lecturerRows[$lecturerId]; }
+    public function updateLecturerStatus(int $lecturerId, bool $fromActive, bool $toActive, int $expectedVersion, string $actorUid): array {
+        $lecturer = $this->lecturerRows[$lecturerId];
+        if ($lecturer['active'] !== $fromActive || $lecturer['version'] !== $expectedVersion) throw new DomainException('stale');
+        $this->lecturerRows[$lecturerId]['active'] = $toActive;
+        $this->lecturerRows[$lecturerId]['version']++;
+        return $this->lecturerRows[$lecturerId];
+    }
     public function run(int $runId): array { return $this->runRows[$runId]; }
     public function module(int $moduleId): array { return $this->moduleRows[$moduleId]; }
 
@@ -88,6 +95,24 @@ TestRunner::test('only an active internal PFK can lead a draft run', static func
     $run = $service->setLead($store, 1, $pfk, 1, 'admin');
     assertSame($pfk, $run['leadLecturerId']);
     assertThrows(static fn () => $service->setLead($store, 1, $external, 2, 'admin'), DomainException::class);
+});
+
+TestRunner::test('lecturer status transitions are explicit versioned and leave rejected writes unchanged', static function (): void {
+    $store = new MemoryTeachingStore();
+    $service = new TeachingService();
+    $lecturerId = $service->createLecturer($store, 'external', '', 'Erika Beispiel', 'erika@example.invalid', 'admin');
+
+    $inactive = $service->updateLecturerStatus($store, $lecturerId, 'inactive', 1, 'admin');
+    assertSame(false, $inactive['active']);
+    assertSame(2, $inactive['version']);
+    assertThrows(static fn () => $service->updateLecturerStatus($store, $lecturerId, 'active', 1, 'admin'), DomainException::class);
+    assertSame(false, $store->lecturerRows[$lecturerId]['active']);
+    assertThrows(static fn () => $service->updateLecturerStatus($store, $lecturerId, 'archived', 2, 'admin'), DomainException::class);
+    assertSame(false, $store->lecturerRows[$lecturerId]['active']);
+
+    $active = $service->updateLecturerStatus($store, $lecturerId, 'active', 2, 'admin');
+    assertSame(true, $active['active']);
+    assertSame(3, $active['version']);
 });
 
 TestRunner::test('external requests have guarded transitions and confirmation assigns only that module', static function (): void {

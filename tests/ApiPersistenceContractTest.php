@@ -23,6 +23,21 @@ TestRunner::test('admin API exposes runs modules publication and settings withou
     assertTrue(str_contains($proposalController, 'Unexpected BQ proposal failure.'));
 });
 
+TestRunner::test('planning API exposes the central curriculum template without weakening CSRF protection', static function (): void {
+    $root = dirname(__DIR__);
+    $routes = (string)file_get_contents($root . '/appinfo/routes.php');
+    $controllerPath = $root . '/lib/Controller/CurriculumTemplateController.php';
+
+    assertTrue(str_contains($routes, 'curriculumTemplate#current'), 'The read-only curriculum-template route is missing');
+    assertTrue(str_contains($routes, 'curriculumTemplate#save'), 'The curriculum-template write route is missing');
+    assertTrue(is_file($controllerPath), 'CurriculumTemplateController is missing');
+    $controller = (string)file_get_contents($controllerPath);
+    assertTrue(str_contains($controller, 'AuthorizationService::PLANNING'));
+    assertTrue(str_contains($controller, 'NoAdminRequired'));
+    assertTrue(str_contains($controller, 'LoggerInterface'));
+    assertTrue(str_contains($controller, 'Unexpected BQ curriculum-template failure.'));
+});
+
 TestRunner::test('repository uses bound parameters and optimistic run versions', static function (): void {
     $root = dirname(__DIR__);
     $repositoryPath = $root . '/lib/Repository/RunRepository.php';

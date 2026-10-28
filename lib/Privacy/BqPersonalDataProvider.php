@@ -62,7 +62,13 @@ final class BqPersonalDataProvider implements PersonalDataProvider {
     }
 
     private function activity(array $row): PersonalDataEntry {
-        $label = match ((string)$row['activity']) { 'run_updated'=>'Durchlauf bearbeitet', 'module_created'=>'Curriculum-Modul angelegt', 'lecturer_updated'=>'Dozentinnenprofil bearbeitet', default=>'Dozentinnenanfrage bearbeitet' };
+        $label = match ((string)$row['activity']) {
+            'run_updated' => 'Durchlauf bearbeitet',
+            'module_created' => 'Curriculum-Modul angelegt',
+            'curriculum_template_updated' => 'Curriculum-Vorlage bearbeitet',
+            'lecturer_updated' => 'Dozentinnenprofil bearbeitet',
+            default => 'Dozentinnenanfrage bearbeitet',
+        };
         return $this->entry('planning_activity', 'Bearbeitungsnachweis', $row, $label, 'Nachvollziehbarkeit administrativer BQ-Planung', ['Vorgang'=>$label, 'Zeitpunkt'=>self::date($row['occurred_at'])], (string)$row['activity']);
     }
 

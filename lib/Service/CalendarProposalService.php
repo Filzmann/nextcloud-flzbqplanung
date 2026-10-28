@@ -44,6 +44,26 @@ final class CalendarProposalService {
             'usable' => $coverage->usable,
             'complete' => $coverage->complete,
             'message' => $message,
+            'sources' => [
+                [
+                    'key' => 'schoolHolidays',
+                    'label' => 'Schulferien',
+                    'status' => $coverage->status,
+                    'complete' => $coverage->complete,
+                ],
+                [
+                    'key' => 'publicHolidays',
+                    'label' => 'Gesetzliche Feiertage',
+                    'status' => $coverage->status,
+                    'complete' => $coverage->complete,
+                ],
+                [
+                    'key' => 'bqBlockedDays',
+                    'label' => 'BQ-eigene Sperrtage',
+                    'status' => 'current',
+                    'complete' => true,
+                ],
+            ],
         ];
         if (!$coverage->usable) {
             return ['proposal' => null, 'calendar' => $calendar];

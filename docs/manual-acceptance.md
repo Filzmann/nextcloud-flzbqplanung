@@ -16,9 +16,9 @@ Kontaktdaten.
 | ID | Was wird geprüft? | Auszuführende Schritte | Erwartetes Ergebnis | Ergebnis | Warum/Beleg/Abweichung |
 |---|---|---|---|---|---|
 | A1 | Start und Assets | BQ-Planer direkt sowie über den FLZ-Einstieg öffnen; Browserkonsole und geladene CSS-/JavaScript-Ressourcen prüfen. | App, Styles und Skripte laden ohne Fehler; ein fehlender Menüeintrag erteilt keine Fachrechte. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
-| A2 | Durchlauf und Curriculum-Snapshot | Einen synthetischen Durchlauf aus der zentralen Curriculum-Vorlage anlegen, Module im Durchlauf umordnen und einen Termin ändern; Vorlage und Durchlauf danach neu laden. | Der Durchlauf besitzt einen eigenen stabilen Snapshot; dessen Änderungen verändern die zentrale Vorlage nicht rückwirkend. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
+| A2 | Durchlauf und Curriculum-Snapshot | Die zentrale Vorlage mit mindestens zwei Modulen speichern, einen synthetischen Durchlauf anlegen, den zunächst unterminierten Snapshot terminieren und umordnen, danach die Vorlage ändern und alles neu laden. | Die Vorlagenversion steigt; der neue Durchlauf besitzt eine unabhängige, zunächst unterminierte Modulkopie. Terminierung, Reihenfolge und Vorlagenänderung verändern sich nicht gegenseitig; der Durchlauf bleibt vor vollständiger Terminierung unveröffentlichbar. | [ ] erfolgreich [ ] nicht erfolgreich [x] nicht geprüft | Automatisierte Vertrags- und Persistenztests sind vorhanden; die erneute Runtime-/Browserabnahme steht aus. |
 | A3 | Kalenderquellen und Vorschlag | Je einen Stand mit vollständigen Ferien-, Feiertags- und Sperrtagsquellen sowie mit fehlendem oder nicht verfügbarem Provider prüfen. | Nur der vollständige Stand darf als konfliktfrei erscheinen; unvollständige Quellen bleiben sichtbar und erzeugen keinen automatischen Vorschlag. | [x] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
-| A4 | Interne und externe Dozentinnen | Eine interne PFK über die Nextcloud-Suche auswählen und ein minimales externes Profil anlegen; anschließend Anzeige, Bearbeitung und direkte Requests mit unberechtigtem Konto prüfen. | Interne Profile verwenden eine geprüfte Nextcloud-UID, externe nur die erlaubten Minimaldaten; fremde oder unberechtigte Zugriffe werden serverseitig verweigert. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
+| A4 | Interne und externe Dozentinnen | Eine interne PFK über die Suche der konfigurierten Nextcloud-Gruppe auswählen, eine UID außerhalb der Gruppe direkt absenden, ein minimales externes Profil anlegen und beide Profile jeweils inaktiv sowie wieder aktiv setzen; anschließend direkte Requests mit unberechtigtem Konto prüfen. | Nur vorhandene Gruppenmitglieder werden gesucht und als interne UID gespeichert; fremde UIDs und unberechtigte Requests bleiben mutationsfrei abgewiesen. Externe Profile enthalten nur die erlaubten Minimaldaten. Jede Tabellenzeile erklärt und erlaubt versionsgesichert ausschließlich `Aktiv` und `Inaktiv`; inaktive Profile bleiben historisch sichtbar, sind für neue Zuordnungen aber gesperrt. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 | A5 | Veröffentlichung | Einen terminlich vollständigen Durchlauf veröffentlichen und unvollständige, abgesagte sowie manipulierte Varianten direkt anfragen. | Nur ein vollständiger, nicht abgesagter Durchlauf wird veröffentlicht; abgewiesene Requests verändern keinen Zustand. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 | A6 | Bedienbarkeit | Tabs, Tabellen, Curriculum, Dozentinnen und Dialoge nur per Tastatur bedienen; Fokus, 200-Prozent-Zoom, kleinen Viewport und beide Scrollrichtungen prüfen. | Alle Funktionen bleiben erreichbar, Fokus ist sichtbar, Tabellen schneiden keine Aktionen ab und es entsteht keine Tastaturfalle. | [ ] erfolgreich [ ] nicht erfolgreich [ ] nicht geprüft | |
 
@@ -34,9 +34,8 @@ Kontaktdaten.
 
 ## Ergebnis
 
-- Ergebnis: Die app-spezifische Nacharbeit ist unter
-  `FLZBQ-STAGING-FOLLOWUP` in `ROADMAP.md` erfasst. Die systemweite
-  UI-Bündelung der temporären Adminfreigabe steht als `DP-11` im
-  Parent-Zukunftsplan.
+- Ergebnis: Die app-spezifische Nacharbeit ist implementiert. Offene manuelle
+  Nachweise bleiben über die nicht angekreuzten beziehungsweise als nicht
+  geprüft markierten Fälle sichtbar.
 - Abweichungen und reproduzierbare Schritte:
 - Belege ohne Echtdaten:

@@ -1,11 +1,15 @@
 # Datenschutzaufgaben für Dozentinnendaten
 
-Der aktuelle Entwicklungsstand speichert personenbezogene Daten ausschließlich
-für die Dozentinnenplanung:
+Der aktuelle Entwicklungsstand speichert personenbezogene Daten für die
+Dozentinnen- und BQ-Planung:
 
-- interne PFK: Nextcloud-UID;
+- interne PFK: Nextcloud-UID sowie ein nur für die Gruppensuche transient
+  ausgegebener Nextcloud-Anzeigename, der nicht zusätzlich im Profil
+  persistiert wird;
 - externe Dozentin: Name und E-Mail-Adresse;
-- Bearbeitungsreferenzen: Nextcloud-UID der anlegenden oder ändernden Person;
+- Bearbeitungsreferenzen: Nextcloud-UID der anlegenden oder ändernden Person
+  an Dozentinnenprofilen, der zentralen Curriculum-Vorlage und
+  Durchlauf-Snapshots;
 - Zuordnungen: Haupt-PFK, Moduldozentin und Anfragezustand.
 
 Bewerbungsakten, Teilnehmerinnenzuordnungen und Kommunikationsinhalte gehören
@@ -28,13 +32,13 @@ Vor der fachlichen Fertigstellung dieses Datenbereichs sind verpflichtend:
    authentifizierter externer Subject-Vertrag festzulegen und zu testen.
 2. Die Drittpersonensicht weist Bearbeitungsreferenzen und Dozentinnenbezüge in
    BQ-Durchläufen aus, ohne Bewerbungsdaten aus Filzmann Recruitment zu lesen.
-3. Offene oder bestätigte Anfragen und aktive BQ-Zuordnungen blockieren die
-   Löschung eines externen Profils. Nach dem letzten fachlichen Bezug werden
-   Name und E-Mail gemäß einer noch festzulegenden, konfigurierbaren Frist
-   gelöscht oder anonymisiert; die Frist benötigt vor Umsetzung eine
-   fachliche Freigabe.
+3. Für externe Profile ist die Zwölfmonatsregel als Policy beschlossen. Offene
+   oder bestätigte Anfragen und aktive BQ-Zuordnungen blockieren ihre
+   Ausführung. Die automatische Löschung bleibt bis zum vollständigen
+   app-lokalen Lösch-, Restore-, Referenzintegritäts-, Nebenläufigkeits- und
+   Fehlernachweis deaktiviert.
 4. Tests belegen Auskunft, Drittpersonenbezug, Retention-Blockade, Ablauf der
    freigegebenen Frist und das Ausbleiben app-fremder Datenzugriffe.
 
-Bis diese Punkte umgesetzt und die Retention-Frist entschieden sind, ist der
+Bis diese Punkte vollständig umgesetzt und nachgewiesen sind, ist der
 Dozentinnenbereich ein lokaler Entwicklungsstand und nicht releasefähig.

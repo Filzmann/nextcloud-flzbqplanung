@@ -13,21 +13,23 @@ final class RoleSettingsService {
     public function __construct(private IAppConfig $config, private IGroupManager $groups) {
     }
 
-    /** @return array{planningGroup:string,teachingGroup:string,publishingGroup:string} */
+    /** @return array{planningGroup:string,teachingGroup:string,publishingGroup:string,pfkGroup:string} */
     public function current(): array {
         return [
             'planningGroup' => $this->config->getValueString(Application::APP_ID, 'role_group_planning', ''),
             'teachingGroup' => $this->config->getValueString(Application::APP_ID, 'role_group_teaching', ''),
             'publishingGroup' => $this->config->getValueString(Application::APP_ID, 'role_group_publishing', ''),
+            'pfkGroup' => $this->config->getValueString(Application::APP_ID, 'role_group_pfk', ''),
         ];
     }
 
-    /** @return array{planningGroup:string,teachingGroup:string,publishingGroup:string} */
-    public function update(string $planningGroup, string $teachingGroup, string $publishingGroup): array {
+    /** @return array{planningGroup:string,teachingGroup:string,publishingGroup:string,pfkGroup:string} */
+    public function update(string $planningGroup, string $teachingGroup, string $publishingGroup, string $pfkGroup = ''): array {
         $values = [
             'planningGroup' => trim($planningGroup),
             'teachingGroup' => trim($teachingGroup),
             'publishingGroup' => trim($publishingGroup),
+            'pfkGroup' => trim($pfkGroup),
         ];
         foreach ($values as $groupId) {
             if ($groupId !== '' && $this->groups->get($groupId) === null) {
@@ -37,6 +39,7 @@ final class RoleSettingsService {
         $this->config->setValueString(Application::APP_ID, 'role_group_planning', $values['planningGroup']);
         $this->config->setValueString(Application::APP_ID, 'role_group_teaching', $values['teachingGroup']);
         $this->config->setValueString(Application::APP_ID, 'role_group_publishing', $values['publishingGroup']);
+        $this->config->setValueString(Application::APP_ID, 'role_group_pfk', $values['pfkGroup']);
         return $this->current();
     }
 }

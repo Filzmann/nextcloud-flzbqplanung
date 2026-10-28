@@ -31,6 +31,11 @@ TestRunner::test('calendar proposal service returns a checked monthly proposal f
     assertSame('2026-09-04', $result['proposal']['startsOn']);
     assertSame(true, $result['calendar']['complete']);
     assertSame('current', $result['calendar']['status']);
+    assertSame([
+        ['key' => 'schoolHolidays', 'label' => 'Schulferien', 'status' => 'current', 'complete' => true],
+        ['key' => 'publicHolidays', 'label' => 'Gesetzliche Feiertage', 'status' => 'current', 'complete' => true],
+        ['key' => 'bqBlockedDays', 'label' => 'BQ-eigene Sperrtage', 'status' => 'current', 'complete' => true],
+    ], $result['calendar']['sources']);
 });
 
 TestRunner::test('invalid proposal months are rejected before the shared provider is called', static function (): void {
@@ -49,6 +54,9 @@ TestRunner::test('calendar proposal service refuses automatic output when provid
     assertSame(null, $result['proposal']);
     assertSame(false, $result['calendar']['complete']);
     assertTrue(str_contains($result['calendar']['message'], 'nicht vollständig'));
+    assertSame(false, $result['calendar']['sources'][0]['complete']);
+    assertSame(false, $result['calendar']['sources'][1]['complete']);
+    assertSame(true, $result['calendar']['sources'][2]['complete']);
 });
 
 TestRunner::test('calendar proposal service keeps all twelve annual results when one month has no free date', static function (): void {

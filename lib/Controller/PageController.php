@@ -6,6 +6,7 @@ namespace OCA\FlzBqPlanning\Controller;
 
 use OCA\FlzBqPlanning\AppInfo\Application;
 use OCA\FlzBqPlanning\Repository\RunRepository;
+use OCA\FlzBqPlanning\Repository\CurriculumTemplateRepository;
 use OCA\FlzBqPlanning\Repository\TeachingRepository;
 use OCA\FlzBqPlanning\Service\PlanningSettingsService;
 use OCA\FlzBqPlanning\Service\RunService;
@@ -23,6 +24,7 @@ final class PageController extends Controller {
     public function __construct(
         IRequest $request,
         private RunRepository $runs,
+        private CurriculumTemplateRepository $curriculumTemplates,
         private PlanningSettingsService $settingsService,
         private TeachingRepository $teaching,
         private RunService $runService,
@@ -55,6 +57,7 @@ final class PageController extends Controller {
             }, $this->runs->runs()) : [];
         return new TemplateResponse(Application::APP_ID, 'index', [
             'runs' => $runs,
+            'curriculumTemplate' => $capabilities['planning'] ? $this->curriculumTemplates->current() : null,
             'settings' => $hasBqAccess ? $this->settingsService->current() : [],
             'lecturers' => $capabilities['teaching'] ? $this->teaching->lecturers() : [],
             'teachingRequests' => $capabilities['teaching'] ? $this->teaching->requests() : [],

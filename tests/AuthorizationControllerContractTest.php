@@ -9,10 +9,13 @@ TestRunner::test('every BQ surface delegates access to the central authorization
     $run = (string)file_get_contents($root . '/lib/Controller/RunController.php');
     $teaching = (string)file_get_contents($root . '/lib/Controller/TeachingController.php');
     $proposal = (string)file_get_contents($root . '/lib/Controller/ProposalController.php');
+    $curriculumTemplate = is_file($root . '/lib/Controller/CurriculumTemplateController.php')
+        ? (string)file_get_contents($root . '/lib/Controller/CurriculumTemplateController.php')
+        : '';
     $page = (string)file_get_contents($root . '/lib/Controller/PageController.php');
     $navigation = (string)file_get_contents($root . '/lib/Listener/StandaloneNavigationListener.php');
 
-    foreach ([$run, $teaching, $proposal, $page] as $controller) {
+    foreach ([$run, $teaching, $proposal, $curriculumTemplate, $page] as $controller) {
         assertTrue(str_contains($controller, 'AuthorizationService'));
         assertTrue(str_contains($controller, 'NoAdminRequired'));
     }
@@ -21,6 +24,7 @@ TestRunner::test('every BQ surface delegates access to the central authorization
     assertTrue(str_contains($run, 'AuthorizationService::ADMIN'));
     assertTrue(str_contains($teaching, 'AuthorizationService::TEACHING'));
     assertTrue(str_contains($proposal, 'AuthorizationService::PLANNING'));
+    assertTrue(str_contains($curriculumTemplate, 'AuthorizationService::PLANNING'));
     assertTrue(str_contains($page, 'hasAnyAccess'));
     assertTrue(str_contains($page, 'TemporaryAdminAccessService'));
     assertTrue(str_contains($page, "'core', '403'"));
@@ -35,6 +39,7 @@ TestRunner::test('every BQ controller resolves HTTP status constants through the
         'TeachingController.php',
         'RoleSettingsController.php',
         'ProposalController.php',
+        'CurriculumTemplateController.php',
     ] as $controllerFile) {
         $controller = (string)file_get_contents($controllerDirectory . '/' . $controllerFile);
         assertTrue(
@@ -60,8 +65,12 @@ TestRunner::test('read-only BQ APIs omit CSRF checks while write APIs keep them'
             'write' => ['update'],
         ],
         'TeachingController.php' => [
-            'read' => ['lecturers', 'requests'],
-            'write' => ['createLecturer', 'setLead', 'createRequest', 'transitionRequest'],
+            'read' => ['lecturers', 'requests', 'internalPfkMembers'],
+            'write' => ['createLecturer', 'updateLecturerStatus', 'setLead', 'createRequest', 'transitionRequest'],
+        ],
+        'CurriculumTemplateController.php' => [
+            'read' => ['current'],
+            'write' => ['save'],
         ],
     ];
 

@@ -77,8 +77,8 @@ final class InMemoryDatabase implements IDBConnection {
     /** @param array<string,mixed> $row */
     public function seed(string $table, array $row): int {
         $row = match ($table) {
-            'flz_bq_runs' => ['lead_lecturer_id' => null] + $row,
-            'flz_bq_modules' => ['lecturer_id' => null] + $row,
+            'flz_bq_runs' => array_replace(['lead_lecturer_id' => null, 'template_id' => null, 'template_version' => null], $row),
+            'flz_bq_modules' => array_replace(['lecturer_id' => null], $row),
             default => $row,
         };
         $id = isset($row['id']) ? (int)$row['id'] : $this->nextId($table);
@@ -121,6 +121,12 @@ final class InMemoryQueryBuilder {
 
     public function update(string $table): self {
         $this->operation = 'update';
+        $this->table = $table;
+        return $this;
+    }
+
+    public function delete(string $table): self {
+        $this->operation = 'delete';
         $this->table = $table;
         return $this;
     }
@@ -181,6 +187,14 @@ final class InMemoryQueryBuilder {
         if ($this->operation === 'insert') {
             $this->lastInsertId = $this->db->seed($this->table, $this->values);
             return 1;
+        }
+        if ($this->operation === 'delete') {
+            $before = count($this->db->rows[$this->table] ?? []);
+            $this->db->rows[$this->table] = array_values(array_filter(
+                $this->db->rows[$this->table] ?? [],
+                fn (array $row): bool => !$this->matches($row),
+            ));
+            return $before - count($this->db->rows[$this->table]);
         }
         if ($this->operation !== 'update') {
             throw new \LogicException('Unsupported statement operation ' . $this->operation);

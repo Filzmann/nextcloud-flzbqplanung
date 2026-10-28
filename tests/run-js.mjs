@@ -29,6 +29,20 @@ assert.match(template, /Nach unten/)
 assert.match(template, /name="planningGroup"/)
 assert.match(template, /name="teachingGroup"/)
 assert.match(template, /name="publishingGroup"/)
+assert.match(template, /name="pfkGroup"/)
+assert.match(template, /data-pfk-search/)
+assert.match(template, /data-pfk-options/)
+assert.match(template, /Dozentinnenstatus/)
+assert.match(template, /Aktiv bedeutet/)
+assert.match(template, /\/api\/lecturers\/<\?php p\(\(string\)\$lecturer\['id'\]\); \?>\/status/)
+assert.match(template, /id="bq-calendar-sources"/)
+assert.match(template, /data-curriculum-template-form/)
+assert.match(template, /name="expectedVersion"/)
+assert.match(template, /name="moduleKey\[\]"/)
+assert.match(template, /name="moduleTitle\[\]"/)
+assert.match(template, /name="moduleMinutes\[\]"/)
+assert.match(template, /Änderungen an der Vorlage gelten nur für neue Durchläufe/)
+assert.match(template, /Noch nicht terminiert/)
 assert.match(template, /\$capabilities\['planning'\]/)
 assert.match(template, /\$capabilities\['teaching'\]/)
 assert.match(template, /\$capabilities\['publishing'\]/)
@@ -103,6 +117,17 @@ const tableWrap = {
         if (this.listeners.get(type) === callback) this.listeners.delete(type)
     },
 }
+const pfkInput = {
+    value: '',
+    dataset: { pfkOptions: 'bq-pfk-candidates', pfkStatus: 'bq-pfk-search-status' },
+    listeners: new Map(),
+    addEventListener(type, callback) { this.listeners.set(type, callback) },
+}
+const pfkOptions = {
+    children: [],
+    replaceChildren(...children) { this.children = children },
+}
+const pfkStatus = { textContent: '' }
 const app = {
     dataset: {},
     children: [],
@@ -113,6 +138,7 @@ const app = {
     querySelectorAll(selector) {
         if (selector === '[role="tab"][data-tab-target]') return tabs
         if (selector === '[role="tabpanel"]') return panels
+        if (selector === '[data-pfk-search]') return [pfkInput]
         return []
     },
     querySelector(selector) {
@@ -123,6 +149,10 @@ const feedback = { textContent: '', dataset: {} }
 const proposalResult = { textContent: '' }
 const yearProposalStatus = { textContent: '' }
 const yearProposalRows = {
+    children: [],
+    replaceChildren(...children) { this.children = children },
+}
+const calendarSources = {
     children: [],
     replaceChildren(...children) { this.children = children },
 }
@@ -139,6 +169,9 @@ globalThis.document = {
         if (id === 'bq-proposal-result') return proposalResult
         if (id === 'bq-year-proposal-rows') return yearProposalRows
         if (id === 'bq-year-proposal-status') return yearProposalStatus
+        if (id === 'bq-calendar-sources') return calendarSources
+        if (id === 'bq-pfk-candidates') return pfkOptions
+        if (id === 'bq-pfk-search-status') return pfkStatus
         return null
     },
     createElement(tagName) {
@@ -147,6 +180,7 @@ globalThis.document = {
             children: [],
             textContent: '',
             style: {},
+            dataset: {},
             listeners: new Map(),
             attributes: new Map(),
             append(...children) { this.children.push(...children) },
@@ -173,6 +207,11 @@ globalThis.FormData = class {
     }
     get(name) {
         return this.form.fields[name]
+    }
+    getAll(name) {
+        const value = this.form.fields[name]
+        if (value === undefined) return []
+        return Array.isArray(value) ? value : [value]
     }
 }
 globalThis.fetch = async (url, options) => {
@@ -247,7 +286,15 @@ globalThis.fetch = async (url, options) => {
         json: async () => ({
             data: {
                 proposal: { startsOn: '2026-09-04', endsOn: '2026-09-14' },
-                calendar: { complete: true, message: 'Kalender geprüft.' },
+                calendar: {
+                    complete: true,
+                    message: 'Kalender geprüft.',
+                    sources: [
+                        { label: 'Schulferien', status: 'current', complete: true },
+                        { label: 'Gesetzliche Feiertage', status: 'current', complete: true },
+                        { label: 'BQ-eigene Sperrtage', status: 'current', complete: true },
+                    ],
+                },
             },
         }),
     }
@@ -256,13 +303,27 @@ await listeners.submit({ target: proposalForm, preventDefault() {} })
 assert.equal(requests[1].url, '/nextcloud/apps/flzbqplanung/api/proposals?year=2026&month=9')
 assert.match(proposalResult.textContent, /Kalender vollständig geprüft/)
 assert.match(proposalResult.textContent, /2026-09-04 bis 2026-09-14/)
+assert.equal(calendarSources.children.length, 3)
+assert.equal(calendarSources.children[0].textContent, 'Schulferien: vollständig')
+assert.equal(calendarSources.children[2].textContent, 'BQ-eigene Sperrtage: vollständig')
 
 globalThis.fetch = async () => ({
     ok: true,
-    json: async () => ({ data: { proposal: null, calendar: { complete: false, message: 'Kalenderquelle nicht vollständig.' } } }),
+    json: async () => ({ data: { proposal: null, calendar: {
+        complete: false,
+        message: 'Kalenderquelle nicht vollständig.',
+        sources: [
+            { label: 'Schulferien', status: 'stale', complete: false },
+            { label: 'Gesetzliche Feiertage', status: 'incompatible', complete: false },
+            { label: 'BQ-eigene Sperrtage', status: 'unavailable', complete: false },
+        ],
+    } } }),
 })
 await listeners.submit({ target: proposalForm, preventDefault() {} })
 assert.equal(proposalResult.textContent, 'Kalenderquelle nicht vollständig.')
+assert.equal(calendarSources.children[0].textContent, 'Schulferien: veraltet, nicht vollständig')
+assert.equal(calendarSources.children[1].textContent, 'Gesetzliche Feiertage: inkompatibel, nicht verwendbar')
+assert.equal(calendarSources.children[2].textContent, 'BQ-eigene Sperrtage: nicht verfügbar')
 globalThis.fetch = async () => { throw new Error('Kalender offline') }
 await listeners.submit({ target: proposalForm, preventDefault() {} })
 assert.equal(proposalResult.textContent, 'Kalender offline')
@@ -325,6 +386,61 @@ await listeners.submit({ target: bridgeDaysForm, preventDefault() {} })
 assert.deepEqual(JSON.parse(requests.at(-1).options.body), {
     bridgeDays: ['2026-12-24', '2026-12-31'],
     workdayCount: 7,
+})
+
+pfkInput.value = ' beta '
+globalThis.fetch = async url => {
+    requests.push({ url })
+    return {
+        ok: true,
+        json: async () => ({ data: [
+            { uid: 'pfk-a', displayName: 'PFK Alpha' },
+            { uid: 'pfk-b', displayName: 'pfk-b' },
+        ] }),
+    }
+}
+await pfkInput.listeners.get('input')()
+assert.equal(requests.at(-1).url, '/nextcloud/apps/flzbqplanung/api/internal-pfk-members?search=beta')
+assert.equal(pfkOptions.children.length, 2)
+assert.equal(pfkOptions.children[0].value, 'pfk-a')
+assert.equal(pfkOptions.children[0].label, 'PFK Alpha (pfk-a)')
+assert.equal(pfkOptions.children[1].label, 'pfk-b')
+assert.match(pfkStatus.textContent, /2 passende/)
+
+globalThis.fetch = async () => ({ ok: true, json: async () => ({ data: [] }) })
+await pfkInput.listeners.get('focus')()
+assert.equal(pfkOptions.children.length, 0)
+assert.match(pfkStatus.textContent, /Keine passenden/)
+
+globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'PFK-Gruppe fehlt' }) })
+await pfkInput.listeners.get('input')()
+assert.equal(pfkOptions.children.length, 0)
+assert.equal(pfkStatus.textContent, 'PFK-Gruppe fehlt')
+
+const curriculumForm = {
+    dataset: { endpoint: '/api/curriculum-template', method: 'PUT' },
+    fields: {
+        title: 'Basisqualifizierung',
+        expectedVersion: '2',
+        'moduleKey[]': ['grundlagen', 'recht'],
+        'moduleTitle[]': ['Grundlagen', 'Recht'],
+        'moduleMinutes[]': ['120', '90'],
+    },
+    matches: selector => selector === 'form[data-endpoint]' || selector === 'form[data-curriculum-template-form]',
+}
+globalThis.fetch = async (url, options) => {
+    requests.push({ url, options })
+    return { ok: true, json: async () => ({ data: { version: 3 } }) }
+}
+await listeners.submit({ target: curriculumForm, preventDefault() {} })
+assert.equal(requests.at(-1).url, '/nextcloud/apps/flzbqplanung/api/curriculum-template')
+assert.deepEqual(JSON.parse(requests.at(-1).options.body), {
+    title: 'Basisqualifizierung',
+    expectedVersion: 2,
+    modules: [
+        { moduleKey: 'grundlagen', title: 'Grundlagen', minutes: 120 },
+        { moduleKey: 'recht', title: 'Recht', minutes: 90 },
+    ],
 })
 
 await import('./admin-access-smoke.mjs')

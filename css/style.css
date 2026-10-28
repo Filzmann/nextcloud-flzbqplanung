@@ -74,6 +74,43 @@
     margin-bottom: 20px;
 }
 
+.bq-access-card > summary {
+    cursor: pointer;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.bq-access-card > summary:focus-visible {
+    outline: 2px solid var(--color-primary-element);
+    outline-offset: 3px;
+}
+
+.bq-access-card__content {
+    padding-top: 12px;
+}
+
+.bq-source-status {
+    display: grid;
+    gap: 4px;
+    margin: 8px 0 0;
+    padding-inline-start: 20px;
+}
+
+.bq-source-status li[data-complete="false"] {
+    color: var(--color-warning-text);
+    font-weight: 700;
+}
+
+.bq-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 .bq-tabs {
     display: flex;
     gap: 8px;

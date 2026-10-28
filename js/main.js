@@ -4,7 +4,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const proposalResult = document.getElementById('bq-proposal-result')
     const yearProposalRows = document.getElementById('bq-year-proposal-rows')
     const yearProposalStatus = document.getElementById('bq-year-proposal-status')
+    const calendarSources = document.getElementById('bq-calendar-sources')
+    const curriculumModuleRows = document.getElementById('bq-curriculum-template-modules')
+    const curriculumModuleTemplate = document.getElementById('bq-curriculum-module-template')
+    const addCurriculumModule = app?.querySelector?.('[data-add-curriculum-module]')
     if (!app) return
+
+    const refreshCurriculumControls = () => {
+        const rows = Array.from(curriculumModuleRows?.querySelectorAll?.('[data-curriculum-module-row]') || [])
+        rows.forEach((row, index) => {
+            const up = row.querySelector?.('[data-curriculum-move="up"]')
+            const down = row.querySelector?.('[data-curriculum-move="down"]')
+            const remove = row.querySelector?.('[data-curriculum-remove]')
+            if (up) up.disabled = index === 0
+            if (down) down.disabled = index === rows.length - 1
+            if (remove) remove.disabled = rows.length === 1
+        })
+    }
+    addCurriculumModule?.addEventListener('click', () => {
+        const row = curriculumModuleTemplate?.content?.firstElementChild?.cloneNode(true)
+        if (!row || !curriculumModuleRows) return
+        curriculumModuleRows.append(row)
+        refreshCurriculumControls()
+        row.querySelector?.('input')?.focus()
+    })
+    app.addEventListener('click', event => {
+        const button = event.target?.closest?.('[data-curriculum-move], [data-curriculum-remove]')
+        if (!button) return
+        const row = button.closest('[data-curriculum-module-row]')
+        if (!row || !curriculumModuleRows) return
+        if (button.matches('[data-curriculum-remove]')) row.remove()
+        if (button.dataset.curriculumMove === 'up' && row.previousElementSibling) {
+            curriculumModuleRows.insertBefore(row, row.previousElementSibling)
+        }
+        if (button.dataset.curriculumMove === 'down' && row.nextElementSibling) {
+            curriculumModuleRows.insertBefore(row.nextElementSibling, row)
+        }
+        refreshCurriculumControls()
+    })
+    refreshCurriculumControls()
 
     let horizontalScrollCleanup = () => {}
     const bindPersistentHorizontalScroll = () => {
@@ -76,6 +114,56 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     bindPersistentHorizontalScroll()
 
+    const sourceStatusLabel = source => {
+        if (source.complete) return 'vollständig'
+        if (source.status === 'stale') return 'veraltet, nicht vollständig'
+        if (source.status === 'incompatible') return 'inkompatibel, nicht verwendbar'
+        return 'nicht verfügbar'
+    }
+    const renderCalendarSources = sources => {
+        if (!calendarSources) return
+        const items = Array.isArray(sources) ? sources.map(source => {
+            const item = document.createElement('li')
+            item.textContent = `${source.label}: ${sourceStatusLabel(source)}`
+            item.dataset.complete = String(Boolean(source.complete))
+            return item
+        }) : []
+        calendarSources.replaceChildren(...items)
+    }
+
+    for (const input of app.querySelectorAll('[data-pfk-search]')) {
+        const options = document.getElementById(input.dataset.pfkOptions)
+        const status = document.getElementById(input.dataset.pfkStatus)
+        const search = async () => {
+            const query = String(input.value || '').trim()
+            if (status) status.textContent = 'Mitglieder der konfigurierten PFK-Gruppe werden gesucht …'
+            try {
+                const url = OC.generateUrl('/apps/flzbqplanung/api/internal-pfk-members')
+                const response = await fetch(`${url}?search=${encodeURIComponent(query)}`)
+                const result = await response.json()
+                if (!response.ok) throw new Error(result.error || 'Die PFK-Suche ist nicht verfügbar.')
+                const candidates = Array.isArray(result.data) ? result.data : []
+                const entries = candidates.map(candidate => {
+                    const option = document.createElement('option')
+                    option.value = candidate.uid
+                    option.label = candidate.displayName === candidate.uid
+                        ? candidate.uid
+                        : `${candidate.displayName} (${candidate.uid})`
+                    return option
+                })
+                options?.replaceChildren(...entries)
+                if (status) status.textContent = candidates.length === 0
+                    ? 'Keine passenden Mitglieder in der konfigurierten PFK-Gruppe gefunden.'
+                    : `${candidates.length} passende PFK-Auswahlmöglichkeiten gefunden.`
+            } catch (error) {
+                options?.replaceChildren()
+                if (status) status.textContent = error instanceof Error ? error.message : 'Die PFK-Suche ist nicht verfügbar.'
+            }
+        }
+        input.addEventListener('input', search)
+        input.addEventListener('focus', search)
+    }
+
     app.addEventListener('submit', async event => {
         const form = event.target
         if (form.matches('form[data-proposal-form]')) {
@@ -87,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return
             }
             if (proposalResult) proposalResult.textContent = 'Ferien, Feiertage und Brückentage werden geprüft …'
+            renderCalendarSources([])
             try {
                 const url = OC.generateUrl('/apps/flzbqplanung/api/proposals')
                 const response = await fetch(`${url}?year=${Number(match[1])}&month=${Number(match[2])}`)
@@ -94,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) throw new Error(result.error || 'Der Terminvorschlag konnte nicht erstellt werden.')
                 const proposal = result.data?.proposal
                 const calendar = result.data?.calendar
+                renderCalendarSources(calendar?.sources)
                 if (!proposal) {
                     if (proposalResult) proposalResult.textContent = calendar?.message || 'Die Kalenderquelle ist nicht vollständig verfügbar.'
                     return
@@ -129,8 +219,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? `${month.proposal.startsOn} bis ${month.proposal.endsOn}`
                         : 'Kein automatischer Vorschlag'
                     const statusCell = document.createElement('td')
+                    const sourceText = (month.calendar?.sources || [])
+                        .map(source => `${source.label}: ${sourceStatusLabel(source)}`)
+                        .join('; ')
                     if (!month.proposal) {
-                        statusCell.textContent = month.error || month.calendar?.message || 'Kalenderquelle nicht vollständig.'
+                        const reason = month.error || month.calendar?.message || 'Kalenderquelle nicht vollständig.'
+                        statusCell.textContent = sourceText === '' ? reason : `${reason} ${sourceText}`
                     } else {
                         const rejected = month.proposal.rejectedCandidates || []
                         const labels = [...new Set(rejected.flatMap(candidate => candidate.conflicts || []).map(conflict => conflict.label))]
@@ -138,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             ? 'Keine verworfenen Starttermine.'
                             : `${rejected.length} verworfene Starttermine${labels.length > 0 ? `: ${labels.join(', ')}` : '.'}`
                         const coverage = month.calendar?.complete ? 'Kalender vollständig.' : 'Kalenderstand eingeschränkt.'
-                        statusCell.textContent = `${coverage} ${conflictText}`
+                        statusCell.textContent = `${coverage} ${conflictText}${sourceText === '' ? '' : ` ${sourceText}`}`
                     }
                     row.append(monthCell, proposalCell, statusCell)
                     return row
@@ -152,7 +246,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!form.matches('form[data-endpoint]')) return
         event.preventDefault()
-        const payload = Object.fromEntries(new FormData(form).entries())
+        const formData = new FormData(form)
+        const payload = Object.fromEntries(formData.entries())
+        if (form.matches('form[data-curriculum-template-form]')) {
+            const keys = formData.getAll('moduleKey[]')
+            const titles = formData.getAll('moduleTitle[]')
+            const minutes = formData.getAll('moduleMinutes[]')
+            payload.expectedVersion = Number(formData.get('expectedVersion'))
+            payload.modules = keys.map((moduleKey, index) => ({
+                moduleKey: String(moduleKey),
+                title: String(titles[index] ?? ''),
+                minutes: Number(minutes[index]),
+            }))
+            delete payload['moduleKey[]']
+            delete payload['moduleTitle[]']
+            delete payload['moduleMinutes[]']
+        }
         for (const field of ['workdayCount', 'startWeekday', 'defaultCapacity', 'capacity', 'version', 'minutes', 'additionalCapacity', 'lecturerId', 'runVersion', 'moduleVersion', 'moduleId']) {
             if (field in payload) payload[field] = Number(payload[field])
         }

@@ -38,6 +38,7 @@ namespace FlzBqPlanning\Tests {
     use OCA\FlzBqPlanning\Migration\Version000001Date202608150101;
     use OCA\FlzBqPlanning\Migration\Version000002Date202608150202;
     use OCA\FlzBqPlanning\Migration\Version000003Date202608250001;
+    use OCA\FlzBqPlanning\Migration\Version000004Date202610260001;
     use OCA\FlzBqPlanning\Repository\TemporaryAdminAccessRepository;
     use OCP\DB\ISchemaWrapper;
     use OCP\IDBConnection;
@@ -168,6 +169,9 @@ namespace FlzBqPlanning\Tests {
         public array $primaryKey = [];
         public function addColumn(string $name, string $type, array $options): void { $this->columns[$name] = [$type, $options]; }
         public function hasColumn(string $name): bool { return isset($this->columns[$name]); }
+        public function changeColumn(string $name, array $options): void {
+            $this->columns[$name][1] = array_replace($this->columns[$name][1], $options);
+        }
         public function setPrimaryKey(array $columns): void { $this->primaryKey = $columns; }
         public function addIndex(array $columns, string $name): void { $this->indexes[$name] = $columns; }
         public function addUniqueIndex(array $columns, string $name): void { $this->indexes[$name] = $columns; }
@@ -216,5 +220,17 @@ namespace FlzBqPlanning\Tests {
         assertSame($schema, (new Version000003Date202608250001())->changeSchema($output, $schemaClosure, []));
         assertTrue($schema->hasTable('flz_bq_admin_access'));
         assertSame(null, (new Version000003Date202608250001())->changeSchema($output, $schemaClosure, []));
+
+        assertSame($schema, (new Version000004Date202610260001())->changeSchema($output, $schemaClosure, []));
+        assertTrue($schema->hasTable('flz_bq_templates'));
+        assertTrue($schema->hasTable('flz_bq_template_modules'));
+        assertTrue($schema->getTable('flz_bq_runs')->hasColumn('template_id'));
+        assertTrue($schema->getTable('flz_bq_runs')->hasColumn('template_version'));
+        assertSame(false, $schema->getTable('flz_bq_modules')->columns['module_date'][1]['notnull']);
+        assertSame(false, $schema->getTable('flz_bq_modules')->columns['starts_at'][1]['notnull']);
+        assertSame(false, $schema->getTable('flz_bq_modules')->columns['ends_at'][1]['notnull']);
+        assertTrue(isset($schema->getTable('flz_bq_template_modules')->foreignKeys['flz_bq_template_module_template_fk']));
+        assertTrue(isset($schema->getTable('flz_bq_runs')->foreignKeys['flz_bq_run_template_fk']));
+        assertSame($schema, (new Version000004Date202610260001())->changeSchema($output, $schemaClosure, []));
     });
 }

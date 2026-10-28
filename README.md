@@ -38,6 +38,15 @@ Nachholplätze werden ausschließlich an einzelnen Modulen ausgewiesen.
 Teilnehmerinnen und Umbuchungen zwischen früheren und späteren BQs bleiben in
 Filzmann Recruitment.
 
+Planungsverantwortliche bearbeiten eine zentrale, optimistisch versionierte
+Curriculum-Vorlage aus stabilen Modulschlüsseln, Titeln, Dauern und
+Reihenfolge. Sie enthält bewusst keine Termine. Beim Anlegen eines Durchlaufs
+werden ihre Module transaktional als eigener Snapshot kopiert und zunächst als
+`Noch nicht terminiert` geführt. Spätere Vorlagenänderungen wirken nur auf
+neue Durchläufe; vorhandene Snapshots bleiben eigenständig bearbeitbar und
+unverändert. Erst ein vollständig terminierter Snapshot kann veröffentlicht
+werden.
+
 Module eines Entwurfs können mit Schutz vor parallelen Änderungen bearbeitet
 werden. Zeitlich überlappende Module eines Durchlaufs werden sichtbar
 gekennzeichnet, ohne daraus eine zusätzliche fachliche Verbotsregel abzuleiten.
@@ -53,9 +62,25 @@ Durchlauf; bestätigte externe Anfragen überschreiben sie nur am jeweiligen
 Modul. Der aktuelle Stand dokumentiert Anfrage, Zusage, Ablehnung und Absage,
 versendet jedoch noch keine E-Mail.
 
+Interne PFKs werden über eine Suche in der administrativ konfigurierten
+Nextcloud-PFK-Gruppe ausgewählt. Die Speicherung prüft Existenz und
+Gruppenmitgliedschaft erneut serverseitig; der dabei angezeigte Nextcloud-Name
+wird nicht zusätzlich im Dozentinnenprofil gespeichert. Profile können
+versionsgesichert zwischen `Aktiv` und `Inaktiv` wechseln. Inaktive Profile
+bleiben für bestehende Planungsbezüge erhalten, sind aber für neue
+Zuordnungen nicht auswählbar.
+
+Der Monats- und Jahresvorschlag weist die Vollständigkeit von Schulferien,
+gesetzlichen Feiertagen und BQ-eigenen Sperrtagen getrennt aus. Nur wenn die
+externen Kalenderquellen aktuell und vollständig sind, wird der Stand als
+vollständig geprüft bezeichnet.
+
 Die Adminoberfläche gliedert die vorhandenen Funktionen wie die übrigen
 Fachapps in die per Maus und Tastatur bedienbaren Tabs `Durchläufe`,
 `Dozentinnen` und `Einstellungen`.
+Die app-lokale Steuerung des temporären Admin-Vollzugriffs ist in einem
+nativen, tastaturbedienbaren Klappbereich gebündelt; Rechte, Auditdaten und
+serverseitige Prüfungen bleiben unverändert app-lokal.
 
 Das granulare Rollenmodell verwendet ausschließlich Nextcloud-Gruppen für
 Planung, Lehre und Veröffentlichung. Nicht konfigurierte Rollen bleiben

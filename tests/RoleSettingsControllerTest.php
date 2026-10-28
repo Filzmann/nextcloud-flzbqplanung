@@ -43,15 +43,16 @@ TestRunner::test('role settings API denies non-admin writes and accepts validate
     assertSame(403, $denied->status);
     assertSame(0, $config->writes);
 
-    $adminGroups = new RoleControllerGroups(true, ['bq-planning']);
+    $adminGroups = new RoleControllerGroups(true, ['bq-planning', 'bq-pfk']);
     $admin = new RoleSettingsController(
         new class implements IRequest {},
         new RoleSettingsService($config, $adminGroups),
         new AuthorizationService(new FrameworkSession(new FrameworkUser('admin-a')), $adminGroups, $config, new FrameworkGrants()),
         new ProposalControllerLogger(),
     );
-    $saved = $admin->update('bq-planning', '', '');
+    $saved = $admin->update('bq-planning', '', '', 'bq-pfk');
     assertSame(200, $saved->status);
     assertSame('bq-planning', $saved->data['data']['planningGroup']);
-    assertSame(3, $config->writes);
+    assertSame('bq-pfk', $saved->data['data']['pfkGroup']);
+    assertSame(4, $config->writes);
 });

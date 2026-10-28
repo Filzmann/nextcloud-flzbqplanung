@@ -55,6 +55,9 @@ final class RunService {
         }
         $values = $this->validatedRunValues($label, $startsOn, $endsOn, $capacity, $rules);
         foreach ($store->modules($runId) as $module) {
+            if (trim((string)($module['date'] ?? '')) === '') {
+                continue;
+            }
             if ((string)$module['date'] < $startsOn || (string)$module['date'] > $endsOn) {
                 throw new DomainException('Der neue BQ-Zeitraum würde bereits terminierte Module ausschließen.');
             }

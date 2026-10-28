@@ -22,6 +22,7 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
                 ['kind'=>'lead','id'=>2,'run_id'=>10,'label'=>'BQ Herbst','starts_on'=>'2026-09-04','ends_on'=>'2026-09-14','status'=>'published','other_lecturer_uid'=>'other-person'],
                 ['kind'=>'module','id'=>3,'run_id'=>10,'title'=>'Datenschutz','module_date'=>'2026-09-08','starts_at'=>'09:00','ends_at'=>'12:00','external_name'=>'Externe Person'],
                 ['kind'=>'activity','id'=>4,'activity'=>'run_updated','occurred_at'=>'2026-08-03','affected_lecturer_email'=>'external@example.invalid'],
+                ['kind'=>'activity','id'=>6,'activity'=>'curriculum_template_updated','occurred_at'=>'2026-08-03','affected_lecturer_email'=>'external@example.invalid'],
             ], 0, $limit);
         }
     };
@@ -34,11 +35,11 @@ TestRunner::test('internal BQ lecturer privacy excludes external identities and 
     $subject = new DataSubjectRef('nextcloud-user', 'self');
     $page = $provider->collect(new PersonalDataRequest($subject, 'de', 'access-report', 50, []));
     assertSame('complete', $page->status());
-    assertSame(5, count($page->entries()));
+    assertSame(6, count($page->entries()));
     $json = json_encode(array_map(static fn($entry): array => [
         'category'=>$entry->categoryId(), 'reference'=>$entry->reference(), 'summary'=>$entry->summary(), 'source'=>$entry->source(), 'recipientCategories'=>$entry->recipientCategories(), 'attributes'=>$entry->attributes(),
     ], $page->entries()), JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
-    foreach (['Admin-Vollzugriff','Freigebendes Mitglied von Datenschutzbeauftragte','Widerrufendes Mitglied von Datenschutzbeauftragte','Freigabesteuerung in der BQ-Fachoberfläche','Internes Dozentinnenprofil','BQ Herbst','04.09.2026','Datenschutz','08.09.2026','Durchlauf bearbeitet'] as $expected) {
+    foreach (['Admin-Vollzugriff','Freigebendes Mitglied von Datenschutzbeauftragte','Widerrufendes Mitglied von Datenschutzbeauftragte','Freigabesteuerung in der BQ-Fachoberfläche','Internes Dozentinnenprofil','BQ Herbst','04.09.2026','Datenschutz','08.09.2026','Durchlauf bearbeitet','Curriculum-Vorlage bearbeitet'] as $expected) {
         assertTrue(str_contains($json, $expected), "BQ-Metadatum fehlt: {$expected}");
     }
     foreach (['Externe Person','external@example.invalid','other-person','other-admin'] as $forbidden) {

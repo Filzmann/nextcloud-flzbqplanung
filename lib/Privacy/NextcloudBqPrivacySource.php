@@ -17,6 +17,7 @@ final class NextcloudBqPrivacySource implements BqPrivacySource {
         $this->append($records, $this->moduleAssignments($uid, $limit - count($records)), 'module', $limit);
         $this->append($records, $this->actorRows('flz_bq_runs', true, 'run_updated', $uid, $limit - count($records)), 'activity', $limit);
         $this->append($records, $this->actorRows('flz_bq_modules', false, 'module_created', $uid, $limit - count($records)), 'activity', $limit);
+        $this->append($records, $this->actorRows('flz_bq_templates', true, 'curriculum_template_updated', $uid, $limit - count($records)), 'activity', $limit);
         $this->append($records, $this->actorRows('flz_bq_lecturers', true, 'lecturer_updated', $uid, $limit - count($records)), 'activity', $limit);
         $this->append($records, $this->actorRows('flz_bq_lecturer_requests', true, 'request_updated', $uid, $limit - count($records)), 'activity', $limit);
         return $records;

@@ -7,6 +7,7 @@ namespace FlzBqPlanning\Tests;
 use FlzBqPlanning\Tests\Support\InMemoryDatabase;
 use OCA\FlzBqPlanning\Controller\RunController;
 use OCA\FlzBqPlanning\Repository\RunRepository;
+use OCA\FlzBqPlanning\Repository\CurriculumTemplateRepository;
 use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCA\FlzBqPlanning\Service\PlanningSettingsService;
 use OCA\FlzBqPlanning\Service\RunService;
@@ -31,10 +32,17 @@ function runControllerFixture(?AuthorizationService $authorization = null): arra
     $database = new InMemoryDatabase();
     $config = new RunControllerConfig();
     $logger = new ProposalControllerLogger();
+    (new CurriculumTemplateRepository($database, new RepositoryClock()))->save('Basisqualifizierung', [
+        ['moduleKey' => 'grundlagen', 'title' => 'Grundlagen', 'minutes' => 120],
+    ], 0, 'planner-a');
     return [
         new RunController(
             new class implements IRequest {},
-            new RunRepository($database, new RepositoryClock()),
+            new RunRepository(
+                $database,
+                new RepositoryClock(),
+                new CurriculumTemplateRepository($database, new RepositoryClock()),
+            ),
             new RunService(),
             new PlanningSettingsService($config),
             $authorization ?? adminAuthorization(),
@@ -61,11 +69,17 @@ TestRunner::test('run controller executes the complete protected draft lifecycle
     $updated = $controller->update($runId, 'BQ Herbst 2026', '2026-09-04', '2026-09-14', 9, 1);
     assertSame(2, $updated->data['data']['version']);
 
+    $snapshot = $controller->list()->data['data'][0]['modules'][0];
+    $scheduledSnapshot = $controller->updateModule(
+        $runId, (int)$snapshot['id'], 'Grundlagen', 120, '2026-09-04', '09:00', '11:00', 0, 2, 1,
+    );
+    assertSame('2026-09-04', $scheduledSnapshot->data['data']['date']);
+
     $first = $controller->addModule(
-        $runId, 'recht', 'Recht', 60, '2026-09-07', '09:00', '10:00', 0, 2,
+        $runId, 'recht', 'Recht', 60, '2026-09-07', '09:00', '10:00', 0, 3,
     );
     $second = $controller->addModule(
-        $runId, 'praxis', 'Praxis', 90, '2026-09-08', '10:00', '11:30', 2, 3,
+        $runId, 'praxis', 'Praxis', 90, '2026-09-08', '10:00', '11:30', 2, 4,
     );
     assertSame(200, $first->status);
     assertSame(200, $second->status);
@@ -73,17 +87,17 @@ TestRunner::test('run controller executes the complete protected draft lifecycle
     $firstModuleId = $first->data['data']['id'];
     $secondModuleId = $second->data['data']['id'];
     $module = $controller->updateModule(
-        $runId, $firstModuleId, 'Arbeitsrecht', 60, '2026-09-07', '09:00', '10:00', 1, 4, 1,
+        $runId, $firstModuleId, 'Arbeitsrecht', 60, '2026-09-07', '09:00', '10:00', 1, 5, 1,
     );
     assertSame('Arbeitsrecht', $module->data['data']['title']);
 
-    $moved = $controller->moveModule($runId, $secondModuleId, 'up', 5);
-    assertSame([$secondModuleId, $firstModuleId], array_column($moved->data['data'], 'id'));
+    $moved = $controller->moveModule($runId, $secondModuleId, 'up', 6);
+    assertSame([(int)$snapshot['id'], $secondModuleId, $firstModuleId], array_column($moved->data['data'], 'id'));
 
     $listed = $controller->list();
-    assertSame(2, count($listed->data['data'][0]['modules']));
+    assertSame(3, count($listed->data['data'][0]['modules']));
 
-    $published = $controller->publish($runId, 6);
+    $published = $controller->publish($runId, 7);
     assertSame('published', $published->data['data']['status']);
 });
 
@@ -94,14 +108,16 @@ TestRunner::test('run controller denies mutations before execution and classifie
         new FrameworkConfig(),
     );
     [$denied, $deniedDatabase] = runControllerFixture($deniedAuthorization);
+    $beforeDenied = $deniedDatabase->rows;
     $forbidden = $denied->create('Nicht erlaubt', '2026-09-04', '2026-09-14', 10);
     assertSame(403, $forbidden->status);
-    assertSame([], $deniedDatabase->rows);
+    assertSame($beforeDenied, $deniedDatabase->rows);
 
     [$controller, $database, $logger] = runControllerFixture();
+    $beforeInvalid = $database->rows;
     $invalid = $controller->create('Ungültig', '2026-09-04', '2026-09-14', 11);
     assertSame(422, $invalid->status);
-    assertSame([], $database->rows);
+    assertSame($beforeInvalid, $database->rows);
 
     $database->failNextBuilder = true;
     $failed = $controller->list();

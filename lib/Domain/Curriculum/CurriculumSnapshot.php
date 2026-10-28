@@ -17,7 +17,14 @@ final class CurriculumSnapshot {
     }
 
     public static function fromTemplate(CurriculumTemplate $template): self {
-        return new self($template->id, $template->version, array_values($template->modules));
+        return new self($template->id, $template->version, array_map(
+            static fn (array $module): array => $module + [
+                'date' => null,
+                'startsAt' => null,
+                'endsAt' => null,
+            ],
+            array_values($template->modules),
+        ));
     }
 
     /** @return list<array<string,mixed>> */

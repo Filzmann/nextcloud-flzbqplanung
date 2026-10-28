@@ -160,7 +160,8 @@ namespace FlzBqPlanning\Tests {
             'planningGroup' => 'bq-planning',
             'teachingGroup' => '',
             'publishingGroup' => 'bq-publishing',
+            'pfkGroup' => '',
         ], $current);
-        assertSame(3, $config->writes);
+        assertSame(4, $config->writes);
     });
 }

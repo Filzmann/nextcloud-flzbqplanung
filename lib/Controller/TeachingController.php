@@ -10,13 +10,13 @@ use OCA\FlzBqPlanning\Exception\AccessDeniedException;
 use OCA\FlzBqPlanning\Repository\TeachingRepository;
 use OCA\FlzBqPlanning\Service\TeachingService;
 use OCA\FlzBqPlanning\Service\AuthorizationService;
+use OCA\FlzBqPlanning\Service\InternalPfkDirectory;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
-use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -26,7 +26,7 @@ final class TeachingController extends Controller {
         private TeachingRepository $store,
         private TeachingService $service,
         private AuthorizationService $authorization,
-        private IUserManager $userManager,
+        private InternalPfkDirectory $internalPfkDirectory,
         private LoggerInterface $logger,
     ) {
         parent::__construct(Application::APP_ID, $request);
@@ -42,17 +42,33 @@ final class TeachingController extends Controller {
         return $this->respond(fn (): array => $this->store->requests());
     }
 
+    #[NoAdminRequired, NoCSRFRequired]
+    public function internalPfkMembers(string $search = ''): JSONResponse {
+        return $this->respond(fn (): array => $this->internalPfkDirectory->search($search));
+    }
+
     #[NoAdminRequired]
     public function createLecturer(string $kind, string $nextcloudUid, string $displayName, string $email): JSONResponse {
         return $this->respond(function () use ($kind, $nextcloudUid, $displayName, $email): array {
             $nextcloudUid = trim($nextcloudUid);
-            if (trim($kind) === 'internal' && !$this->userManager->userExists($nextcloudUid)) {
-                throw new DomainException('Die angegebene interne PFK existiert nicht in Nextcloud.');
+            if (trim($kind) === 'internal') {
+                $this->internalPfkDirectory->assertSelectable($nextcloudUid);
             }
             return ['id' => $this->service->createLecturer(
                 $this->store, $kind, $nextcloudUid, $displayName, $email, $this->actorUid(),
             )];
         });
+    }
+
+    #[NoAdminRequired]
+    public function updateLecturerStatus(int $id, string $targetStatus, int $version): JSONResponse {
+        return $this->respond(fn (): array => $this->service->updateLecturerStatus(
+            $this->store,
+            $id,
+            $targetStatus,
+            $version,
+            $this->actorUid(),
+        ));
     }
 
     #[NoAdminRequired]

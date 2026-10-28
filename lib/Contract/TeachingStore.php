@@ -15,6 +15,15 @@ interface TeachingStore {
     public function lecturer(int $lecturerId): array;
 
     /** @return array<string,mixed> */
+    public function updateLecturerStatus(
+        int $lecturerId,
+        bool $fromActive,
+        bool $toActive,
+        int $expectedVersion,
+        string $actorUid,
+    ): array;
+
+    /** @return array<string,mixed> */
     public function run(int $runId): array;
 
     /** @return array<string,mixed> */

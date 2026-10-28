@@ -13,27 +13,63 @@ use OCP\IDBConnection;
 use Throwable;
 
 final class RunRepository implements RunStore {
-    public function __construct(private IDBConnection $db, private ITimeFactory $clock) {
+    public function __construct(
+        private IDBConnection $db,
+        private ITimeFactory $clock,
+        private CurriculumTemplateRepository $templates,
+    ) {
     }
 
     public function createRun(array $run): int {
-        $now = $this->now();
-        $qb = $this->db->getQueryBuilder();
-        $qb->insert('flz_bq_runs')
-            ->values([
-                'label' => $qb->createNamedParameter($run['label']),
-                'starts_on' => $qb->createNamedParameter($run['startsOn']),
-                'ends_on' => $qb->createNamedParameter($run['endsOn']),
-                'capacity' => $qb->createNamedParameter($run['capacity'], IQueryBuilder::PARAM_INT),
-                'status' => $qb->createNamedParameter('draft'),
-                'version' => $qb->createNamedParameter(1, IQueryBuilder::PARAM_INT),
-                'created_by' => $qb->createNamedParameter($run['createdBy']),
-                'created_at' => $qb->createNamedParameter($now),
-                'updated_by' => $qb->createNamedParameter($run['createdBy']),
-                'updated_at' => $qb->createNamedParameter($now),
-            ])
-            ->executeStatement();
-        return (int)$qb->getLastInsertId();
+        $this->db->beginTransaction();
+        try {
+            $template = $this->templates->current();
+            if ($template === null || ($template['modules'] ?? []) === []) {
+                throw new DomainException('Vor dem ersten BQ-Durchlauf muss die zentrale Curriculum-Vorlage angelegt werden.');
+            }
+            $now = $this->now();
+            $qb = $this->db->getQueryBuilder();
+            $qb->insert('flz_bq_runs')
+                ->values([
+                    'label' => $qb->createNamedParameter($run['label']),
+                    'starts_on' => $qb->createNamedParameter($run['startsOn']),
+                    'ends_on' => $qb->createNamedParameter($run['endsOn']),
+                    'capacity' => $qb->createNamedParameter($run['capacity'], IQueryBuilder::PARAM_INT),
+                    'status' => $qb->createNamedParameter('draft'),
+                    'version' => $qb->createNamedParameter(1, IQueryBuilder::PARAM_INT),
+                    'template_id' => $qb->createNamedParameter((int)$template['id'], IQueryBuilder::PARAM_INT),
+                    'template_version' => $qb->createNamedParameter((int)$template['version'], IQueryBuilder::PARAM_INT),
+                    'created_by' => $qb->createNamedParameter($run['createdBy']),
+                    'created_at' => $qb->createNamedParameter($now),
+                    'updated_by' => $qb->createNamedParameter($run['createdBy']),
+                    'updated_at' => $qb->createNamedParameter($now),
+                ])
+                ->executeStatement();
+            $runId = (int)$qb->getLastInsertId();
+
+            foreach ($template['modules'] as $position => $module) {
+                $moduleInsert = $this->db->getQueryBuilder();
+                $moduleInsert->insert('flz_bq_modules')->values([
+                    'run_id' => $moduleInsert->createNamedParameter($runId, IQueryBuilder::PARAM_INT),
+                    'module_key' => $moduleInsert->createNamedParameter($module['moduleKey']),
+                    'title' => $moduleInsert->createNamedParameter($module['title']),
+                    'minutes' => $moduleInsert->createNamedParameter($module['minutes'], IQueryBuilder::PARAM_INT),
+                    'module_date' => $moduleInsert->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+                    'starts_at' => $moduleInsert->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+                    'ends_at' => $moduleInsert->createNamedParameter(null, IQueryBuilder::PARAM_NULL),
+                    'additional_capacity' => $moduleInsert->createNamedParameter(0, IQueryBuilder::PARAM_INT),
+                    'position' => $moduleInsert->createNamedParameter($position, IQueryBuilder::PARAM_INT),
+                    'version' => $moduleInsert->createNamedParameter(1, IQueryBuilder::PARAM_INT),
+                    'created_by' => $moduleInsert->createNamedParameter($run['createdBy']),
+                    'created_at' => $moduleInsert->createNamedParameter($now),
+                ])->executeStatement();
+            }
+            $this->db->commit();
+            return $runId;
+        } catch (Throwable $error) {
+            $this->db->rollBack();
+            throw $error;
+        }
     }
 
     public function updateRun(int $runId, array $run, int $expectedVersion, string $actorUid): array {
@@ -263,7 +299,9 @@ final class RunRepository implements RunStore {
             'capacity' => (int)$row['capacity'],
             'status' => (string)$row['status'],
             'version' => (int)$row['version'],
-            'leadLecturerId' => $row['lead_lecturer_id'] === null ? null : (int)$row['lead_lecturer_id'],
+            'leadLecturerId' => ($row['lead_lecturer_id'] ?? null) === null ? null : (int)$row['lead_lecturer_id'],
+            'templateId' => ($row['template_id'] ?? null) === null ? null : (int)$row['template_id'],
+            'templateVersion' => ($row['template_version'] ?? null) === null ? null : (int)$row['template_version'],
         ];
     }
 
@@ -271,6 +309,7 @@ final class RunRepository implements RunStore {
      * @return array<string,mixed>
      */
     private function mapModule(array $row): array {
+        $scheduled = $row['module_date'] !== null && $row['starts_at'] !== null && $row['ends_at'] !== null;
         return [
             'id' => (int)$row['id'],
             'runId' => (int)$row['run_id'],
@@ -278,8 +317,9 @@ final class RunRepository implements RunStore {
             'title' => (string)$row['title'],
             'minutes' => (int)$row['minutes'],
             'date' => $this->dateValue($row['module_date']),
-            'startsAt' => (string)$row['starts_at'],
-            'endsAt' => (string)$row['ends_at'],
+            'startsAt' => $row['starts_at'] === null ? '' : (string)$row['starts_at'],
+            'endsAt' => $row['ends_at'] === null ? '' : (string)$row['ends_at'],
+            'scheduleStatus' => $scheduled ? 'scheduled' : 'unscheduled',
             'additionalCapacity' => (int)$row['additional_capacity'],
             'position' => (int)$row['position'],
             'version' => (int)$row['version'],
@@ -288,6 +328,9 @@ final class RunRepository implements RunStore {
     }
 
     private function dateValue(mixed $value): string {
+        if ($value === null) {
+            return '';
+        }
         return $value instanceof DateTimeInterface ? $value->format('Y-m-d') : substr((string)$value, 0, 10);
     }
 

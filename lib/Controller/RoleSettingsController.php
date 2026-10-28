@@ -34,11 +34,12 @@ final class RoleSettingsController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function update(string $planningGroup, string $teachingGroup, string $publishingGroup): JSONResponse {
+    public function update(string $planningGroup, string $teachingGroup, string $publishingGroup, string $pfkGroup = ''): JSONResponse {
         return $this->respond(fn (): array => $this->settings->update(
             $planningGroup,
             $teachingGroup,
             $publishingGroup,
+            $pfkGroup,
         ));
     }
 

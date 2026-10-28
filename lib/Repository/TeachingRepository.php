@@ -48,6 +48,29 @@ final class TeachingRepository implements TeachingStore {
         return $this->one('flz_bq_lecturers', $lecturerId, [$this, 'mapLecturer'], 'Die Dozentin wurde nicht gefunden.');
     }
 
+    public function updateLecturerStatus(
+        int $lecturerId,
+        bool $fromActive,
+        bool $toActive,
+        int $expectedVersion,
+        string $actorUid,
+    ): array {
+        $qb = $this->db->getQueryBuilder();
+        $affected = $qb->update('flz_bq_lecturers')
+            ->set('active', $qb->createNamedParameter($toActive ? 1 : 0, IQueryBuilder::PARAM_INT))
+            ->set('version', $qb->createFunction('version + 1'))
+            ->set('updated_by', $qb->createNamedParameter($actorUid))
+            ->set('updated_at', $qb->createNamedParameter($this->now()))
+            ->where($qb->expr()->eq('id', $qb->createNamedParameter($lecturerId, IQueryBuilder::PARAM_INT)))
+            ->andWhere($qb->expr()->eq('active', $qb->createNamedParameter($fromActive ? 1 : 0, IQueryBuilder::PARAM_INT)))
+            ->andWhere($qb->expr()->eq('version', $qb->createNamedParameter($expectedVersion, IQueryBuilder::PARAM_INT)))
+            ->executeStatement();
+        if ($affected !== 1) {
+            throw new DomainException('Das Dozentinnenprofil wurde zwischenzeitlich geändert.');
+        }
+        return $this->lecturer($lecturerId);
+    }
+
     public function run(int $runId): array {
         return $this->one('flz_bq_runs', $runId, static fn (array $row): array => [
             'id' => (int)$row['id'],

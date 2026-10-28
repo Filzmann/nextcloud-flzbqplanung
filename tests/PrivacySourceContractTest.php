@@ -43,8 +43,8 @@ namespace FlzBqPlanning\Tests {
     TestRunner::test('BQ privacy source binds every internal profile teaching and activity query', static function (): void {
         $connection = new PrivacySourceConnection();
         $records = (new NextcloudBqPrivacySource($connection))->forSubject('self', 20);
-        assertSame(['admin_access','profile','lead','module','activity','activity','activity','activity'], array_column($records, 'kind'));
-        assertSame(8, count($connection->builders));
+        assertSame(['admin_access','profile','lead','module','activity','activity','activity','activity','activity'], array_column($records, 'kind'));
+        assertSame(9, count($connection->builders));
         foreach ($connection->builders as $index => $builder) {
             assertTrue(in_array('self', $builder->bindings, true), "Privacy query {$index} is not subject-bound");
             assertTrue($builder->limit !== null && $builder->limit > 0, "Privacy query {$index} is not bounded");

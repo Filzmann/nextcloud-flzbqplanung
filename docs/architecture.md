@@ -9,14 +9,22 @@ Eignungsentscheidungen und Teilnehmerzuordnungen.
 
 ## Verträge
 
-- Curriculum-Vorlagen werden versioniert; jeder Durchlauf verwendet einen
-  eigenen Snapshot.
+- Die zentrale Curriculum-Vorlage ist die kanonische Quelle für
+  Modulschlüssel, Titel, Dauer und Ausgangsreihenfolge. Sie enthält keine
+  Termine und wird mit optimistischer Versionierung bearbeitet. Jeder neue
+  Durchlauf kopiert die aktuelle Version transaktional in einen eigenen,
+  zunächst unterminierten Snapshot. Vorlagenänderungen verändern vorhandene
+  Snapshots nicht; diese bleiben im Entwurf unabhängig terminier- und
+  verschiebbar.
 - Automatische Vorschläge beachten Arbeitstage sowie den read-only
   LocalBase-Vertrag für Ferien und Feiertage. Ein fehlender Provider wird
   sichtbar und niemals als konfliktfreie Leerliste interpretiert.
 - Externe Lehrendenprofile enthalten nur stabile App-ID, Name und notwendige
   Kontaktadresse; interne PFKs werden über geprüfte Nextcloud-UIDs
-  referenziert.
+  referenziert. Auswahl und Speicherung sind auf Mitglieder der konfigurierten
+  Nextcloud-PFK-Gruppe begrenzt; der Such-Anzeigename wird nicht zusätzlich im
+  Profil persistiert. Inaktivsetzen erhält bestehende Lehrbezüge, verhindert
+  aber neue Zuordnungen.
 - Eine spätere Recruitment-Anbindung verwendet ausschließlich einen kleinen,
   optionalen Capability-/Event-Vertrag.
 

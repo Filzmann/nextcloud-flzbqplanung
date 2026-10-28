@@ -70,6 +70,35 @@ final class TeachingService {
         return $store->setLead($runId, $lecturerId, $expectedRunVersion, $this->actor($actorUid));
     }
 
+    /** @return array<string,mixed> */
+    public function updateLecturerStatus(
+        TeachingStore $store,
+        int $lecturerId,
+        string $targetStatus,
+        int $expectedVersion,
+        string $actorUid,
+    ): array {
+        if (!in_array($targetStatus, ['active', 'inactive'], true)) {
+            throw new DomainException('Der Dozentinnenstatus muss aktiv oder inaktiv sein.');
+        }
+        $lecturer = $store->lecturer($lecturerId);
+        if ((int)($lecturer['version'] ?? 0) !== $expectedVersion) {
+            throw new DomainException('Das Dozentinnenprofil wurde zwischenzeitlich geändert.');
+        }
+        $current = ($lecturer['active'] ?? false) === true;
+        $target = $targetStatus === 'active';
+        if ($current === $target) {
+            throw new DomainException('Das Dozentinnenprofil besitzt diesen Status bereits.');
+        }
+        return $store->updateLecturerStatus(
+            $lecturerId,
+            $current,
+            $target,
+            $expectedVersion,
+            $this->actor($actorUid),
+        );
+    }
+
     public function createRequest(
         TeachingStore $store,
         int $moduleId,

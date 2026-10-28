@@ -29,6 +29,7 @@ namespace FlzBqPlanning\Tests {
     use DateTimeImmutable;
     use DomainException;
     use OCA\FlzBqPlanning\Repository\RunRepository;
+    use OCA\FlzBqPlanning\Repository\CurriculumTemplateRepository;
     use OCA\FlzBqPlanning\Repository\TeachingRepository;
     use OCP\AppFramework\Utility\ITimeFactory;
     use FlzBqPlanning\Tests\Support\InMemoryDatabase;
@@ -40,7 +41,12 @@ namespace FlzBqPlanning\Tests {
 
     TestRunner::test('run repository persists maps orders and protects optimistic updates transactionally', static function (): void {
         $db = new InMemoryDatabase();
-        $repository = new RunRepository($db, new RepositoryClock());
+        $templates = new CurriculumTemplateRepository($db, new RepositoryClock());
+        $repository = new RunRepository($db, new RepositoryClock(), $templates);
+
+        $templates->save('Basisqualifizierung', [
+            ['moduleKey' => 'grundlagen', 'title' => 'Grundlagen', 'minutes' => 120],
+        ], 0, 'planner-a');
 
         $runId = $repository->createRun([
             'label' => 'BQ Herbst', 'startsOn' => '2026-09-04', 'endsOn' => '2026-09-14',
@@ -49,6 +55,18 @@ namespace FlzBqPlanning\Tests {
         assertSame(1, $runId);
         assertSame('2026-09-04', $repository->run($runId)['startsOn']);
         assertSame(null, $repository->run($runId)['leadLecturerId']);
+        assertSame(1, $repository->run($runId)['templateVersion']);
+        assertSame('grundlagen', $repository->modules($runId)[0]['moduleKey']);
+        $snapshotModuleId = (int)$repository->modules($runId)[0]['id'];
+        assertSame('', $repository->modules($runId)[0]['date']);
+        assertSame('', $repository->modules($runId)[0]['startsAt']);
+        assertSame('', $repository->modules($runId)[0]['endsAt']);
+        assertSame('unscheduled', $repository->modules($runId)[0]['scheduleStatus']);
+
+        $templates->save('Basisqualifizierung neu', [
+            ['moduleKey' => 'recht-neu', 'title' => 'Recht neu', 'minutes' => 60],
+        ], 1, 'planner-b');
+        assertSame('grundlagen', $repository->modules($runId)[0]['moduleKey'], 'Template updates must not mutate an existing snapshot');
 
         $updated = $repository->updateRun($runId, [
             'label' => 'BQ Herbst aktualisiert', 'startsOn' => '2026-09-04',
@@ -68,7 +86,7 @@ namespace FlzBqPlanning\Tests {
             'moduleKey' => 'praxis', 'title' => 'Praxis', 'minutes' => 90,
             'date' => '2026-09-08', 'startsAt' => '10:00', 'endsAt' => '11:30', 'additionalCapacity' => 2,
         ], 3, 'planner-a');
-        assertSame([$first, $second], array_column($repository->modules($runId), 'id'));
+        assertSame(['grundlagen', 'recht', 'praxis'], array_column($repository->modules($runId), 'moduleKey'));
 
         $beforeRollback = $db->rows;
         assertThrows(static fn () => $repository->updateModule($runId, $first, [
@@ -84,8 +102,8 @@ namespace FlzBqPlanning\Tests {
         assertSame('Arbeitsrecht', $module['title']);
         assertSame(2, $module['version']);
 
-        $ordered = $repository->reorderModules($runId, [$second, $first], 5, 'planner-a');
-        assertSame([$second, $first], array_column($ordered, 'id'));
+        $ordered = $repository->reorderModules($runId, [$second, $first, $snapshotModuleId], 5, 'planner-a');
+        assertSame([$second, $first, $snapshotModuleId], array_column($ordered, 'id'));
         $beforeRollback = $db->rows;
         assertThrows(static fn () => $repository->reorderModules($runId, [999, $first], 6, 'planner-a'), DomainException::class);
         assertSame($beforeRollback, $db->rows, 'An unknown module ID must roll back the complete reorder');
@@ -98,11 +116,40 @@ namespace FlzBqPlanning\Tests {
         assertTrue($db->rollbacks >= 2);
     });
 
+    TestRunner::test('legacy runs remain readable without a template reference and failed snapshot creation rolls back', static function (): void {
+        $db = new InMemoryDatabase();
+        $repository = new RunRepository(
+            $db,
+            new RepositoryClock(),
+            new CurriculumTemplateRepository($db, new RepositoryClock()),
+        );
+        $legacyId = $db->seed('flz_bq_runs', [
+            'label' => 'Bestand', 'starts_on' => '2026-09-04', 'ends_on' => '2026-09-14',
+            'capacity' => 10, 'status' => 'draft', 'version' => 1,
+            'created_by' => 'legacy', 'created_at' => '2026-01-01 00:00:00',
+            'updated_by' => 'legacy', 'updated_at' => '2026-01-01 00:00:00',
+        ]);
+        $legacy = $repository->run($legacyId);
+        assertSame(null, $legacy['templateId']);
+        assertSame(null, $legacy['templateVersion']);
+        $before = $db->rows;
+        assertThrows(static fn () => $repository->createRun([
+            'label' => 'Ohne Vorlage', 'startsOn' => '2026-09-04', 'endsOn' => '2026-09-14',
+            'capacity' => 10, 'createdBy' => 'planner-a',
+        ]), DomainException::class);
+        assertSame($before, $db->rows);
+        assertSame(1, $db->rollbacks);
+    });
+
     TestRunner::test('teaching repository preserves minimal profiles and rolls back stale request writes', static function (): void {
         $db = new InMemoryDatabase();
         $clock = new RepositoryClock();
-        $runs = new RunRepository($db, $clock);
+        $templates = new CurriculumTemplateRepository($db, $clock);
+        $runs = new RunRepository($db, $clock, $templates);
         $teaching = new TeachingRepository($db, $clock);
+        $templates->save('Basisqualifizierung', [
+            ['moduleKey' => 'grundlagen', 'title' => 'Grundlagen', 'minutes' => 120],
+        ], 0, 'planner-a');
         $runId = $runs->createRun([
             'label' => 'BQ Winter', 'startsOn' => '2026-11-06', 'endsOn' => '2026-11-16',
             'capacity' => 10, 'createdBy' => 'planner-a',
@@ -123,6 +170,16 @@ namespace FlzBqPlanning\Tests {
         assertSame(null, $teaching->lecturer($internalId)['email']);
         assertSame('Externe Lehrkraft', $teaching->lecturer($externalId)['displayName']);
         assertThrows(static fn () => $teaching->lecturer(999), DomainException::class);
+
+        $inactive = $teaching->updateLecturerStatus($externalId, true, false, 1, 'teacher-admin');
+        assertSame(false, $inactive['active']);
+        assertSame(2, $inactive['version']);
+        $beforeRejectedStatus = $db->rows;
+        assertThrows(
+            static fn () => $teaching->updateLecturerStatus($externalId, true, false, 1, 'teacher-admin'),
+            DomainException::class,
+        );
+        assertSame($beforeRejectedStatus, $db->rows);
 
         $lead = $teaching->setLead($runId, $internalId, 2, 'teacher-admin');
         assertSame($internalId, $lead['leadLecturerId']);
