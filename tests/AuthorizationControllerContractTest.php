@@ -23,6 +23,7 @@ TestRunner::test('every BQ surface delegates access to the central authorization
     assertTrue(str_contains($run, 'AuthorizationService::PUBLISHING'));
     assertTrue(str_contains($run, 'AuthorizationService::ADMIN'));
     assertTrue(str_contains($teaching, 'AuthorizationService::TEACHING'));
+    assertTrue(str_contains($teaching, 'AuthorizationService::PFK_POOL'));
     assertTrue(str_contains($proposal, 'AuthorizationService::PLANNING'));
     assertTrue(str_contains($curriculumTemplate, 'AuthorizationService::PLANNING'));
     assertTrue(str_contains($page, 'hasAnyAccess'));
@@ -126,11 +127,12 @@ TestRunner::test('role settings have a dedicated admin-only API and no database 
     assertTrue(!is_file($root . '/lib/Migration/Version000003Date202608240101.php'));
 });
 
-TestRunner::test('page response does not expose teaching data without teaching capability', static function (): void {
+TestRunner::test('page response gives PFK pool roles only internal profiles and never teaching requests', static function (): void {
     $page = (string)file_get_contents(dirname(__DIR__) . '/lib/Controller/PageController.php');
 
-    assertTrue(str_contains($page, '$capabilities[\'teaching\'] ? $this->teaching->lecturers() : []'));
+    assertTrue(str_contains($page, '$capabilities[\'pfkPool\'] ? $this->teaching->lecturers(\'internal\') : []'));
     assertTrue(str_contains($page, '$capabilities[\'teaching\'] ? $this->teaching->requests() : []'));
-    assertTrue(str_contains($page, '$hasBqAccess ? array_map'));
-    assertTrue(str_contains($page, "'settings' => \$hasBqAccess ? \$this->settingsService->current() : []"));
+    assertTrue(str_contains($page, '$hasRunAccess ? array_map'));
+    assertTrue(str_contains($page, "'pfkPool' => false"));
+    assertTrue(str_contains($page, "'settings' => \$capabilities['admin'] || \$capabilities['planning'] ? \$this->settingsService->current() : []"));
 });

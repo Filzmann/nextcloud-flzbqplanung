@@ -13,29 +13,21 @@ namespace OCP {
 namespace FlzBqPlanning\Tests {
     use DomainException;
     use OCA\FlzBqPlanning\Service\InternalPfkDirectory;
-    use OCP\IAppConfig;
     use OCP\IGroup;
     use OCP\IGroupManager;
     use OCP\IUserManager;
 
-    final class PfkDirectoryConfig implements IAppConfig {
-        public function __construct(public string $groupId = 'bq-pfk') {}
-        public function getValueInt(string $appId, string $key, int $default): int { return $default; }
-        public function getValueString(string $appId, string $key, string $default): string {
-            return $key === 'role_group_pfk' ? $this->groupId : $default;
-        }
-        public function setValueInt(string $appId, string $key, int $value): void {}
-        public function setValueString(string $appId, string $key, string $value): void {}
-    }
-
     final class PfkDirectoryGroups implements IGroupManager {
         /** @param array<string,string> $members */
-        public function __construct(public array $members = ['pfk-a' => 'PFK Alpha', 'pfk-b' => 'PFK Beta']) {}
+        public function __construct(
+            public array $members = ['pfk-a' => 'PFK Alpha', 'pfk-b' => 'PFK Beta'],
+            private bool $groupExists = true,
+        ) {}
         public function isAdmin(string $uid): bool { return false; }
-        public function isInGroup(string $uid, string $gid): bool { return $gid === 'bq-pfk' && isset($this->members[$uid]); }
-        public function get(string $gid): ?IGroup { return $gid === 'bq-pfk' ? new class implements IGroup {} : null; }
+        public function isInGroup(string $uid, string $gid): bool { return $gid === 'flz-PFK' && isset($this->members[$uid]); }
+        public function get(string $gid): ?IGroup { return $this->groupExists && $gid === 'flz-PFK' ? new class implements IGroup {} : null; }
         public function displayNamesInGroup($gid, $search = '', $limit = -1, $offset = 0): array {
-            if ($gid !== 'bq-pfk') return [];
+            if ($gid !== 'flz-PFK') return [];
             $search = strtolower((string)$search);
             return array_slice(array_filter(
                 $this->members,
@@ -51,8 +43,13 @@ namespace FlzBqPlanning\Tests {
         public function userExists($uid): bool { return in_array($uid, $this->existing, true); }
     }
 
-    TestRunner::test('internal PFK directory searches only configured group members without contact data', static function (): void {
-        $directory = new InternalPfkDirectory(new PfkDirectoryConfig(), new PfkDirectoryGroups(), new PfkDirectoryUsers());
+    TestRunner::test('internal PFK eligibility always uses the semantic PFK role without contact data', static function (): void {
+        $groups = new PfkDirectoryGroups();
+        $directory = new InternalPfkDirectory(
+            $groups,
+            new PfkDirectoryUsers(),
+            authorizationRolePolicy($groups),
+        );
 
         assertSame(
             [['uid' => 'pfk-b', 'displayName' => 'PFK Beta']],
@@ -61,16 +58,18 @@ namespace FlzBqPlanning\Tests {
         assertSame(['uid', 'displayName'], array_keys($directory->search('pfk-a')[0]));
     });
 
-    TestRunner::test('internal PFK directory rejects unconfigured unknown and out-of-group UIDs', static function (): void {
+    TestRunner::test('internal PFK eligibility fails closed for invalid UIDs or a missing semantic PFK group', static function (): void {
         $groups = new PfkDirectoryGroups();
         $users = new PfkDirectoryUsers();
-        $directory = new InternalPfkDirectory(new PfkDirectoryConfig(), $groups, $users);
+        $directory = new InternalPfkDirectory($groups, $users, authorizationRolePolicy($groups));
 
         $directory->assertSelectable('pfk-a');
         assertThrows(static fn () => $directory->assertSelectable('missing'), DomainException::class);
         assertThrows(static fn () => $directory->assertSelectable('user-outside'), DomainException::class);
+
+        $missingGroup = new PfkDirectoryGroups(groupExists: false);
         assertThrows(
-            static fn () => (new InternalPfkDirectory(new PfkDirectoryConfig(''), $groups, $users))->search('pfk'),
+            static fn () => (new InternalPfkDirectory($missingGroup, $users, authorizationRolePolicy($missingGroup)))->search('pfk'),
             DomainException::class,
         );
     });

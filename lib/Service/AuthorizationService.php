@@ -15,20 +15,15 @@ final class AuthorizationService {
     public const PLANNING = 'planning';
     public const TEACHING = 'teaching';
     public const PUBLISHING = 'publishing';
-
-    private const GROUP_KEYS = [
-        self::PLANNING => 'role_group_planning',
-        self::TEACHING => 'role_group_teaching',
-        self::PUBLISHING => 'role_group_publishing',
-    ];
+    public const PFK_POOL = 'pfkPool';
 
     public function __construct(
         private IUserSession $session,
         private IGroupManager $groups,
         private IAppConfig $config,
         private ?TemporaryAdminAccessChecker $temporaryAdminAccess = null,
-    ) {
-    }
+        private ?OrganizationRolePolicy $organizationRoles = null,
+    ) {}
 
     public function actorUid(): string {
         $uid = trim((string)$this->session->getUser()?->getUID());
@@ -52,7 +47,7 @@ final class AuthorizationService {
         if ($capability === self::ADMIN) {
             return $this->isAdmin();
         }
-        if (!isset(self::GROUP_KEYS[$capability])) {
+        if (!isset(RoleSettingsService::CONFIG_KEYS[$capability])) {
             return false;
         }
         try {
@@ -63,28 +58,45 @@ final class AuthorizationService {
         if ($this->groups->isAdmin($uid) && ($this->temporaryAdminAccess?->hasActiveGrant($uid) ?? false)) {
             return true;
         }
-        $groupId = trim($this->config->getValueString(
+        if ($this->organizationRoles === null) {
+            return false;
+        }
+        $roles = RoleSettingsService::decodeRoles($this->config->getValueString(
             Application::APP_ID,
-            self::GROUP_KEYS[$capability],
-            '',
+            RoleSettingsService::CONFIG_KEYS[$capability],
+            RoleSettingsService::defaultStoredRoles(),
         ));
-        return $groupId !== '' && $this->groups->isInGroup($uid, $groupId);
+        foreach ($roles as $roleKey) {
+            $groupId = $this->organizationRoles->groupIdForRole($roleKey);
+            if ($groupId !== null && $this->groups->isInGroup($uid, $groupId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function hasAnyAccess(): bool {
         return $this->isAdmin()
             || $this->can(self::PLANNING)
             || $this->can(self::TEACHING)
+            || $this->can(self::PUBLISHING)
+            || $this->can(self::PFK_POOL);
+    }
+
+    public function hasRunAccess(): bool {
+        return $this->can(self::PLANNING)
+            || $this->can(self::TEACHING)
             || $this->can(self::PUBLISHING);
     }
 
-    /** @return array{admin:bool,planning:bool,teaching:bool,publishing:bool} */
+    /** @return array{admin:bool,planning:bool,teaching:bool,publishing:bool,pfkPool:bool} */
     public function capabilities(): array {
         return [
             'admin' => $this->isAdmin(),
             'planning' => $this->can(self::PLANNING),
             'teaching' => $this->can(self::TEACHING),
             'publishing' => $this->can(self::PUBLISHING),
+            'pfkPool' => $this->can(self::PFK_POOL),
         ];
     }
 
@@ -96,6 +108,12 @@ final class AuthorizationService {
 
     public function requireAdmin(): void {
         if (!$this->isAdmin()) {
+            throw new AccessDeniedException();
+        }
+    }
+
+    public function requireRunAccess(): void {
+        if (!$this->hasRunAccess()) {
             throw new AccessDeniedException();
         }
     }

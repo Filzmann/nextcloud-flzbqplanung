@@ -22,8 +22,10 @@ namespace OCP {
 }
 
 namespace FlzBqPlanning\Tests {
+    use OCA\FlzBqPlanning\Contract\OrganizationSnapshotSource;
     use OCA\FlzBqPlanning\Exception\AccessDeniedException;
     use OCA\FlzBqPlanning\Service\AuthorizationService;
+    use OCA\FlzBqPlanning\Service\OrganizationRolePolicy;
     use OCA\FlzBqPlanning\Service\RoleSettingsService;
     use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCP\IAppConfig;
@@ -43,7 +45,7 @@ namespace FlzBqPlanning\Tests {
     }
 
     final class AuthorizationGroups implements IGroupManager {
-        /** @param list<string> $existing */
+        /** @param array<string,list<string>> $memberships @param list<string> $admins @param list<string> $existing */
         public function __construct(
             public array $memberships = [],
             public array $admins = [],
@@ -73,6 +75,24 @@ namespace FlzBqPlanning\Tests {
         public function hasActiveGrant(string $uid): bool { return in_array($uid, $this->active, true); }
     }
 
+    function authorizationRolePolicy(IGroupManager $groups, ?array $snapshot = null): OrganizationRolePolicy {
+        $snapshot ??= [
+            'contractVersion' => '1.0',
+            'valid' => true,
+            'roles' => [
+                'deputy_pdl' => ['groupId' => 'flz-StvPDL', 'label' => 'Stellvertretende Pflegedienstleitung'],
+                'pdl' => ['groupId' => 'flz-PDL', 'label' => 'Pflegedienstleitung'],
+                'pfk' => ['groupId' => 'flz-PFK', 'label' => 'Pflegefachkräfte'],
+            ],
+            'areas' => [],
+        ];
+        $source = new class($snapshot) implements OrganizationSnapshotSource {
+            public function __construct(private ?array $snapshot) {}
+            public function snapshot(): ?array { return $this->snapshot; }
+        };
+        return new OrganizationRolePolicy($source, $groups);
+    }
+
     TestRunner::test('authorization denies anonymous and unassigned users by default', static function (): void {
         $config = new AuthorizationConfig();
         $groups = new AuthorizationGroups();
@@ -87,50 +107,121 @@ namespace FlzBqPlanning\Tests {
             'planning' => false,
             'teaching' => false,
             'publishing' => false,
+            'pfkPool' => false,
         ], $unassigned->capabilities());
     });
 
-    TestRunner::test('Nextcloud admins need an active app-local grant for all BQ capabilities', static function (): void {
+    TestRunner::test('Nextcloud admins need an active app-local grant for all four BQ capabilities', static function (): void {
+        $groups = new AuthorizationGroups(admins: ['admin-a']);
         $withoutGrant = new AuthorizationService(
             new AuthorizationSession(new AuthorizationUser('admin-a')),
-            new AuthorizationGroups(admins: ['admin-a']),
+            $groups,
             new AuthorizationConfig(),
         );
         assertSame(false, $withoutGrant->hasAnyAccess());
-        assertSame(false, $withoutGrant->capabilities()['admin']);
 
         $service = new AuthorizationService(
             new AuthorizationSession(new AuthorizationUser('admin-a')),
-            new AuthorizationGroups(admins: ['admin-a']),
+            $groups,
             new AuthorizationConfig(),
             new AuthorizationGrants(['admin-a']),
         );
-        assertSame(true, $service->hasAnyAccess());
-        foreach ([AuthorizationService::PLANNING, AuthorizationService::TEACHING, AuthorizationService::PUBLISHING] as $capability) {
+        foreach ([AuthorizationService::PLANNING, AuthorizationService::TEACHING, AuthorizationService::PUBLISHING, AuthorizationService::PFK_POOL] as $capability) {
             assertSame(true, $service->can($capability));
         }
         assertSame(true, $service->capabilities()['admin']);
     });
 
-    TestRunner::test('configured Nextcloud groups grant only their matching BQ capability', static function (): void {
+    TestRunner::test('deputy PDL is the default for every BQ permission while PDL and PFK can be assigned independently', static function (): void {
         $config = new AuthorizationConfig();
         $config->values = [
-            'role_group_planning' => 'bq-planning',
-            'role_group_teaching' => 'bq-teaching',
-            'role_group_publishing' => 'bq-publishing',
+            'permission_roles_planning' => '["pdl","pfk"]',
+            'permission_roles_teaching' => '["deputy_pdl"]',
+            'permission_roles_publishing' => '["deputy_pdl"]',
+            'permission_roles_pfk_pool' => '["pfk"]',
         ];
-        $groups = new AuthorizationGroups(memberships: ['planner-a' => ['bq-planning']]);
-        $service = new AuthorizationService(new AuthorizationSession(new AuthorizationUser('planner-a')), $groups, $config);
+        $groups = new AuthorizationGroups(
+            memberships: [
+                'deputy-a' => ['flz-StvPDL'],
+                'pfk-a' => ['flz-PFK'],
+            ],
+            existing: ['flz-StvPDL', 'flz-PDL', 'flz-PFK'],
+        );
+        $policy = authorizationRolePolicy($groups);
+
+        $deputy = new AuthorizationService(new AuthorizationSession(new AuthorizationUser('deputy-a')), $groups, new AuthorizationConfig(), null, $policy);
+        foreach ([AuthorizationService::PLANNING, AuthorizationService::TEACHING, AuthorizationService::PUBLISHING, AuthorizationService::PFK_POOL] as $capability) {
+            assertSame(true, $deputy->can($capability));
+        }
+
+        $pfk = new AuthorizationService(new AuthorizationSession(new AuthorizationUser('pfk-a')), $groups, $config, null, $policy);
+        assertSame(true, $pfk->can(AuthorizationService::PLANNING));
+        assertSame(false, $pfk->can(AuthorizationService::TEACHING));
+        assertSame(false, $pfk->can(AuthorizationService::PUBLISHING));
+        assertSame(true, $pfk->can(AuthorizationService::PFK_POOL));
+    });
+
+    TestRunner::test('semantic permission assignments survive a current organization group rename', static function (): void {
+        $config = new AuthorizationConfig();
+        $groups = new AuthorizationGroups(
+            memberships: ['deputy-a' => ['custom-StvPDL']],
+            existing: ['custom-StvPDL', 'flz-PDL', 'flz-PFK'],
+        );
+        $policy = authorizationRolePolicy($groups, [
+            'contractVersion' => '1.0',
+            'valid' => true,
+            'roles' => [
+                'deputy_pdl' => ['groupId' => 'custom-StvPDL', 'label' => 'Stellvertretende Pflegedienstleitung'],
+                'pdl' => ['groupId' => 'flz-PDL', 'label' => 'Pflegedienstleitung'],
+                'pfk' => ['groupId' => 'flz-PFK', 'label' => 'Pflegefachkräfte'],
+            ],
+            'areas' => [],
+        ]);
+        $service = new AuthorizationService(
+            new AuthorizationSession(new AuthorizationUser('deputy-a')),
+            $groups,
+            $config,
+            null,
+            $policy,
+        );
 
         assertSame(true, $service->can(AuthorizationService::PLANNING));
-        assertSame(false, $service->can(AuthorizationService::TEACHING));
-        assertSame(false, $service->can(AuthorizationService::PUBLISHING));
-        assertThrows(static fn () => $service->requireCapability(AuthorizationService::TEACHING), AccessDeniedException::class);
+        assertSame([], $config->values, 'A group rename must not rewrite the semantic AppConfig mapping.');
+    });
+
+    TestRunner::test('missing snapshots missing groups and malformed mappings fail closed', static function (): void {
+        $config = new AuthorizationConfig();
+        $groups = new AuthorizationGroups(
+            memberships: ['deputy-a' => ['flz-StvPDL']],
+            existing: ['flz-StvPDL'],
+        );
+        $missingSource = new class implements OrganizationSnapshotSource {
+            public function snapshot(): ?array { return null; }
+        };
+        $service = new AuthorizationService(
+            new AuthorizationSession(new AuthorizationUser('deputy-a')),
+            $groups,
+            $config,
+            null,
+            new OrganizationRolePolicy($missingSource, $groups),
+        );
+        assertSame(false, $service->can(AuthorizationService::PLANNING));
+
+        $missingGroup = new AuthorizationGroups(memberships: ['deputy-a' => ['flz-StvPDL']]);
+        $service = new AuthorizationService(new AuthorizationSession(new AuthorizationUser('deputy-a')), $missingGroup, $config, null, authorizationRolePolicy($missingGroup));
+        assertSame(false, $service->can(AuthorizationService::PLANNING));
+
+        $config->values['permission_roles_planning'] = '{manipulated';
+        $service = new AuthorizationService(new AuthorizationSession(new AuthorizationUser('deputy-a')), $groups, $config, null, authorizationRolePolicy($groups));
+        assertSame(false, $service->can(AuthorizationService::PLANNING));
+        $settings = new RoleSettingsService($config, authorizationRolePolicy($groups));
+        assertSame(false, $settings->selection()['complete']);
+        assertTrue(str_contains($settings->selection()['message'], 'ungültig'));
     });
 
     TestRunner::test('denied authorization never executes the protected side effect', static function (): void {
         $service = new AuthorizationService(
-            new AuthorizationSession(new AuthorizationUser('planner-a')),
+            new AuthorizationSession(new AuthorizationUser('user-a')),
             new AuthorizationGroups(),
             new AuthorizationConfig(),
         );
@@ -144,24 +235,38 @@ namespace FlzBqPlanning\Tests {
         assertSame(0, $writes);
     });
 
-    TestRunner::test('role settings reject unknown groups without partial AppConfig writes', static function (): void {
+    TestRunner::test('permission role settings reject manipulated or unavailable roles without partial writes', static function (): void {
         $config = new AuthorizationConfig();
-        $groups = new AuthorizationGroups(existing: ['bq-planning', 'bq-publishing']);
-        $settings = new RoleSettingsService($config, $groups);
+        $groups = new AuthorizationGroups(existing: ['flz-StvPDL', 'flz-PDL']);
+        $settings = new RoleSettingsService($config, authorizationRolePolicy($groups));
+
+        assertSame([
+            'planningRoles' => ['deputy_pdl'],
+            'teachingRoles' => ['deputy_pdl'],
+            'publishingRoles' => ['deputy_pdl'],
+            'pfkPoolRoles' => ['deputy_pdl'],
+        ], $settings->current());
 
         assertThrows(
-            static fn () => $settings->update('bq-planning', 'missing-group', 'bq-publishing'),
+            static fn () => $settings->update(['deputy_pdl', 'finance'], ['deputy_pdl'], ['deputy_pdl'], ['deputy_pdl']),
             \DomainException::class,
         );
         assertSame(0, $config->writes);
 
-        $current = $settings->update(' bq-planning ', '', 'bq-publishing');
+        assertThrows(
+            static fn () => $settings->update(['pfk'], ['deputy_pdl'], ['deputy_pdl'], ['deputy_pdl']),
+            \DomainException::class,
+        );
+        assertSame(0, $config->writes, 'A missing current Nextcloud group must not leave a partial mapping.');
+
+        $current = $settings->update([' deputy_pdl ', 'pdl'], ['deputy_pdl'], ['pdl'], []);
         assertSame([
-            'planningGroup' => 'bq-planning',
-            'teachingGroup' => '',
-            'publishingGroup' => 'bq-publishing',
-            'pfkGroup' => '',
+            'planningRoles' => ['deputy_pdl', 'pdl'],
+            'teachingRoles' => ['deputy_pdl'],
+            'publishingRoles' => ['pdl'],
+            'pfkPoolRoles' => [],
         ], $current);
         assertSame(4, $config->writes);
+        assertSame('["deputy_pdl","pdl"]', $config->values['permission_roles_planning']);
     });
 }

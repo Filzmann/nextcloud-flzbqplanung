@@ -27,7 +27,8 @@ TestRunner::test('BQ processing metadata publishes only the stable app-owned cat
     assertTrue(!array_key_exists('personal_runtime_data', $catalog->toArray()));
     $encodedCatalog=json_encode($catalog->toArray(),JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);
     assertTrue(str_contains($encodedCatalog,'Freigabesteuerung in der BQ-Fachoberfläche'));
-    assertTrue(str_contains($encodedCatalog,'nur transient für die Suche innerhalb der konfigurierten PFK-Gruppe'));
+    assertTrue(str_contains($encodedCatalog,'nur transient für die Suche innerhalb der Organigrammrolle Pflegefachkräfte'));
+    assertTrue(str_contains($encodedCatalog,'Keine Durchlaufdaten, externen Profile, E-Mail-Adressen oder Anfragen'));
     assertTrue(str_contains($encodedCatalog,'flz_bq_templates'));
     assertTrue(str_contains($encodedCatalog,'flz_bq_template_modules'));
     assertTrue(!str_contains($encodedCatalog,'Allow-, Deny- und Manipulationsprüfungen stehen aus'));

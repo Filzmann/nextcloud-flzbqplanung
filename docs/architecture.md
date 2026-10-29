@@ -21,8 +21,9 @@ Eignungsentscheidungen und Teilnehmerzuordnungen.
   sichtbar und niemals als konfliktfreie Leerliste interpretiert.
 - Externe Lehrendenprofile enthalten nur stabile App-ID, Name und notwendige
   Kontaktadresse; interne PFKs werden über geprüfte Nextcloud-UIDs
-  referenziert. Auswahl und Speicherung sind auf Mitglieder der konfigurierten
-  Nextcloud-PFK-Gruppe begrenzt; der Such-Anzeigename wird nicht zusätzlich im
+  referenziert. Auswahl und Speicherung sind auf Mitglieder der semantischen
+  Organigrammrolle `pfk` begrenzt; ihre aktuelle Nextcloud-Gruppe wird aus dem
+  öffentlichen LocalBase-V1-Snapshot aufgelöst. Der Such-Anzeigename wird nicht zusätzlich im
   Profil persistiert. Inaktivsetzen erhält bestehende Lehrbezüge, verhindert
   aber neue Zuordnungen.
 - Eine spätere Recruitment-Anbindung verwendet ausschließlich einen kleinen,
@@ -30,7 +31,18 @@ Eignungsentscheidungen und Teilnehmerzuordnungen.
 
 ## Rechte und Releasegrenze
 
-Planung, Lehre und Veröffentlichung sind getrennte serverseitige Fähigkeiten.
+Planung, Lehre, Veröffentlichung und Verwaltung des internen PFK-Pools sind
+getrennte serverseitige Fähigkeiten. Die AppConfig speichert dafür nur die
+semantischen Rollen-Keys `deputy_pdl`, `pdl` und `pfk`; standardmäßig ist jede
+Fähigkeit `deputy_pdl` zugeordnet. PDL und PFK werden ausschließlich je
+Fähigkeit explizit aktiviert. Der öffentliche LocalBase-V1-Snapshot ist die
+kanonische Quelle für die aktuellen Gruppen-IDs. Ungültige oder fehlende
+Snapshots, fehlende Gruppen und manipulierte Rollen bleiben ohne Wirkung. Die
+Eignung als interne PFK ist davon getrennt und erfordert stets die Rolle
+`pfk`. Die Zuordnung wird ausschließlich im Nextcloud-Adminbereich geändert.
+Pool-only-Zugriff liefert weder Durchlaufdaten noch externe
+Dozentinnenprofile oder Anfragen aus und darf interne Profile ausschließlich
+über die eigene PFK-Pool-Fähigkeit verändern.
 Native Administration benötigt für fachlichen Vollzugriff eine app-lokale,
 zeitlich begrenzte Freigabe. Ausschließlich Mitglieder der nativen Gruppe
 `Datenschutzbeauftragte` dürfen die Freigabehistorie lesen und Freigaben für

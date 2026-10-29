@@ -9,12 +9,16 @@ use OCA\FlzBqPlanning\Service\RoleSettingsService;
 final class NextcloudBqPermissionSource implements BqPermissionSourceInterface {
     public function __construct(private RoleSettingsService $settings) {}
 
-    public function roleGroups(): array {
-        $settings = $this->settings->current();
-        return [
-            'planning' => $settings['planningGroup'],
-            'teaching' => $settings['teachingGroup'],
-            'publishing' => $settings['publishingGroup'],
-        ];
+    public function permissionRoleGroups(): array {
+        return $this->settings->effectiveGroups();
+    }
+
+    public function complete(): bool {
+        return $this->settings->selection()['complete'];
+    }
+
+    public function warnings(): array {
+        $selection = $this->settings->selection();
+        return $selection['message'] === '' ? [] : [$selection['message']];
     }
 }

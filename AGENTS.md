@@ -76,9 +76,16 @@ beim direkten Öffnen dieses App-Repositories.
 - Controller bleiben dünn; Fachlogik, Persistenz, Darstellung und externe
   Provider bleiben getrennt.
 - Rechte gelten deny by default und werden serverseitig geprüft. Planung,
-  Lehre und Veröffentlichung werden getrennten, adminseitig konfigurierten
-  Nextcloud-Gruppen zugeordnet. Ohne konfigurierte Gruppe bleibt die jeweilige
-  Fähigkeit deaktiviert. Native Nextcloud-Administrierende erhalten nur nach
+  Lehre, Veröffentlichung und Verwaltung des internen PFK-Pools sind vier
+  getrennte, app-lokale Fähigkeiten. Im Nextcloud-Adminbereich werden ihnen
+  ausschließlich die stabilen LocalBase-Organigrammrollen `deputy_pdl`, `pdl`
+  und `pfk` zugeordnet; standardmäßig ist jeweils nur `deputy_pdl` aktiv. Die
+  aktuellen Nextcloud-Gruppen werden beim Zugriff aus dem öffentlichen
+  LocalBase-V1-Organisationssnapshot aufgelöst. Ein fehlender oder ungültiger
+  Snapshot, eine fehlende Gruppe oder ein unbekannter Rollenschlüssel erteilt
+  kein Recht. Die fachliche Eignung als interne PFK bleibt unabhängig davon
+  fest an die semantische Rolle `pfk` gebunden. Native
+  Nextcloud-Administrierende erhalten nur nach
   einer app-lokalen, UID-genauen Freigabe für höchstens 24 Stunden
   vollständigen Fachzugriff; Beginn, geplantes Ende und Widerruf werden
   protokolliert. Ausschließlich Mitglieder der nativen Gruppe

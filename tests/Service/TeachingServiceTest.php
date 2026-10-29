@@ -21,7 +21,10 @@ final class MemoryTeachingStore implements TeachingStore {
         return $id;
     }
 
-    public function lecturers(): array { return array_values($this->lecturerRows); }
+    public function lecturers(?string $kind = null): array {
+        $rows = array_values($this->lecturerRows);
+        return $kind === null ? $rows : array_values(array_filter($rows, static fn(array $row): bool => ($row['kind'] ?? null) === $kind));
+    }
     public function lecturer(int $lecturerId): array { return $this->lecturerRows[$lecturerId]; }
     public function updateLecturerStatus(int $lecturerId, bool $fromActive, bool $toActive, int $expectedVersion, string $actorUid): array {
         $lecturer = $this->lecturerRows[$lecturerId];

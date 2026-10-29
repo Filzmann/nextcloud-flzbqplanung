@@ -35,6 +35,7 @@ final class RunController extends Controller {
     #[NoAdminRequired, NoCSRFRequired]
     public function list(): JSONResponse {
         return $this->respond(null, function (): array {
+            $this->authorization->requireRunAccess();
             return array_map(function (array $run): array {
                 $run['modules'] = $this->runs->modules((int)$run['id']);
                 return $run;

@@ -12,6 +12,8 @@ use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCA\FlzBqPlanning\Service\PlanningSettingsService;
 use OCA\FlzBqPlanning\Service\RunService;
 use OCP\IAppConfig;
+use OCP\IGroup;
+use OCP\IGroupManager;
 use OCP\IRequest;
 
 final class RunControllerConfig implements IAppConfig {
@@ -25,6 +27,18 @@ final class RunControllerConfig implements IAppConfig {
     }
     public function setValueInt(string $appId, string $key, int $value): void { $this->values[$key] = $value; }
     public function setValueString(string $appId, string $key, string $value): void { $this->values[$key] = $value; }
+}
+
+final class RunReadGroups implements IGroupManager {
+    public function isAdmin(string $uid): bool { return false; }
+    public function isInGroup(string $uid, string $gid): bool {
+        return $uid === 'deputy-a' && $gid === 'flz-StvPDL';
+    }
+    public function get(string $gid): ?IGroup {
+        return in_array($gid, ['flz-StvPDL', 'flz-PDL', 'flz-PFK'], true)
+            ? new class implements IGroup {}
+            : null;
+    }
 }
 
 /** @return array{0:RunController,1:InMemoryDatabase,2:ProposalControllerLogger} */
@@ -124,4 +138,33 @@ TestRunner::test('run controller denies mutations before execution and classifie
     assertSame(500, $failed->status);
     assertSame('Die BQ-Planung konnte nicht verarbeitet werden.', $failed->data['error']);
     assertTrue($logger->errors !== []);
+});
+
+TestRunner::test('PFK pool permission alone cannot read BQ runs', static function (): void {
+    $config = new RunControllerConfig();
+    $config->values = [
+        'permission_roles_planning' => '[]',
+        'permission_roles_teaching' => '[]',
+        'permission_roles_publishing' => '[]',
+        'permission_roles_pfk_pool' => '["deputy_pdl"]',
+    ];
+    $groups = new RunReadGroups();
+    $authorization = new AuthorizationService(
+        new FrameworkSession(new FrameworkUser('deputy-a')),
+        $groups,
+        $config,
+        null,
+        organizationRolePolicy($groups, [
+            'deputy_pdl' => 'flz-StvPDL',
+            'pdl' => 'flz-PDL',
+            'pfk' => 'flz-PFK',
+        ]),
+    );
+    [$controller, $database] = runControllerFixture($authorization);
+    $before = $database->rows;
+
+    $response = $controller->list();
+
+    assertSame(403, $response->status);
+    assertSame($before, $database->rows);
 });

@@ -118,7 +118,9 @@ namespace Psr\Log {
 namespace FlzBqPlanning\Tests {
     use OCA\FlzBqPlanning\AppInfo\Application;
     use OCA\FlzBqPlanning\Listener\StandaloneNavigationListener;
+    use OCA\FlzBqPlanning\Contract\OrganizationSnapshotSource;
     use OCA\FlzBqPlanning\Service\AuthorizationService;
+    use OCA\FlzBqPlanning\Service\OrganizationRolePolicy;
     use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
     use OCA\LocalBase\Service\StandaloneAppNavigationService;
     use OCP\EventDispatcher\Event;
@@ -152,6 +154,26 @@ namespace FlzBqPlanning\Tests {
     final class FrameworkGrants implements TemporaryAdminAccessChecker {
         public function __construct(private array $active = ['admin-a']) {}
         public function hasActiveGrant(string $uid): bool { return in_array($uid,$this->active,true); }
+    }
+
+    /** @param array<string,string> $roleGroups */
+    function organizationRolePolicy(IGroupManager $groups, array $roleGroups): OrganizationRolePolicy {
+        $labels = [
+            'deputy_pdl' => 'Stellvertretende Pflegedienstleitung',
+            'pdl' => 'Pflegedienstleitung',
+            'pfk' => 'Pflegefachkräfte',
+        ];
+        $roles = [];
+        foreach ($roleGroups as $roleKey => $groupId) {
+            $roles[$roleKey] = ['groupId' => $groupId, 'label' => $labels[$roleKey] ?? $roleKey];
+        }
+        $source = new class($roles) implements OrganizationSnapshotSource {
+            public function __construct(private array $roles) {}
+            public function snapshot(): ?array {
+                return ['contractVersion' => '1.0', 'valid' => true, 'roles' => $this->roles, 'areas' => []];
+            }
+        };
+        return new OrganizationRolePolicy($source, $groups);
     }
 
     function adminAuthorization(): AuthorizationService {

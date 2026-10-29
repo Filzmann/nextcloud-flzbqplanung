@@ -6,7 +6,10 @@ namespace OCA\FlzBqPlanning\AppInfo;
 
 use OCA\FlzBqPlanning\Listener\StandaloneNavigationListener;
 use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
+use OCA\FlzBqPlanning\Contract\OrganizationSnapshotSource;
+use OCA\FlzBqPlanning\Contract\TeachingStore;
 use OCA\FlzBqPlanning\Service\CalendarBlockedPeriodProvider;
+use OCA\FlzBqPlanning\Service\LocalBaseOrganizationSnapshotSource;
 use OCA\FlzBqPlanning\Privacy\BqPrivacyProviderListener;
 use OCA\FlzBqPlanning\Privacy\BqProcessingMetadataProviderListener;
 use OCA\FlzBqPlanning\Privacy\BqPrivacySource;
@@ -16,6 +19,7 @@ use OCA\FlzBqPlanning\Permission\BqPermissionSourceInterface;
 use OCA\FlzBqPlanning\Permission\NextcloudBqPermissionSource;
 use OCA\FlzBqPlanning\Repository\TemporaryAdminAccessRepository;
 use OCA\FlzBqPlanning\Repository\TemporaryAdminAccessRepositoryInterface;
+use OCA\FlzBqPlanning\Repository\TeachingRepository;
 use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
 use OCA\FlzBqPlanning\Service\TemporaryAdminAccessService;
 use OCA\FlzDataProtection\PublicApi\V1\RegisterPersonalDataProvidersEvent;
@@ -40,6 +44,8 @@ final class Application extends App implements IBootstrap {
         $context->registerEventListener(RegisterProcessingMetadataProvidersEvent::class, BqProcessingMetadataProviderListener::class);
         $context->registerEventListener(RegisterPermissionProvidersEvent::class, BqPermissionProviderListener::class);
         $context->registerServiceAlias(BlockedPeriodProvider::class, CalendarBlockedPeriodProvider::class);
+        $context->registerServiceAlias(OrganizationSnapshotSource::class, LocalBaseOrganizationSnapshotSource::class);
+        $context->registerServiceAlias(TeachingStore::class, TeachingRepository::class);
         $context->registerServiceAlias(BqPrivacySource::class, NextcloudBqPrivacySource::class);
         $context->registerServiceAlias(BqPermissionSourceInterface::class, NextcloudBqPermissionSource::class);
         $context->registerServiceAlias(TemporaryAdminAccessChecker::class, TemporaryAdminAccessService::class);

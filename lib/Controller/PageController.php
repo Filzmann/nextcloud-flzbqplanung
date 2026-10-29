@@ -11,7 +11,6 @@ use OCA\FlzBqPlanning\Repository\TeachingRepository;
 use OCA\FlzBqPlanning\Service\PlanningSettingsService;
 use OCA\FlzBqPlanning\Service\RunService;
 use OCA\FlzBqPlanning\Service\AuthorizationService;
-use OCA\FlzBqPlanning\Service\RoleSettingsService;
 use OCA\FlzBqPlanning\Service\TemporaryAdminAccessService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -29,7 +28,6 @@ final class PageController extends Controller {
         private TeachingRepository $teaching,
         private RunService $runService,
         private AuthorizationService $authorization,
-        private RoleSettingsService $roleSettings,
         private TemporaryAdminAccessService $temporaryAdminAccess,
     ) {
         parent::__construct(Application::APP_ID, $request);
@@ -49,8 +47,10 @@ final class PageController extends Controller {
             'planning' => false,
             'teaching' => false,
             'publishing' => false,
+            'pfkPool' => false,
         ];
-        $runs = $hasBqAccess ? array_map(function (array $run): array {
+        $hasRunAccess = $hasBqAccess && $this->authorization->hasRunAccess();
+        $runs = $hasRunAccess ? array_map(function (array $run): array {
                 $run['modules'] = $this->runs->modules((int)$run['id']);
                 $run['moduleConflicts'] = $this->runService->moduleConflicts($run['modules']);
                 return $run;
@@ -58,15 +58,17 @@ final class PageController extends Controller {
         return new TemplateResponse(Application::APP_ID, 'index', [
             'runs' => $runs,
             'curriculumTemplate' => $capabilities['planning'] ? $this->curriculumTemplates->current() : null,
-            'settings' => $hasBqAccess ? $this->settingsService->current() : [],
-            'lecturers' => $capabilities['teaching'] ? $this->teaching->lecturers() : [],
+            'settings' => $capabilities['admin'] || $capabilities['planning'] ? $this->settingsService->current() : [],
+            'lecturers' => $capabilities['teaching']
+                ? $this->teaching->lecturers()
+                : ($capabilities['pfkPool'] ? $this->teaching->lecturers('internal') : []),
             'teachingRequests' => $capabilities['teaching'] ? $this->teaching->requests() : [],
             'capabilities' => $capabilities,
-            'roleSettings' => $capabilities['admin'] ? $this->roleSettings->current() : [],
             'canManageAdminAccess' => $canManageAdminAccess,
             'showMissingAdminGrant' => $showMissingAdminGrant,
             'showAdminAccessLink' => $canManageAdminAccess && $showMissingAdminGrant,
             'hasBqAccess' => $hasBqAccess,
+            'hasRunAccess' => $hasRunAccess,
         ]);
     }
 }

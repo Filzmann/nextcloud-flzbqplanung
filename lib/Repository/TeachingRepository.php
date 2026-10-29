@@ -33,10 +33,16 @@ final class TeachingRepository implements TeachingStore {
         return (int)$qb->getLastInsertId();
     }
 
-    public function lecturers(): array {
+    public function lecturers(?string $kind = null): array {
         $qb = $this->db->getQueryBuilder();
-        $result = $qb->select('*')->from('flz_bq_lecturers')
-            ->orderBy('kind', 'ASC')->addOrderBy('id', 'ASC')->executeQuery();
+        $qb->select('*')->from('flz_bq_lecturers');
+        if ($kind !== null) {
+            if (!in_array($kind, ['internal', 'external'], true)) {
+                throw new DomainException('Der Dozentinnentyp ist ungültig.');
+            }
+            $qb->where($qb->expr()->eq('kind', $qb->createNamedParameter($kind)));
+        }
+        $result = $qb->orderBy('kind', 'ASC')->addOrderBy('id', 'ASC')->executeQuery();
         try {
             return array_map([$this, 'mapLecturer'], $result->fetchAllAssociative());
         } finally {

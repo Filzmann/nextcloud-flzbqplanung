@@ -9,7 +9,7 @@ interface TeachingStore {
     public function createLecturer(array $lecturer): int;
 
     /** @return list<array<string,mixed>> */
-    public function lecturers(): array;
+    public function lecturers(?string $kind = null): array;
 
     /** @return array<string,mixed> */
     public function lecturer(int $lecturerId): array;

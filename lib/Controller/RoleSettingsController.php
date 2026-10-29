@@ -34,12 +34,12 @@ final class RoleSettingsController extends Controller {
     }
 
     #[NoAdminRequired]
-    public function update(string $planningGroup, string $teachingGroup, string $publishingGroup, string $pfkGroup = ''): JSONResponse {
+    public function update(array $planningRoles, array $teachingRoles, array $publishingRoles, array $pfkPoolRoles): JSONResponse {
         return $this->respond(fn (): array => $this->settings->update(
-            $planningGroup,
-            $teachingGroup,
-            $publishingGroup,
-            $pfkGroup,
+            $planningRoles,
+            $teachingRoles,
+            $publishingRoles,
+            $pfkPoolRoles,
         ));
     }
 
@@ -55,7 +55,7 @@ final class RoleSettingsController extends Controller {
                 'app' => Application::APP_ID,
                 'exceptionClass' => $error::class,
             ]);
-            return new JSONResponse(['error' => 'Die BQ-Rollengruppen konnten nicht verarbeitet werden.'], 500);
+            return new JSONResponse(['error' => 'Die BQ-Berechtigungszuordnung konnte nicht verarbeitet werden.'], 500);
         }
     }
 }

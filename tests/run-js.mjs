@@ -5,6 +5,8 @@ import path from 'node:path'
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
 const template = await readFile(path.join(root, 'templates/index.php'), 'utf8')
+const adminTemplate = await readFile(path.join(root, 'templates/admin.php'), 'utf8')
+const adminSettingsScript = await readFile(path.join(root, 'js/admin-settings.js'), 'utf8')
 const css = await readFile(path.join(root, 'css/style.css'), 'utf8')
 const script = await readFile(path.join(root, 'js/main.js'), 'utf8')
 
@@ -26,10 +28,13 @@ assert.match(template, /Modul bearbeiten/)
 assert.match(template, /Durchlauf bearbeiten/)
 assert.match(template, /Nach oben/)
 assert.match(template, /Nach unten/)
-assert.match(template, /name="planningGroup"/)
-assert.match(template, /name="teachingGroup"/)
-assert.match(template, /name="publishingGroup"/)
-assert.match(template, /name="pfkGroup"/)
+for (const roleField of ['planningRoles[]', 'teachingRoles[]', 'publishingRoles[]', 'pfkPoolRoles[]']) {
+    assert.equal(adminTemplate.includes(roleField), true)
+    assert.equal(template.includes(roleField), false)
+}
+assert.match(adminTemplate, /Keine der Rollen erhält automatisch eine andere Berechtigung/)
+assert.match(adminTemplate, /LocalBase-Organigramm/)
+assert.match(adminSettingsScript, /permission_roles|planningRoles|pfkPoolRoles/)
 assert.match(template, /data-pfk-search/)
 assert.match(template, /data-pfk-options/)
 assert.match(template, /Dozentinnenstatus/)
@@ -46,7 +51,10 @@ assert.match(template, /Noch nicht terminiert/)
 assert.match(template, /\$capabilities\['planning'\]/)
 assert.match(template, /\$capabilities\['teaching'\]/)
 assert.match(template, /\$capabilities\['publishing'\]/)
+assert.match(template, /\$capabilities\['pfkPool'\]/)
 assert.match(template, /\$capabilities\['admin'\]/)
+assert.match(template, /\$hasRunAccess/)
+assert.match(template, /if \(\$hasRunAccess\)/)
 assert.match(template, /Terminüberschneidung/)
 assert.match(template, /\/api\/runs\/<\?php p\(\(string\)\$run\['id'\]\); \?>\/modules\/<\?php p\(\(string\)\$module\['id'\]\); \?>/)
 assert.match(template, /name="bridgeDays"/)
@@ -128,6 +136,54 @@ const pfkOptions = {
     replaceChildren(...children) { this.children = children },
 }
 const pfkStatus = { textContent: '' }
+const curriculumListeners = new Map()
+const createCurriculumRow = name => {
+    const controls = {
+        up: { disabled: false },
+        down: { disabled: false },
+        remove: { disabled: false },
+    }
+    const input = { focus() { this.focused = true } }
+    const row = {
+        name,
+        controls,
+        input,
+        querySelector(selector) {
+            if (selector === '[data-curriculum-move="up"]') return controls.up
+            if (selector === '[data-curriculum-move="down"]') return controls.down
+            if (selector === '[data-curriculum-remove]') return controls.remove
+            if (selector === 'input') return input
+            return null
+        },
+        remove() {
+            const index = curriculumModuleRows.rows.indexOf(this)
+            if (index >= 0) curriculumModuleRows.rows.splice(index, 1)
+        },
+        get previousElementSibling() {
+            const index = curriculumModuleRows.rows.indexOf(this)
+            return index > 0 ? curriculumModuleRows.rows[index - 1] : null
+        },
+        get nextElementSibling() {
+            const index = curriculumModuleRows.rows.indexOf(this)
+            return index >= 0 && index < curriculumModuleRows.rows.length - 1 ? curriculumModuleRows.rows[index + 1] : null
+        },
+    }
+    return row
+}
+const curriculumModuleRows = {
+    rows: [],
+    querySelectorAll(selector) { return selector === '[data-curriculum-module-row]' ? this.rows : [] },
+    append(row) { this.rows.push(row) },
+    insertBefore(row, reference) {
+        const oldIndex = this.rows.indexOf(row)
+        if (oldIndex >= 0) this.rows.splice(oldIndex, 1)
+        this.rows.splice(this.rows.indexOf(reference), 0, row)
+    },
+}
+curriculumModuleRows.rows.push(createCurriculumRow('one'), createCurriculumRow('two'))
+const addedCurriculumRow = createCurriculumRow('added')
+const curriculumModuleTemplate = { content: { firstElementChild: { cloneNode: () => addedCurriculumRow } } }
+const addCurriculumModule = { addEventListener(type, callback) { curriculumListeners.set(type, callback) } }
 const app = {
     dataset: {},
     children: [],
@@ -142,6 +198,7 @@ const app = {
         return []
     },
     querySelector(selector) {
+        if (selector === '[data-add-curriculum-module]') return addCurriculumModule
         return selector === '.bq-tab-panel:not([hidden]) .bq-table-wrap' ? tableWrap : null
     },
 }
@@ -170,6 +227,8 @@ globalThis.document = {
         if (id === 'bq-year-proposal-rows') return yearProposalRows
         if (id === 'bq-year-proposal-status') return yearProposalStatus
         if (id === 'bq-calendar-sources') return calendarSources
+        if (id === 'bq-curriculum-template-modules') return curriculumModuleRows
+        if (id === 'bq-curriculum-module-template') return curriculumModuleTemplate
         if (id === 'bq-pfk-candidates') return pfkOptions
         if (id === 'bq-pfk-search-status') return pfkStatus
         return null
@@ -220,6 +279,22 @@ globalThis.fetch = async (url, options) => {
 }
 await import('../js/main.js')
 assert.equal(app.dataset.planningCore, 'ready')
+assert.equal(curriculumModuleRows.rows[0].controls.up.disabled, true)
+assert.equal(curriculumModuleRows.rows[1].controls.down.disabled, true)
+await curriculumListeners.get('click')()
+assert.equal(curriculumModuleRows.rows.length, 3)
+assert.equal(addedCurriculumRow.input.focused, true)
+const curriculumButton = (row, kind) => ({
+    dataset: { curriculumMove: kind === 'remove' ? undefined : kind },
+    closest(selector) { return selector.includes('curriculum-move') ? this : row },
+    matches(selector) { return kind === 'remove' && selector === '[data-curriculum-remove]' },
+})
+listeners.click({ target: curriculumButton(curriculumModuleRows.rows[0], 'down') })
+assert.equal(curriculumModuleRows.rows[1].name, 'one')
+listeners.click({ target: curriculumButton(curriculumModuleRows.rows[1], 'up') })
+assert.equal(curriculumModuleRows.rows[0].name, 'one')
+listeners.click({ target: curriculumButton(addedCurriculumRow, 'remove') })
+assert.equal(curriculumModuleRows.rows.includes(addedCurriculumRow), false)
 const firstProxy = app.children[0]
 assert.equal(firstProxy.hidden, false)
 assert.equal(firstProxy.children[0].style.width, '640px')
@@ -444,5 +519,6 @@ assert.deepEqual(JSON.parse(requests.at(-1).options.body), {
 })
 
 await import('./admin-access-smoke.mjs')
+await import('./admin-settings-smoke.mjs')
 
 console.log('Filzmann BQ-Planer JavaScript/UI contracts passed')

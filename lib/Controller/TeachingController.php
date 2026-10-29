@@ -7,7 +7,7 @@ namespace OCA\FlzBqPlanning\Controller;
 use DomainException;
 use OCA\FlzBqPlanning\AppInfo\Application;
 use OCA\FlzBqPlanning\Exception\AccessDeniedException;
-use OCA\FlzBqPlanning\Repository\TeachingRepository;
+use OCA\FlzBqPlanning\Contract\TeachingStore;
 use OCA\FlzBqPlanning\Service\TeachingService;
 use OCA\FlzBqPlanning\Service\AuthorizationService;
 use OCA\FlzBqPlanning\Service\InternalPfkDirectory;
@@ -23,7 +23,7 @@ use Throwable;
 final class TeachingController extends Controller {
     public function __construct(
         IRequest $request,
-        private TeachingRepository $store,
+        private TeachingStore $store,
         private TeachingService $service,
         private AuthorizationService $authorization,
         private InternalPfkDirectory $internalPfkDirectory,
@@ -34,22 +34,26 @@ final class TeachingController extends Controller {
 
     #[NoAdminRequired, NoCSRFRequired]
     public function lecturers(): JSONResponse {
-        return $this->respond(fn (): array => $this->store->lecturers());
+        if ($this->authorization->can(AuthorizationService::TEACHING)) {
+            return $this->respond(AuthorizationService::TEACHING, fn (): array => $this->store->lecturers());
+        }
+        return $this->respond(AuthorizationService::PFK_POOL, fn (): array => $this->store->lecturers('internal'));
     }
 
     #[NoAdminRequired, NoCSRFRequired]
     public function requests(): JSONResponse {
-        return $this->respond(fn (): array => $this->store->requests());
+        return $this->respond(AuthorizationService::TEACHING, fn (): array => $this->store->requests());
     }
 
     #[NoAdminRequired, NoCSRFRequired]
     public function internalPfkMembers(string $search = ''): JSONResponse {
-        return $this->respond(fn (): array => $this->internalPfkDirectory->search($search));
+        return $this->respond(AuthorizationService::PFK_POOL, fn (): array => $this->internalPfkDirectory->search($search));
     }
 
     #[NoAdminRequired]
     public function createLecturer(string $kind, string $nextcloudUid, string $displayName, string $email): JSONResponse {
-        return $this->respond(function () use ($kind, $nextcloudUid, $displayName, $email): array {
+        $capability = trim($kind) === 'internal' ? AuthorizationService::PFK_POOL : AuthorizationService::TEACHING;
+        return $this->respond($capability, function () use ($kind, $nextcloudUid, $displayName, $email): array {
             $nextcloudUid = trim($nextcloudUid);
             if (trim($kind) === 'internal') {
                 $this->internalPfkDirectory->assertSelectable($nextcloudUid);
@@ -62,18 +66,28 @@ final class TeachingController extends Controller {
 
     #[NoAdminRequired]
     public function updateLecturerStatus(int $id, string $targetStatus, int $version): JSONResponse {
-        return $this->respond(fn (): array => $this->service->updateLecturerStatus(
-            $this->store,
-            $id,
-            $targetStatus,
-            $version,
-            $this->actorUid(),
-        ));
+        $entryCapability = $this->authorization->can(AuthorizationService::TEACHING)
+            ? AuthorizationService::TEACHING
+            : AuthorizationService::PFK_POOL;
+        return $this->respond($entryCapability, function () use ($id, $targetStatus, $version): array {
+            $lecturer = $this->store->lecturer($id);
+            $requiredCapability = ($lecturer['kind'] ?? null) === 'internal'
+                ? AuthorizationService::PFK_POOL
+                : AuthorizationService::TEACHING;
+            $this->authorization->requireCapability($requiredCapability);
+            return $this->service->updateLecturerStatus(
+                $this->store,
+                $id,
+                $targetStatus,
+                $version,
+                $this->actorUid(),
+            );
+        });
     }
 
     #[NoAdminRequired]
     public function setLead(int $id, int $lecturerId, int $version): JSONResponse {
-        return $this->respond(fn (): array => $this->service->setLead(
+        return $this->respond(AuthorizationService::TEACHING, fn (): array => $this->service->setLead(
             $this->store, $id, $lecturerId, $version, $this->actorUid(),
         ));
     }
@@ -85,14 +99,14 @@ final class TeachingController extends Controller {
         int $runVersion,
         int $moduleVersion,
     ): JSONResponse {
-        return $this->respond(fn (): array => ['id' => $this->service->createRequest(
+        return $this->respond(AuthorizationService::TEACHING, fn (): array => ['id' => $this->service->createRequest(
             $this->store, $id, $lecturerId, $runVersion, $moduleVersion, $this->actorUid(),
         )]);
     }
 
     #[NoAdminRequired]
     public function transitionRequest(int $id, string $targetStatus, int $version): JSONResponse {
-        return $this->respond(fn (): array => $this->service->transitionRequest(
+        return $this->respond(AuthorizationService::TEACHING, fn (): array => $this->service->transitionRequest(
             $this->store, $id, $targetStatus, $version, $this->actorUid(),
         ));
     }
@@ -101,9 +115,9 @@ final class TeachingController extends Controller {
         return $this->authorization->actorUid();
     }
 
-    private function respond(callable $callback): JSONResponse {
+    private function respond(string $capability, callable $callback): JSONResponse {
         try {
-            return new JSONResponse(['data' => $this->authorization->execute(AuthorizationService::TEACHING, $callback)]);
+            return new JSONResponse(['data' => $this->authorization->execute($capability, $callback)]);
         } catch (AccessDeniedException $error) {
             return new JSONResponse(['error' => $error->getMessage()], Http::STATUS_FORBIDDEN);
         } catch (DomainException $error) {

@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = document.getElementById(input.dataset.pfkStatus)
         const search = async () => {
             const query = String(input.value || '').trim()
-            if (status) status.textContent = 'Mitglieder der konfigurierten PFK-Gruppe werden gesucht …'
+            if (status) status.textContent = 'Mitglieder der Organigrammrolle Pflegefachkräfte werden gesucht …'
             try {
                 const url = OC.generateUrl('/apps/flzbqplanung/api/internal-pfk-members')
                 const response = await fetch(`${url}?search=${encodeURIComponent(query)}`)
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 options?.replaceChildren(...entries)
                 if (status) status.textContent = candidates.length === 0
-                    ? 'Keine passenden Mitglieder in der konfigurierten PFK-Gruppe gefunden.'
+                    ? 'Keine passenden Mitglieder der Organigrammrolle Pflegefachkräfte gefunden.'
                     : `${candidates.length} passende PFK-Auswahlmöglichkeiten gefunden.`
             } catch (error) {
                 options?.replaceChildren()

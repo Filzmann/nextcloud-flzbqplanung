@@ -15,6 +15,7 @@ final class BqPermissionProvider implements PermissionProvider {
         'planning' => ['bq.planning.manage', 'BQ-Durchläufe planen', 'Planungsdaten und Curriculum-Snapshots'],
         'teaching' => ['bq.teaching.manage', 'Lehre verwalten', 'Interne und externe Dozentinnenprofile sowie Lehrzuordnungen; externe Datenschutz-Subjekte sind zurückgestellt'],
         'publishing' => ['bq.publishing.manage', 'BQ-Durchläufe veröffentlichen', 'Geprüfte Durchlaufveröffentlichung'],
+        'pfkPool' => ['bq.pfk_pool.manage', 'Internen PFK-Pool verwalten', 'Interne PFK-Profile aus der Organigrammrolle Pflegefachkräfte; keine externen Dozentinnendaten'],
     ];
 
     public function __construct(private BqPermissionSourceInterface $source) {}
@@ -34,7 +35,7 @@ final class BqPermissionProvider implements PermissionProvider {
         }
         $rules[] = $this->rule(
             'bq.settings.manage',
-            'BQ-Rollengruppen konfigurieren',
+            'BQ-Berechtigungen konfigurieren',
             'Native Nextcloud-Administration',
             'app-settings',
             $temporaryAdmin,
@@ -48,16 +49,20 @@ final class BqPermissionProvider implements PermissionProvider {
             'flzbqplanung:TemporaryAdminAccessService',
         );
 
-        foreach ($this->source->roleGroups() as $role => $groupId) {
-            $groupId = trim((string)$groupId);
-            if ($groupId === '' || !isset(self::CAPABILITIES[$role])) {
+        foreach ($this->source->permissionRoleGroups() as $capability => $groupIds) {
+            if (!isset(self::CAPABILITIES[$capability])) {
                 continue;
             }
-            [$permission, $label, $detail] = self::CAPABILITIES[$role];
-            $rules[] = $this->rule($permission, $label, $detail, 'all', PermissionCondition::group($groupId));
+            [$permission, $label, $detail] = self::CAPABILITIES[$capability];
+            foreach ($groupIds as $groupId) {
+                $groupId = trim((string)$groupId);
+                if ($groupId !== '') {
+                    $rules[] = $this->rule($permission, $label, $detail, 'all', PermissionCondition::group($groupId));
+                }
+            }
         }
 
-        return new PermissionProviderResult($rules);
+        return new PermissionProviderResult($rules, $this->source->complete(), $this->source->warnings());
     }
 
     private function rule(

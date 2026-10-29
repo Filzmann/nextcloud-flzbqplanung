@@ -14,14 +14,14 @@ $runs = is_array($_['runs'] ?? null) ? $_['runs'] : [];
 $settings = is_array($_['settings'] ?? null) ? $_['settings'] : [];
 $lecturers = is_array($_['lecturers'] ?? null) ? $_['lecturers'] : [];
 $teachingRequests = is_array($_['teachingRequests'] ?? null) ? $_['teachingRequests'] : [];
-$capabilities = is_array($_['capabilities'] ?? null) ? $_['capabilities'] : ['admin' => false, 'planning' => false, 'teaching' => false, 'publishing' => false];
-$roleSettings = is_array($_['roleSettings'] ?? null) ? $_['roleSettings'] : [];
+$capabilities = is_array($_['capabilities'] ?? null) ? $_['capabilities'] : ['admin' => false, 'planning' => false, 'teaching' => false, 'publishing' => false, 'pfkPool' => false];
 $curriculumTemplate = is_array($_['curriculumTemplate'] ?? null) ? $_['curriculumTemplate'] : null;
 $curriculumTemplateModules = is_array($curriculumTemplate['modules'] ?? null) ? $curriculumTemplate['modules'] : [];
 if ($curriculumTemplateModules === []) {
     $curriculumTemplateModules = [['moduleKey' => '', 'title' => '', 'minutes' => '']];
 }
 $hasBqAccess = (bool)($_['hasBqAccess'] ?? false);
+$hasRunAccess = (bool)($_['hasRunAccess'] ?? false);
 $internalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'internal' && ($lecturer['active'] ?? false)));
 $externalLecturers = array_values(array_filter($lecturers, static fn (array $lecturer): bool => ($lecturer['kind'] ?? '') === 'external' && ($lecturer['active'] ?? false)));
 $lecturersById = [];
@@ -80,8 +80,10 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
 
     <?php if ($hasBqAccess): ?>
     <nav class="bq-tabs" role="tablist" aria-label="BQ-Planungsbereiche">
+        <?php if ($hasRunAccess): ?>
         <button type="button" id="bq-tab-runs" class="bq-tab" role="tab" aria-controls="bq-panel-runs" aria-selected="true" tabindex="0" data-tab-target="bq-panel-runs">Durchläufe</button>
-        <?php if ($capabilities['teaching']): ?><button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-lecturers">Dozentinnen</button><?php endif; ?>
+        <?php endif; ?>
+        <?php if ($capabilities['teaching'] || $capabilities['pfkPool']): ?><button type="button" id="bq-tab-lecturers" class="bq-tab" role="tab" aria-controls="bq-panel-lecturers" aria-selected="<?php p($hasRunAccess ? 'false' : 'true'); ?>" tabindex="<?php p($hasRunAccess ? '-1' : '0'); ?>" data-tab-target="bq-panel-lecturers">Dozentinnen</button><?php endif; ?>
         <?php if ($capabilities['admin']): ?><button type="button" id="bq-tab-settings" class="bq-tab" role="tab" aria-controls="bq-panel-settings" aria-selected="false" tabindex="-1" data-tab-target="bq-panel-settings">Einstellungen</button><?php endif; ?>
     </nav>
 
@@ -112,20 +114,11 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
             </label>
             <button type="submit" class="primary">Regeln speichern</button>
         </form>
-        <form class="bq-card bq-form" data-endpoint="/api/role-settings" data-method="PUT">
-            <h2>Rollengruppen</h2>
-            <p>Leere Gruppen lassen die jeweilige Rolle deaktiviert. Nextcloud-Administrierende benötigen zusätzlich eine aktive app-lokale Freigabe.</p>
-            <label>Planung <input name="planningGroup" value="<?php p((string)($roleSettings['planningGroup'] ?? '')); ?>" placeholder="bq-planning"></label>
-            <label>Lehre <input name="teachingGroup" value="<?php p((string)($roleSettings['teachingGroup'] ?? '')); ?>" placeholder="bq-teaching"></label>
-            <label>Veröffentlichung <input name="publishingGroup" value="<?php p((string)($roleSettings['publishingGroup'] ?? '')); ?>" placeholder="bq-publishing"></label>
-            <label>Interne PFK-Auswahl <input name="pfkGroup" value="<?php p((string)($roleSettings['pfkGroup'] ?? '')); ?>" placeholder="bq-pfk"></label>
-            <small>Nur vorhandene Mitglieder dieser Gruppe können als interne PFK in den Pool aufgenommen werden. Die Gruppe erteilt selbst keine BQ-Fähigkeit.</small>
-            <button type="submit">Rollengruppen speichern</button>
-        </form>
         </section>
     </section>
     <?php endif; ?>
 
+    <?php if ($hasRunAccess): ?>
     <section id="bq-panel-runs" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-runs">
         <?php if ($capabilities['planning']): ?>
         <form class="bq-card bq-form" data-curriculum-template-form data-endpoint="/api/curriculum-template" data-method="PUT">
@@ -381,12 +374,14 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
         <p>Automatische Vorschläge werden erst als konfliktfrei bezeichnet, wenn eine vollständige Ferien-, Feiertags- und Sperrtagsquelle vorliegt.</p>
     </section>
     </section>
+    <?php endif; ?>
 
-    <?php if ($capabilities['teaching']): ?>
-    <section id="bq-panel-lecturers" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-lecturers" hidden>
+    <?php if ($capabilities['teaching'] || $capabilities['pfkPool']): ?>
+    <section id="bq-panel-lecturers" class="bq-tab-panel" role="tabpanel" aria-labelledby="bq-tab-lecturers" <?php if ($hasRunAccess): ?>hidden<?php endif; ?>>
         <section class="bq-runs" aria-labelledby="bq-lecturers-title">
             <h2 id="bq-lecturers-title">Dozentinnenpool</h2>
             <div class="bq-grid">
+                <?php if ($capabilities['pfkPool']): ?>
                 <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
                     <h3>Interne PFK aufnehmen</h3>
                     <input name="kind" type="hidden" value="internal">
@@ -394,9 +389,11 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <input name="email" type="hidden" value="">
                     <label>PFK suchen <input name="nextcloudUid" maxlength="64" required autocomplete="off" list="bq-pfk-candidates" data-pfk-search data-pfk-options="bq-pfk-candidates" data-pfk-status="bq-pfk-search-status" placeholder="Name oder Nextcloud-UID"></label>
                     <datalist id="bq-pfk-candidates"></datalist>
-                    <p id="bq-pfk-search-status" role="status" aria-live="polite">Die Auswahl ist auf Mitglieder der konfigurierten PFK-Gruppe begrenzt.</p>
+                    <p id="bq-pfk-search-status" role="status" aria-live="polite">Die Auswahl ist auf vorhandene Mitglieder der Organigrammrolle Pflegefachkräfte begrenzt.</p>
                     <button type="submit">PFK aufnehmen</button>
                 </form>
+                <?php endif; ?>
+                <?php if ($capabilities['teaching']): ?>
                 <form class="bq-card bq-form" data-endpoint="/api/lecturers" data-method="POST">
                     <h3>Externe Dozentin aufnehmen</h3>
                     <input name="kind" type="hidden" value="external">
@@ -405,6 +402,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                     <label>E-Mail <input name="email" type="email" maxlength="254" required></label>
                     <button type="submit">Dozentin aufnehmen</button>
                 </form>
+                <?php endif; ?>
             </div>
             <?php if ($lecturers === []): ?><p class="bq-empty">Noch keine Dozentinnen im Pool.</p><?php endif; ?>
             <?php if ($lecturers !== []): ?>
@@ -416,6 +414,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                         <td><?php p($lecturerLabel($lecturer)); ?></td>
                         <td><?php p((string)($lecturer['email'] ?? '–')); ?></td>
                         <td>
+                            <?php $canChangeLecturer = ($lecturer['kind'] ?? '') === 'internal' ? $capabilities['pfkPool'] : $capabilities['teaching']; ?>
+                            <?php if ($canChangeLecturer): ?>
                             <form class="bq-inline-form" data-endpoint="/api/lecturers/<?php p((string)$lecturer['id']); ?>/status" data-method="POST">
                                 <input name="version" type="hidden" value="<?php p((string)$lecturer['version']); ?>">
                                 <label><span class="bq-visually-hidden">Dozentinnenstatus für <?php p($lecturerLabel($lecturer)); ?></span>
@@ -426,12 +426,14 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                                 </label>
                                 <button type="submit">Status speichern</button>
                             </form>
+                            <?php else: ?><?php p(($lecturer['active'] ?? false) ? 'Aktiv' : 'Inaktiv'); ?><?php endif; ?>
                         </td>
                     </tr><?php endforeach; ?></tbody>
                 </table></div>
             <?php endif; ?>
         </section>
 
+        <?php if ($capabilities['teaching']): ?>
         <section class="bq-runs" aria-labelledby="bq-requests-title">
             <h2 id="bq-requests-title">Externe Anfragen</h2>
             <?php if ($teachingRequests === []): ?><p class="bq-empty">Noch keine externen Dozentinnen angefragt.</p><?php endif; ?>
@@ -459,6 +461,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
                 </article>
             <?php endforeach; ?>
         </section>
+        <?php endif; ?>
     </section>
     <?php endif; ?>
     <?php endif; ?>

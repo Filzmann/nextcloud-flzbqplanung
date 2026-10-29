@@ -62,8 +62,9 @@ Durchlauf; bestätigte externe Anfragen überschreiben sie nur am jeweiligen
 Modul. Der aktuelle Stand dokumentiert Anfrage, Zusage, Ablehnung und Absage,
 versendet jedoch noch keine E-Mail.
 
-Interne PFKs werden über eine Suche in der administrativ konfigurierten
-Nextcloud-PFK-Gruppe ausgewählt. Die Speicherung prüft Existenz und
+Interne PFKs werden über die feste semantische Organigrammrolle `pfk`
+ausgewählt. Die Speicherung löst deren aktuelle Nextcloud-Gruppe über den
+öffentlichen LocalBase-V1-Snapshot auf und prüft Existenz sowie
 Gruppenmitgliedschaft erneut serverseitig; der dabei angezeigte Nextcloud-Name
 wird nicht zusätzlich im Dozentinnenprofil gespeichert. Profile können
 versionsgesichert zwischen `Aktiv` und `Inaktiv` wechseln. Inaktive Profile
@@ -82,10 +83,19 @@ Die app-lokale Steuerung des temporären Admin-Vollzugriffs ist in einem
 nativen, tastaturbedienbaren Klappbereich gebündelt; Rechte, Auditdaten und
 serverseitige Prüfungen bleiben unverändert app-lokal.
 
-Das granulare Rollenmodell verwendet ausschließlich Nextcloud-Gruppen für
-Planung, Lehre und Veröffentlichung. Nicht konfigurierte Rollen bleiben
-deaktiviert. Native Nextcloud-Administrierende konfigurieren den technischen
-Adminbereich, erhalten fachlichen Vollzugriff jedoch nur über eine app-lokale,
+Das granulare Modell trennt die vier Berechtigungen Planung, Lehre,
+Veröffentlichung und Verwaltung des internen PFK-Pools von der
+Organisationszugehörigkeit. Im Nextcloud-Adminbereich werden je Berechtigung
+stabile Rollen-Keys aus dem LocalBase-Organigramm gewählt. Standardmäßig ist
+jeweils nur die stellvertretende PDL aktiviert; PDL und PFK können einzeln
+hinzugenommen werden. Die aktuellen Nextcloud-Gruppen werden erst beim Zugriff
+aus dem öffentlichen V1-Snapshot aufgelöst. Fehlende oder ungültige Snapshots,
+fehlende Gruppen und unbekannte Rollen erteilen kein Recht. Die Eignung als
+interne PFK bleibt unabhängig von diesen Aktionsrechten fest an `pfk`
+gebunden. Ein ausschließlich für den internen PFK-Pool berechtigtes Konto
+erhält keine Durchlaufdaten, externen Profile, Kontaktdaten oder Anfragen.
+Native Nextcloud-Administrierende erhalten fachlichen Vollzugriff
+weiterhin nur über eine app-lokale,
 UID-genaue Freigabe von höchstens 24 Stunden. Beginn, geplantes Ende und
 Widerruf werden protokolliert. Ausschließlich Mitglieder der nativen Gruppe
 `Datenschutzbeauftragte` können in der BQ-Fachoberfläche die Historie lesen
@@ -97,7 +107,8 @@ unzulässige Aktionen aus, während jeder API-Pfad die Fähigkeit zusätzlich
 serverseitig prüft. Eine Anwesenheitsrolle wird erst mit den zugehörigen
 Fachfunktionen aktiviert.
 
-Der PermissionProvider weist konfigurierte Rollengruppen und die kombinierte
+Der PermissionProvider weist die wirksamen Gruppenprojektionen der vier
+semantischen Rollenzuordnungen und die kombinierte
 Bedingung aus nativer Administration plus aktiver App-Freigabe getrennt aus.
 Der PersonalDataProvider umfasst die eigene Rolle in der Freigabehistorie,
 ohne Kennungen anderer beteiligter Personen offenzulegen. Externe
