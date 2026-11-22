@@ -28,3 +28,8 @@ erledigte Änderungen in `CHANGELOG.md` und geltende Architektur in
      Bis zu diesem Ausführungsnachweis gibt es keine automatische Löschung.
 5. Bundle-Freigabe erst nach grünen Release-, Datenschutz-, Rechte-,
    Integrations- und Staging-Nachweisen erteilen.
+6. Den öffentlichen Organisations-V1-Consumer in Nextcloud mit installiertem,
+   deaktiviertem, entferntem und erneut installiertem `flz_organization`
+   prüfen. Nur ein aktiver, kompatibler und gültiger Snapshot darf
+   Organigrammrollen auf Nextcloud-Gruppen projizieren; alle anderen Zustände
+   müssen ohne Rechtegewinn sichtbar fail-closed bleiben.

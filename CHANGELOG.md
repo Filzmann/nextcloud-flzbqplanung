@@ -7,9 +7,16 @@
   einzeln den semantischen Organigrammrollen stellvertretende PDL, PDL und PFK
   zugeordnet. Alle vier Berechtigungen liegen standardmäßig bei der
   stellvertretenden PDL. Die Gruppenauflösung erfolgt fail-closed über den
-  LocalBase-V1-Snapshot; interne PFK-Eignung bleibt unabhängig an `pfk`
-  gebunden und Pool-only-Zugriff legt weder Durchlaufdaten noch externe
-  Profile oder Kontaktdaten offen.
+  öffentlichen V1-Organisations-Snapshot von flz_organization ohne zweite
+  LocalBase-Organisationsquelle;
+  interne PFK-Eignung bleibt unabhängig an `pfk` gebunden und Pool-only-Zugriff
+  legt weder Durchlaufdaten noch externe Profile oder Kontaktdaten offen.
+- Der aktuelle Organisations-Snapshot wurde in DDEV als gültig mit 20 Rollen
+  geprüft. Ein nachträglicher Regressionstest gegen die ältere, zuvor gestagte
+  Quelle reproduzierte deren LocalBase-Fallback bei inkompatiblem Provider;
+  die aktuelle Quelle besteht den Test ohne Fallback. Der ursprüngliche
+  zeitliche TDD-Ablauf ist nicht belegt. Deaktivierungs-, Entfernungs- und
+  Reinstall-Verhalten bleibt gemäß ROADMAP offen.
 - Die Nacharbeit aus der manuellen Staging-Abnahme zeigt Ferien-, Feiertags-
   und BQ-Sperrtagsquellen einzeln an, begrenzt interne PFK-Auswahl auf die
   semantische Organigrammrolle Pflegefachkräfte, macht den versionsgesicherten

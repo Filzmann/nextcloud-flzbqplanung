@@ -33,7 +33,8 @@ for (const roleField of ['planningRoles[]', 'teachingRoles[]', 'publishingRoles[
     assert.equal(template.includes(roleField), false)
 }
 assert.match(adminTemplate, /Keine der Rollen erhält automatisch eine andere Berechtigung/)
-assert.match(adminTemplate, /LocalBase-Organigramm/)
+assert.match(adminTemplate, /flz_organization/)
+assert.doesNotMatch(adminTemplate, /LocalBase-Organigramm/)
 assert.match(adminSettingsScript, /permission_roles|planningRoles|pfkPoolRoles/)
 assert.match(template, /data-pfk-search/)
 assert.match(template, /data-pfk-options/)

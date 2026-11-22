@@ -64,7 +64,7 @@ versendet jedoch noch keine E-Mail.
 
 Interne PFKs werden über die feste semantische Organigrammrolle `pfk`
 ausgewählt. Die Speicherung löst deren aktuelle Nextcloud-Gruppe über den
-öffentlichen LocalBase-V1-Snapshot auf und prüft Existenz sowie
+öffentlichen V1-Snapshot von `flz_organization` auf und prüft Existenz sowie
 Gruppenmitgliedschaft erneut serverseitig; der dabei angezeigte Nextcloud-Name
 wird nicht zusätzlich im Dozentinnenprofil gespeichert. Profile können
 versionsgesichert zwischen `Aktiv` und `Inaktiv` wechseln. Inaktive Profile
@@ -86,10 +86,11 @@ serverseitige Prüfungen bleiben unverändert app-lokal.
 Das granulare Modell trennt die vier Berechtigungen Planung, Lehre,
 Veröffentlichung und Verwaltung des internen PFK-Pools von der
 Organisationszugehörigkeit. Im Nextcloud-Adminbereich werden je Berechtigung
-stabile Rollen-Keys aus dem LocalBase-Organigramm gewählt. Standardmäßig ist
+stabile Rollen-Keys aus dem Organigramm von `flz_organization` gewählt. Standardmäßig ist
 jeweils nur die stellvertretende PDL aktiviert; PDL und PFK können einzeln
 hinzugenommen werden. Die aktuellen Nextcloud-Gruppen werden erst beim Zugriff
-aus dem öffentlichen V1-Snapshot aufgelöst. Fehlende oder ungültige Snapshots,
+aus dessen öffentlichem V1-Snapshot aufgelöst. LocalBase ist keine zweite
+Organisationsquelle. Fehlende oder ungültige Snapshots,
 fehlende Gruppen und unbekannte Rollen erteilen kein Recht. Die Eignung als
 interne PFK bleibt unabhängig von diesen Aktionsrechten fest an `pfk`
 gebunden. Ein ausschließlich für den internen PFK-Pool berechtigtes Konto

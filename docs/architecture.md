@@ -23,7 +23,8 @@ Eignungsentscheidungen und Teilnehmerzuordnungen.
   Kontaktadresse; interne PFKs werden über geprüfte Nextcloud-UIDs
   referenziert. Auswahl und Speicherung sind auf Mitglieder der semantischen
   Organigrammrolle `pfk` begrenzt; ihre aktuelle Nextcloud-Gruppe wird aus dem
-  öffentlichen LocalBase-V1-Snapshot aufgelöst. Der Such-Anzeigename wird nicht zusätzlich im
+  öffentlichen V1-Snapshot von `flz_organization` aufgelöst. Der
+  Such-Anzeigename wird nicht zusätzlich im
   Profil persistiert. Inaktivsetzen erhält bestehende Lehrbezüge, verhindert
   aber neue Zuordnungen.
 - Eine spätere Recruitment-Anbindung verwendet ausschließlich einen kleinen,
@@ -35,8 +36,9 @@ Planung, Lehre, Veröffentlichung und Verwaltung des internen PFK-Pools sind
 getrennte serverseitige Fähigkeiten. Die AppConfig speichert dafür nur die
 semantischen Rollen-Keys `deputy_pdl`, `pdl` und `pfk`; standardmäßig ist jede
 Fähigkeit `deputy_pdl` zugeordnet. PDL und PFK werden ausschließlich je
-Fähigkeit explizit aktiviert. Der öffentliche LocalBase-V1-Snapshot ist die
-kanonische Quelle für die aktuellen Gruppen-IDs. Ungültige oder fehlende
+Fähigkeit explizit aktiviert. Der öffentliche V1-Snapshot von
+`flz_organization` ist die kanonische Quelle für die aktuellen Gruppen-IDs;
+LocalBase ist keine zweite Organisationsquelle. Ungültige oder fehlende
 Snapshots, fehlende Gruppen und manipulierte Rollen bleiben ohne Wirkung. Die
 Eignung als interne PFK ist davon getrennt und erfordert stets die Rolle
 `pfk`. Die Zuordnung wird ausschließlich im Nextcloud-Adminbereich geändert.

@@ -32,7 +32,7 @@ final class OrganizationRolePolicy {
             return $this->providerFailure($error);
         }
         if ($snapshot === null) {
-            return $this->unavailable('LocalBase stellt derzeit kein Organigramm bereit. BQ-Berechtigungen bleiben deaktiviert.');
+            return $this->unavailable('Die Organisations-App stellt derzeit kein Organigramm bereit. BQ-Berechtigungen bleiben deaktiviert.');
         }
         if (($snapshot['contractVersion'] ?? null) !== '1.0' || ($snapshot['valid'] ?? null) !== true) {
             return $this->unavailable('Das Organigramm ist ungültig oder inkompatibel. BQ-Berechtigungen bleiben deaktiviert.');

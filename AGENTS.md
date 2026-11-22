@@ -78,10 +78,11 @@ beim direkten Öffnen dieses App-Repositories.
 - Rechte gelten deny by default und werden serverseitig geprüft. Planung,
   Lehre, Veröffentlichung und Verwaltung des internen PFK-Pools sind vier
   getrennte, app-lokale Fähigkeiten. Im Nextcloud-Adminbereich werden ihnen
-  ausschließlich die stabilen LocalBase-Organigrammrollen `deputy_pdl`, `pdl`
+  ausschließlich die stabilen Organigrammrollen `deputy_pdl`, `pdl`
   und `pfk` zugeordnet; standardmäßig ist jeweils nur `deputy_pdl` aktiv. Die
   aktuellen Nextcloud-Gruppen werden beim Zugriff aus dem öffentlichen
-  LocalBase-V1-Organisationssnapshot aufgelöst. Ein fehlender oder ungültiger
+  V1-Organisationssnapshot von `flz_organization` aufgelöst. LocalBase ist
+  dafür keine zweite Organisationsquelle. Ein fehlender oder ungültiger
   Snapshot, eine fehlende Gruppe oder ein unbekannter Rollenschlüssel erteilt
   kein Recht. Die fachliche Eignung als interne PFK bleibt unabhängig davon
   fest an die semantische Rolle `pfk` gebunden. Native

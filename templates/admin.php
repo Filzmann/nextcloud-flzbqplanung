@@ -20,7 +20,7 @@ $permissionSections = [
 ?>
 <section id="flz-bq-admin" class="section bq-card" aria-labelledby="flz-bq-admin-heading">
     <h2 id="flz-bq-admin-heading">Filzmann BQ-Planer</h2>
-    <p>Hier ordnest du die vier fachlichen BQ-Berechtigungen den passenden Organigrammrollen zu. Gruppen werden nicht als Berechtigungen gespeichert; ihre aktuellen Nextcloud-IDs werden aus dem LocalBase-Organigramm ermittelt.</p>
+    <p>Hier ordnest du die vier fachlichen BQ-Berechtigungen den passenden Organigrammrollen zu. Gruppen werden nicht als Berechtigungen gespeichert; ihre aktuellen Nextcloud-IDs werden aus dem öffentlichen V1-Vertrag von flz_organization ermittelt.</p>
     <p><strong>Standard:</strong> Die Stellvertretende Pflegedienstleitung erhält alle vier Berechtigungen. Pflegedienstleitung und Pflegefachkräfte können je Berechtigung zusätzlich ausgewählt werden. Keine der Rollen erhält automatisch eine andere Berechtigung.</p>
 
     <?php if (!$canConfigure): ?>
