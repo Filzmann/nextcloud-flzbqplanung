@@ -18,6 +18,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IL10N;
 
 final class PageController extends Controller {
     public function __construct(

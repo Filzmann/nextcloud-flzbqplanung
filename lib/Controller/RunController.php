@@ -17,6 +17,7 @@ use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use OCP\IL10N;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -28,8 +29,15 @@ final class RunController extends Controller {
         private PlanningSettingsService $settingsService,
         private AuthorizationService $authorization,
         private LoggerInterface $logger,
+        private ?IL10N $l10n = null
     ) {
         parent::__construct(Application::APP_ID, $request);
+    }
+
+    /** Lokalisierung fachlicher Texte; im Test ohne IL10N identity. */
+    private function t(string $text): string
+    {
+        return $this->l10n?->t($text) ?? $text;
     }
 
     #[NoAdminRequired, NoCSRFRequired]
@@ -191,15 +199,15 @@ final class RunController extends Controller {
         try {
             return new JSONResponse(['data' => $this->authorization->execute($capability, $callback)]);
         } catch (AccessDeniedException $error) {
-            return new JSONResponse(['error' => $error->getMessage()], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['error' => $this->t($error->getMessage())], Http::STATUS_FORBIDDEN);
         } catch (DomainException $error) {
-            return new JSONResponse(['error' => $error->getMessage()], 422);
+            return new JSONResponse(['error' => $this->t($error->getMessage())], 422);
         } catch (Throwable $error) {
             $this->logger->error('Unexpected BQ planning failure.', [
                 'app' => Application::APP_ID,
                 'exceptionClass' => $error::class,
             ]);
-            return new JSONResponse(['error' => 'Die BQ-Planung konnte nicht verarbeitet werden.'], 500);
+            return new JSONResponse(['error' => $this->t('Die BQ-Planung konnte nicht verarbeitet werden.')], 500);
         }
     }
 }

@@ -1,3 +1,4 @@
+const translate = typeof t === 'function' ? t : (_app, text, params) => Object.entries(params || {}).reduce((s, [k, v]) => s.split('{' + k + '}').join(String(v)), text)
 document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('flzbqplanung-app')
     const feedback = document.getElementById('bq-feedback')
@@ -136,12 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = document.getElementById(input.dataset.pfkStatus)
         const search = async () => {
             const query = String(input.value || '').trim()
-            if (status) status.textContent = 'Mitglieder der Organigrammrolle Pflegefachkräfte werden gesucht …'
+            if (status) status.textContent = translate('flzbqplanung', 'Mitglieder der Organigrammrolle Pflegefachkräfte werden gesucht …')
             try {
                 const url = OC.generateUrl('/apps/flzbqplanung/api/internal-pfk-members')
                 const response = await fetch(`${url}?search=${encodeURIComponent(query)}`)
                 const result = await response.json()
-                if (!response.ok) throw new Error(result.error || 'Die PFK-Suche ist nicht verfügbar.')
+                if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Die PFK-Suche ist nicht verfügbar.'))
                 const candidates = Array.isArray(result.data) ? result.data : []
                 const entries = candidates.map(candidate => {
                     const option = document.createElement('option')
@@ -153,11 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 options?.replaceChildren(...entries)
                 if (status) status.textContent = candidates.length === 0
-                    ? 'Keine passenden Mitglieder der Organigrammrolle Pflegefachkräfte gefunden.'
+                    ? translate('flzbqplanung', 'Keine passenden Mitglieder der Organigrammrolle Pflegefachkräfte gefunden.')
                     : `${candidates.length} passende PFK-Auswahlmöglichkeiten gefunden.`
             } catch (error) {
                 options?.replaceChildren()
-                if (status) status.textContent = error instanceof Error ? error.message : 'Die PFK-Suche ist nicht verfügbar.'
+                if (status) status.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Die PFK-Suche ist nicht verfügbar.')
             }
         }
         input.addEventListener('input', search)
@@ -171,27 +172,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const value = String(new FormData(form).get('proposalMonth') || '')
             const match = /^(\d{4})-(\d{2})$/.exec(value)
             if (!match) {
-                if (proposalResult) proposalResult.textContent = 'Bitte einen gültigen Planungsmonat auswählen.'
+                if (proposalResult) proposalResult.textContent = translate('flzbqplanung', 'Bitte einen gültigen Planungsmonat auswählen.')
                 return
             }
-            if (proposalResult) proposalResult.textContent = 'Ferien, Feiertage und Brückentage werden geprüft …'
+            if (proposalResult) proposalResult.textContent = translate('flzbqplanung', 'Ferien, Feiertage und Brückentage werden geprüft …')
             renderCalendarSources([])
             try {
                 const url = OC.generateUrl('/apps/flzbqplanung/api/proposals')
                 const response = await fetch(`${url}?year=${Number(match[1])}&month=${Number(match[2])}`)
                 const result = await response.json()
-                if (!response.ok) throw new Error(result.error || 'Der Terminvorschlag konnte nicht erstellt werden.')
+                if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Der Terminvorschlag konnte nicht erstellt werden.'))
                 const proposal = result.data?.proposal
                 const calendar = result.data?.calendar
                 renderCalendarSources(calendar?.sources)
                 if (!proposal) {
-                    if (proposalResult) proposalResult.textContent = calendar?.message || 'Die Kalenderquelle ist nicht vollständig verfügbar.'
+                    if (proposalResult) proposalResult.textContent = calendar?.message || translate('flzbqplanung', 'Die Kalenderquelle ist nicht vollständig verfügbar.')
                     return
                 }
-                const prefix = calendar?.complete ? 'Kalender vollständig geprüft.' : 'Kalenderstand eingeschränkt.'
+                const prefix = calendar?.complete ? translate('flzbqplanung', 'Kalender vollständig geprüft.') : translate('flzbqplanung', 'Kalenderstand eingeschränkt.')
                 if (proposalResult) proposalResult.textContent = `${prefix} Vorschlag: ${proposal.startsOn} bis ${proposal.endsOn}. ${calendar?.message || ''}`
             } catch (error) {
-                if (proposalResult) proposalResult.textContent = error instanceof Error ? error.message : 'Der Terminvorschlag konnte nicht erstellt werden.'
+                if (proposalResult) proposalResult.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Der Terminvorschlag konnte nicht erstellt werden.')
             }
             return
         }
@@ -199,15 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault()
             const year = Number(new FormData(form).get('proposalYear'))
             if (!Number.isInteger(year) || year < 2000 || year > 2200) {
-                if (yearProposalStatus) yearProposalStatus.textContent = 'Bitte ein gültiges Planungsjahr zwischen 2000 und 2200 eingeben.'
+                if (yearProposalStatus) yearProposalStatus.textContent = translate('flzbqplanung', 'Bitte ein gültiges Planungsjahr zwischen 2000 und 2200 eingeben.')
                 return
             }
-            if (yearProposalStatus) yearProposalStatus.textContent = 'Alle zwölf Monate werden geprüft …'
+            if (yearProposalStatus) yearProposalStatus.textContent = translate('flzbqplanung', 'Alle zwölf Monate werden geprüft …')
             try {
                 const url = OC.generateUrl('/apps/flzbqplanung/api/proposals/year')
                 const response = await fetch(`${url}?year=${year}`)
                 const result = await response.json()
-                if (!response.ok) throw new Error(result.error || 'Die Jahresvorschau konnte nicht erstellt werden.')
+                if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Die Jahresvorschau konnte nicht erstellt werden.'))
                 const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
                 const rows = result.data.map(month => {
                     const row = document.createElement('tr')
@@ -217,21 +218,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const proposalCell = document.createElement('td')
                     proposalCell.textContent = month.proposal
                         ? `${month.proposal.startsOn} bis ${month.proposal.endsOn}`
-                        : 'Kein automatischer Vorschlag'
+                        : translate('flzbqplanung', 'Kein automatischer Vorschlag')
                     const statusCell = document.createElement('td')
                     const sourceText = (month.calendar?.sources || [])
                         .map(source => `${source.label}: ${sourceStatusLabel(source)}`)
                         .join('; ')
                     if (!month.proposal) {
-                        const reason = month.error || month.calendar?.message || 'Kalenderquelle nicht vollständig.'
+                        const reason = month.error || month.calendar?.message || translate('flzbqplanung', 'Kalenderquelle nicht vollständig.')
                         statusCell.textContent = sourceText === '' ? reason : `${reason} ${sourceText}`
                     } else {
                         const rejected = month.proposal.rejectedCandidates || []
                         const labels = [...new Set(rejected.flatMap(candidate => candidate.conflicts || []).map(conflict => conflict.label))]
                         const conflictText = rejected.length === 0
-                            ? 'Keine verworfenen Starttermine.'
+                            ? translate('flzbqplanung', 'Keine verworfenen Starttermine.')
                             : `${rejected.length} verworfene Starttermine${labels.length > 0 ? `: ${labels.join(', ')}` : '.'}`
-                        const coverage = month.calendar?.complete ? 'Kalender vollständig.' : 'Kalenderstand eingeschränkt.'
+                        const coverage = month.calendar?.complete ? translate('flzbqplanung', 'Kalender vollständig.') : translate('flzbqplanung', 'Kalenderstand eingeschränkt.')
                         statusCell.textContent = `${coverage} ${conflictText}${sourceText === '' ? '' : ` ${sourceText}`}`
                     }
                     row.append(monthCell, proposalCell, statusCell)
@@ -240,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (yearProposalRows) yearProposalRows.replaceChildren(...rows)
                 if (yearProposalStatus) yearProposalStatus.textContent = `Jahresvorschau ${year} mit ${rows.length} Monaten erstellt.`
             } catch (error) {
-                if (yearProposalStatus) yearProposalStatus.textContent = error instanceof Error ? error.message : 'Die Jahresvorschau konnte nicht erstellt werden.'
+                if (yearProposalStatus) yearProposalStatus.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Die Jahresvorschau konnte nicht erstellt werden.')
             }
             return
         }
@@ -278,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (feedback) {
-            feedback.textContent = 'Änderung wird gespeichert …'
+            feedback.textContent = translate('flzbqplanung', 'Änderung wird gespeichert …')
             feedback.dataset.state = 'pending'
         }
         try {
@@ -291,11 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             })
             const result = await response.json()
-            if (!response.ok) throw new Error(result.error || 'Die Änderung konnte nicht gespeichert werden.')
+            if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Die Änderung konnte nicht gespeichert werden.'))
             location.reload()
         } catch (error) {
             if (feedback) {
-                feedback.textContent = error instanceof Error ? error.message : 'Die Änderung konnte nicht gespeichert werden.'
+                feedback.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Die Änderung konnte nicht gespeichert werden.')
                 feedback.dataset.state = 'error'
             }
         }

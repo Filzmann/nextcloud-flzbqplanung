@@ -16,6 +16,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
+use OCP\IL10N;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -26,8 +27,15 @@ final class CurriculumTemplateController extends Controller {
         private CurriculumTemplateService $service,
         private AuthorizationService $authorization,
         private LoggerInterface $logger,
+        private ?IL10N $l10n = null
     ) {
         parent::__construct(Application::APP_ID, $request);
+    }
+
+    /** Lokalisierung fachlicher Texte; im Test ohne IL10N identity. */
+    private function t(string $text): string
+    {
+        return $this->l10n?->t($text) ?? $text;
     }
 
     #[NoAdminRequired, NoCSRFRequired]
@@ -53,15 +61,15 @@ final class CurriculumTemplateController extends Controller {
                 'data' => $this->authorization->execute(AuthorizationService::PLANNING, $callback),
             ]);
         } catch (AccessDeniedException $error) {
-            return new JSONResponse(['error' => $error->getMessage()], Http::STATUS_FORBIDDEN);
+            return new JSONResponse(['error' => $this->t($error->getMessage())], Http::STATUS_FORBIDDEN);
         } catch (DomainException $error) {
-            return new JSONResponse(['error' => $error->getMessage()], 422);
+            return new JSONResponse(['error' => $this->t($error->getMessage())], 422);
         } catch (Throwable $error) {
             $this->logger->error('Unexpected BQ curriculum-template failure.', [
                 'app' => Application::APP_ID,
                 'exceptionClass' => $error::class,
             ]);
-            return new JSONResponse(['error' => 'Die Curriculum-Vorlage konnte nicht verarbeitet werden.'], 500);
+            return new JSONResponse(['error' => $this->t('Die Curriculum-Vorlage konnte nicht verarbeitet werden.')], 500);
         }
     }
 }

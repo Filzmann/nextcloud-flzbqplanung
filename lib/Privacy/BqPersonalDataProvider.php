@@ -20,7 +20,7 @@ final class BqPersonalDataProvider implements PersonalDataProvider {
 
     public function collect(PersonalDataRequest $request): PersonalDataPage {
         if ($request->subject()->subjectType() !== 'nextcloud-user') return new PersonalDataPage('not_applicable');
-        if ($request->cursor() !== null) throw new InvalidArgumentException('Filzmann BQ-Planer does not support cursor paging.');
+        if ($request->cursor() !== null) throw new InvalidArgumentException('Filzmann BQ-Planer unterstützt kein Cursor-Paging.');
         $rows = $this->source->forSubject($request->subject()->subjectId(), $request->pageLimit() + 1);
         $limited = count($rows) > $request->pageLimit();
         if ($limited) $rows = array_slice($rows, 0, $request->pageLimit());

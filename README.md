@@ -148,6 +148,7 @@ Lokale URL nach gesondert freizugebender Aktivierung:
 
 - [Architektur](docs/architecture.md)
 - [Datenschutz](PRIVACY.md)
+- [Lokalisierungsinventar](docs/l10n-inventory.md)
 - [Manuelle Abnahme](docs/manual-acceptance.md)
 - [Roadmap](ROADMAP.md)
 - [Changelog](CHANGELOG.md)

@@ -19,12 +19,12 @@ $permissionSections = [
 ];
 ?>
 <section id="flz-bq-admin" class="section bq-card" aria-labelledby="flz-bq-admin-heading">
-    <h2 id="flz-bq-admin-heading">Filzmann BQ-Planer</h2>
-    <p>Hier ordnest du die vier fachlichen BQ-Berechtigungen den passenden Organigrammrollen zu. Gruppen werden nicht als Berechtigungen gespeichert; ihre aktuellen Nextcloud-IDs werden aus dem öffentlichen V1-Vertrag von flz_organization ermittelt.</p>
-    <p><strong>Standard:</strong> Die Stellvertretende Pflegedienstleitung erhält alle vier Berechtigungen. Pflegedienstleitung und Pflegefachkräfte können je Berechtigung zusätzlich ausgewählt werden. Keine der Rollen erhält automatisch eine andere Berechtigung.</p>
+    <h2 id="flz-bq-admin-heading"><?php p($l->t('Filzmann BQ-Planer')); ?></h2>
+    <p><?php p($l->t('Hier ordnest du die vier fachlichen BQ-Berechtigungen den passenden Organigrammrollen zu. Gruppen werden nicht als Berechtigungen gespeichert; ihre aktuellen Nextcloud-IDs werden aus dem öffentlichen V1-Vertrag von flz_organization ermittelt.')); ?></p>
+    <p><strong><?php p($l->t('Standard:')); ?></strong><?php p($l->t(' Die Stellvertretende Pflegedienstleitung erhält alle vier Berechtigungen. Pflegedienstleitung und Pflegefachkräfte können je Berechtigung zusätzlich ausgewählt werden. Keine der Rollen erhält automatisch eine andere Berechtigung.')); ?></p>
 
     <?php if (!$canConfigure): ?>
-        <p role="alert">Für Änderungen ist zusätzlich zur Nextcloud-Administration ein aktiver, zeitlich begrenzter BQ-Admin-Vollzugriff erforderlich.</p>
+        <p role="alert"><?php p($l->t('Für Änderungen ist zusätzlich zur Nextcloud-Administration ein aktiver, zeitlich begrenzter BQ-Admin-Vollzugriff erforderlich.')); ?></p>
     <?php else: ?>
         <?php if (($selection['message'] ?? '') !== ''): ?>
             <p role="alert"><?php p((string)$selection['message']); ?></p>
@@ -54,7 +54,7 @@ $permissionSections = [
                     <?php endforeach; ?>
                 </fieldset>
             <?php endforeach; ?>
-            <button type="submit" class="primary" <?php if (!($selection['available'] ?? false)): ?>disabled<?php endif; ?>>Berechtigungen speichern</button>
+            <button type="submit" class="primary" <?php if (!($selection['available'] ?? false)): ?>disabled<?php endif; ?>><?php p($l->t('Berechtigungen speichern')); ?></button>
             <p id="flz-bq-permission-settings-status" role="status" aria-live="polite"></p>
         </form>
     <?php endif; ?>
