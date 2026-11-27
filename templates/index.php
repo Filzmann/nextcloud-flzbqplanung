@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use OCA\FlzBqPlanning\AppInfo\Application;
 
+script(Application::APP_ID, 'shared/overlay');
 script(Application::APP_ID, 'admin-access');
 if ($_['hasBqAccess'] ?? false) {
     script(Application::APP_ID, 'main');
@@ -48,7 +49,7 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     <div class="orgsuite-host" data-orgsuite data-suite="flz" data-current-app="flzbqplanung"></div>
     <header class="bq-hero">
         <p class="bq-eyebrow">Basisqualifizierung</p>
-        <div class="bq-title-row"><h1 id="bq-page-title">BQ-Planer</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><details class="bq-admin-grant-warning"><summary aria-label="Informationen zum fehlenden fachlichen Admin-Vollzugriff"><span aria-hidden="true">⚠</span></summary><div class="bq-admin-grant-warning__details"><p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p><p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p><p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p><?php if ($_['showAdminAccessLink'] ?? false): ?><p><a href="#flz-bq-full-access" target="_blank" rel="noopener">Freigabesteuerung in neuem Tab öffnen</a></p><?php endif; ?></div></details><?php endif; ?></div>
+        <div class="bq-title-row"><h1 id="bq-page-title">BQ-Planer</h1><?php if ($_['showMissingAdminGrant'] ?? false): ?><button type="button" id="bq-admin-grant-warning" class="flz-shared-warn-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="flz-bq-admin-access-overlay" aria-label="Fehlender fachlicher Admin-Vollzugriff: Freigabesteuerung im Overlay öffnen"><span aria-hidden="true">⚠</span></button><?php endif; ?></div>
         <p>Termine, Curriculum, Dozentinnen und Praxisreflexionen verlässlich vorbereiten.</p>
     </header>
 
@@ -57,25 +58,8 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
     <?php if ($_['showMissingAdminGrant'] ?? false): ?>
         <aside hidden class="bq-access-notice" role="status">
             <strong>Für dieses Administrationskonto ist kein zeitlich begrenzter fachlicher Vollzugriff aktiv.</strong>
-            <?php if ($_['showAdminAccessLink'] ?? false): ?><a href="#flz-bq-full-access-heading">Freigabesteuerung öffnen</a><?php endif; ?>
+            <?php if ($_['showAdminAccessLink'] ?? false): ?><button type="button" data-open-admin-access>Freigabesteuerung öffnen</button><?php endif; ?>
         </aside>
-    <?php endif; ?>
-
-    <?php if ($_['canManageAdminAccess'] ?? false): ?>
-        <details id="flz-bq-full-access" class="bq-card bq-access-card" <?php if ($_['showAdminAccessLink'] ?? false): ?>open<?php endif; ?>>
-            <summary id="flz-bq-full-access-heading">Zeitlich begrenzten Admin-Vollzugriff verwalten</summary>
-            <div class="bq-access-card__content">
-            <p>Ausschließlich Mitglieder der Gruppe Datenschutzbeauftragte dürfen aktuellen Nextcloud-Administrationskonten fachlichen Vollzugriff erteilen. Maximal 24 Stunden sind zulässig.</p>
-            <form id="flz-bq-full-access-form" class="bq-form">
-                <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
-                <label>Dauer <select name="durationMinutes" required><option value="60">1 Stunde</option><option value="240">4 Stunden</option><option value="480">8 Stunden</option><option value="1440">24 Stunden</option></select></label>
-                <label><input id="flz-bq-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
-                <button type="submit" class="primary">Freigabe aktivieren</button>
-            </form>
-            <p id="flz-bq-full-access-status" role="status" aria-live="polite"></p>
-            <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="flz-bq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
-            </div>
-        </details>
     <?php endif; ?>
 
     <?php if ($hasBqAccess): ?>
@@ -464,5 +448,41 @@ $requestStatusNames = ['requested' => 'Angefragt', 'confirmed' => 'Zugesagt', 'd
         <?php endif; ?>
     </section>
     <?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (($_['showMissingAdminGrant'] ?? false) || ($_['canManageAdminAccess'] ?? false)): ?>
+    <div id="flz-bq-admin-access-overlay" class="flz-shared-overlay" hidden>
+        <div class="flz-shared-overlay__panel" role="dialog" aria-modal="true" aria-labelledby="flz-bq-admin-access-overlay-title">
+            <div class="flz-shared-overlay__head">
+                <h2 id="flz-bq-admin-access-overlay-title">Zeitlich begrenzter Admin-Vollzugriff</h2>
+                <button type="button" id="flz-bq-admin-access-overlay-close" aria-label="Schließen" title="Schließen">×</button>
+            </div>
+            <div class="flz-shared-overlay__content">
+                <?php if ($_['showMissingAdminGrant'] ?? false): ?>
+                    <div class="flz-shared-overlay__warning">
+                        <p><strong>Kein fachlicher Admin-Vollzugriff.</strong></p>
+                        <p>Native Nextcloud-Administration erteilt keinen fachlichen Vollzugriff. Es fehlt eine aktive app-lokale Freigabe.</p>
+                        <p>Freigaben können ausschließlich Mitglieder von Datenschutzbeauftragte erteilen oder widerrufen, höchstens für 24 Stunden.</p>
+                    </div>
+                <?php endif; ?>
+                <?php if ($_['canManageAdminAccess'] ?? false): ?>
+                    <section id="flz-bq-full-access" class="bq-card bq-access-card" aria-labelledby="flz-bq-full-access-heading">
+                        <h2 id="flz-bq-full-access-heading">Freigabesteuerung</h2>
+                        <div class="bq-access-card__content">
+                        <p>Ausschließlich Mitglieder der Gruppe Datenschutzbeauftragte dürfen aktuellen Nextcloud-Administrationskonten fachlichen Vollzugriff erteilen. Maximal 24 Stunden sind zulässig.</p>
+                        <form id="flz-bq-full-access-form" class="bq-form">
+                            <label>Admin-Benutzerkennung <input name="targetUid" required maxlength="64" autocomplete="off"></label>
+                            <label>Dauer <select name="durationMinutes" required><option value="60">1 Stunde</option><option value="240">4 Stunden</option><option value="480">8 Stunden</option><option value="1440">24 Stunden</option></select></label>
+                            <label><input id="flz-bq-full-access-enabled" name="enabled" type="checkbox" required> Vollzugriff für diesen Zeitraum aktivieren</label>
+                            <button type="submit" class="primary">Freigabe aktivieren</button>
+                        </form>
+                        <p id="flz-bq-full-access-status" role="status" aria-live="polite"></p>
+                        <div class="bq-table-wrap" tabindex="0" role="region" aria-label="Protokollierte Admin-Vollzugriffszeiträume"><table><caption>Protokollierte Admin-Vollzugriffszeiträume</caption><thead><tr><th>Ziel-Admin</th><th>Freigegeben von</th><th>Von</th><th>Geplant bis</th><th>Tatsächlich bis / Status</th><th>Aktion</th></tr></thead><tbody id="flz-bq-full-access-history"><tr><td colspan="6">Freigaben werden geladen.</td></tr></tbody></table></div>
+                        </div>
+                    </section>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
     <?php endif; ?>
 </main>

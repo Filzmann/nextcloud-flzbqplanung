@@ -520,6 +520,7 @@ assert.deepEqual(JSON.parse(requests.at(-1).options.body), {
 })
 
 await import('./admin-access-smoke.mjs')
+await import('./shared-bundle-runtime-smoke.mjs')
 await import('./admin-settings-smoke.mjs')
 
 console.log('Filzmann BQ-Planer JavaScript/UI contracts passed')
