@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             })
             const result = await response.json()
-            if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Die BQ-Berechtigungen konnten nicht gespeichert werden.'))
-            if (status) status.textContent = translate('flzbqplanung', 'Die BQ-Berechtigungen wurden gespeichert.')
+            if (!response.ok) throw new Error(result.error || translate('flzbqplanung', 'Die Berechtigungszuordnung konnte nicht gespeichert werden.'))
+            if (status) status.textContent = translate('flzbqplanung', 'Die Berechtigungszuordnung wurde gespeichert.')
         } catch (error) {
-            if (status) status.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Die BQ-Berechtigungen konnten nicht gespeichert werden.')
+            if (status) status.textContent = error instanceof Error ? error.message : translate('flzbqplanung', 'Die Berechtigungszuordnung konnte nicht gespeichert werden.')
         }
     })
 })

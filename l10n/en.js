@@ -1,6 +1,13 @@
 OC.L10N.register(
     "flzbqplanung",
     {
+    "Berechtigungsmatrix" : "Permission matrix",
+    "Berechtigung" : "Permission",
+    "%1$s: %2$s" : "%1$s: %2$s",
+    "Gruppe fehlt" : "Group missing",
+    "Hier ordnest du die vier fachlichen BQ-Berechtigungen den passenden Organigrammrollen zu. Die Berechtigungsmatrix zeigt Berechtigungen als Zeilen und Organigrammrollen als Spalten. Gruppen werden nicht als Berechtigungen gespeichert; ihre aktuellen Nextcloud-IDs werden aus dem öffentlichen V1-Vertrag von flz_organization ermittelt." : "Here you assign the four domain BQ permissions to the appropriate organization chart roles. The permission matrix shows permissions as rows and organization chart roles as columns. Groups are not stored as permissions; their current Nextcloud IDs are taken from the public V1 contract of flz_organization.",
+    "Die Berechtigungszuordnung wurde gespeichert." : "The permission assignment was saved.",
+    "Die Berechtigungszuordnung konnte nicht gespeichert werden." : "The permission assignment could not be saved.",
     " Die Stellvertretende Pflegedienstleitung erhält alle vier Berechtigungen. Pflegedienstleitung und Pflegefachkräfte können je Berechtigung zusätzlich ausgewählt werden. Keine der Rollen erhält automatisch eine andere Berechtigung." : " The deputy head of nursing receives all four permissions. Head of nursing and nursing staff can additionally be selected per permission. None of the roles automatically receives another permission.",
     "Alle zwölf Monate werden geprüft …" : "All twelve months are being checked …",
     "Als Haupt-PFK ist nur eine aktive interne PFK zulässig." : "Only an active internal nurse is allowed as lead nurse.",

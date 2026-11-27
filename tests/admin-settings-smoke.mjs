@@ -50,7 +50,7 @@ assert.deepEqual(JSON.parse(requests[0].options.body), {
     publishingRoles: ['deputy_pdl'],
     pfkPoolRoles: ['deputy_pdl', 'pfk'],
 })
-assert.equal(status.textContent, 'Die BQ-Berechtigungen wurden gespeichert.')
+assert.equal(status.textContent, 'Die Berechtigungszuordnung wurde gespeichert.')
 
 globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'Ungültige Rollenwahl' }) })
 await listeners.get('submit')({ preventDefault() {} })
