@@ -625,17 +625,11 @@
    "data_sources": [
     "Optionaler Provider flzrecruitment über ApplicationHiredEvent (PublicApi V1); ohne Provider bleibt die Inbox leer"
    ],
-   "legal_basis": {
-    "status": "PRIVACY-DECISION-REQUIRED",
-    "affected_data": "Bewerbungsbezogene Vorgangskennungen in der Inbox",
-    "planned_processing": "BQ-Bedarfserkennung nach Neueinstellungen",
-    "missing_decision": "Rechtsgrundlage und Erforderlichkeit der Bewerbungs-ID je Quelle",
-    "reason": "Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.",
-    "technical_impact": "Keine freigegebene Rechtsgrundlage wird behauptet.",
-    "privacy_preserving_alternative": "Ohne fachliche Rechtsgrundlage wird die Inbox nicht befüllt; der Provider-Consumer bleibt deaktiviert.",
-    "responsible_party": "ungeklärt",
-    "blocking": true
-   },
+   "legal_basis": [
+    "Art. 6 Abs. 1 lit. f DSGVO — berechtigtes Interesse (fachliche Entscheidung Simon, 28.11.2026): Die BQ-Bedarfserkennung nach Neueinstellungen ist ein innerbetrieblicher Planungszweck des Arbeitgebers. Die Inbox speichert ausschließlich Vorgangskennungen (Bewerbungs-ID, Organisationsbereich, Zeitpunkt) ohne Namen oder Kontaktdaten, begrenzt auf die jüngsten 100 Einträge (FIFO) und lesbar nur für konfigurierte BQ-Rollen.",
+    "Abwägung: Betroffen sind Beschäftigte bzw. Bewerbende im eigenen Betrieb; Quelle ist der eigene Recruitment-Prozess derselben Nextcloud-Instanz. Umfang und Speicherdauer sind minimal. Ein Überwiegen schutzwürdiger Interessen der Betroffenen ist nicht ersichtlich.",
+    "Erforderlichkeit: Die Bewerbungs-ID ist erforderlich, um den Qualifizierungsbedarf der richtigen Organisationseinheit nachzuverfolgen; eine reine Bereichszählung ohne Vorgangsbezug wäre für die Einzelnachverfolgung nicht gleich geeignet."
+   ],
    "retention": {
     "policy_id": "bq_hiring_event_inbox_cap",
     "trigger": "Jeder neue Inbox-Eintrag nach Erreichen von 100 Einträgen",
