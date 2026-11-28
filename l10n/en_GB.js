@@ -1,6 +1,8 @@
 OC.L10N.register(
     "flzbqplanung",
     {
+    "BQ-Planer" : "BQ planner",
+    "Jahr ist ungültig." : "Year is invalid.",
     "Berechtigungsmatrix" : "Permission matrix",
     "Berechtigung" : "Permission",
     "%1$s: %2$s" : "%1$s: %2$s",

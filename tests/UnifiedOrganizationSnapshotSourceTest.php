@@ -154,6 +154,11 @@ namespace
             }
             return $this->enabled;
         }
+
+        public function isEnabledForUser($appId, $user = null): bool
+        {
+            return in_array($appId, $this->enabled, true);
+        }
     }
 
     final class BqOrganizationLogger implements LoggerInterface

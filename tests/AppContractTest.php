@@ -15,7 +15,9 @@ TestRunner::test('app metadata and route keep the approved identity', static fun
     $application = (string)file_get_contents($root . '/lib/AppInfo/Application.php');
     $listener = (string)file_get_contents($root . '/lib/Listener/StandaloneNavigationListener.php');
     assertTrue(str_contains($application, 'LoadAdditionalEntriesEvent::class'));
-    assertTrue(str_contains($listener, 'StandaloneAppNavigationService'));
+    assertTrue(str_contains($listener, 'INavigationManager'));
+    assertTrue(str_contains($listener, "linkToRoute('flzbqplanung.page.index')"));
+    assertTrue(!str_contains($listener, 'LocalBase'), 'Standalone navigation must not consume LocalBase');
 });
 
 TestRunner::test('initial page remains centrally protected and documents calendar completeness', static function (): void {

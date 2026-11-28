@@ -8,16 +8,15 @@ use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
 use OCA\FlzBqPlanning\Domain\Scheduling\BlockedCalendar;
 use OCA\FlzBqPlanning\Domain\Scheduling\BlockedPeriod;
 use OCA\FlzBqPlanning\Domain\Scheduling\CalendarCoverage;
-use OCA\LocalBase\Calendar\HolidayCalendarService;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-/** Projiziert den öffentlichen LocalBase-Jahresvertrag auf BQ-Sperrperioden. */
+/** Projiziert den öffentlichen V1-Jahresvertrag von flz_organization auf BQ-Sperrperioden. */
 final class CalendarBlockedPeriodProvider implements BlockedPeriodProvider {
-    private const SUPPORTED_CONTRACT_VERSION = 1;
+    private const SUPPORTED_CONTRACT_VERSION = '1.0';
 
     public function __construct(
-        private HolidayCalendarService $shared,
+        private OrganizationHolidayCalendarService $shared,
         private LoggerInterface $logger,
     ) {
     }
@@ -35,10 +34,11 @@ final class CalendarBlockedPeriodProvider implements BlockedPeriodProvider {
         $stale = false;
         try {
             foreach ($years as $calendarYear) {
-                $calendar = $this->shared->forYear($calendarYear)->toArray();
-                if (($calendar['version'] ?? null) !== self::SUPPORTED_CONTRACT_VERSION) {
+                $snapshot = $this->shared->snapshotForYear($calendarYear);
+                if ($snapshot === null || $snapshot->contractVersion() !== self::SUPPORTED_CONTRACT_VERSION) {
                     return new CalendarCoverage('incompatible', false, false, new BlockedCalendar($periods));
                 }
+                $calendar = $snapshot->toArray();
                 $status = $calendar['cacheStatus'] ?? null;
                 if ($status === 'unavailable') {
                     return new CalendarCoverage('unavailable', false, false, new BlockedCalendar($periods));

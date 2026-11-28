@@ -78,14 +78,22 @@ namespace OCP\Navigation\Events {
     }
 }
 
-namespace OCA\LocalBase\Service {
-    class StandaloneAppNavigationService {
-        public array $calls = [];
-
-        public function addCatalogProductWhenStandalone(string $appId, string $label, string $icon): void {
-            $this->calls[] = [$appId, $label, $icon];
+namespace OCP\App {
+    if (!interface_exists(IAppManager::class)) {
+        interface IAppManager {
+            public function isEnabledForUser($appId, $user = null): bool;
+            public function getAppInstalledVersions(bool $onlyEnabled = false): array;
+            public function getEnabledApps(): array;
         }
     }
+}
+
+namespace OCP {
+    interface IURLGenerator { public function linkToRoute(string $routeName, array $arguments = []): string; public function imagePath(string $appName, string $file): string; }
+}
+
+namespace OCP\Navigation {
+    interface INavigationManager { public const TYPE_APPS = 'link'; public function add(callable $entry): void; }
 }
 
 namespace OCP\AppFramework\Http\Attribute {
@@ -122,8 +130,10 @@ namespace FlzBqPlanning\Tests {
     use OCA\FlzBqPlanning\Service\AuthorizationService;
     use OCA\FlzBqPlanning\Service\OrganizationRolePolicy;
     use OCA\FlzBqPlanning\Service\TemporaryAdminAccessChecker;
-    use OCA\LocalBase\Service\StandaloneAppNavigationService;
+    use OCP\App\IAppManager;
     use OCP\EventDispatcher\Event;
+    use OCP\IURLGenerator;
+    use OCP\Navigation\INavigationManager;
     use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
     use OCP\IAppConfig;
     use OCP\IGroup;
@@ -151,6 +161,38 @@ namespace FlzBqPlanning\Tests {
         public function setValueInt(string $appId, string $key, int $value): void {}
         public function setValueString(string $appId, string $key, string $value): void {}
     }
+    final class FrameworkNavigation implements INavigationManager {
+        public array $entries = [];
+
+        public function add(callable $entry): void {
+            $this->entries[] = $entry;
+        }
+    }
+
+    final class FrameworkAppManager implements IAppManager {
+        public function isEnabledForUser($appId, $user = null): bool {
+            return false;
+        }
+
+        public function getAppInstalledVersions(bool $onlyEnabled = false): array {
+            return [];
+        }
+
+        public function getEnabledApps(): array {
+            return [];
+        }
+    }
+
+    final class FrameworkUrlGenerator implements IURLGenerator {
+        public function linkToRoute(string $routeName, array $arguments = []): string {
+            return $routeName;
+        }
+
+        public function imagePath(string $appName, string $file): string {
+            return "$appName/$file";
+        }
+    }
+
     final class FrameworkGrants implements TemporaryAdminAccessChecker {
         public function __construct(private array $active = ['admin-a']) {}
         public function hasActiveGrant(string $uid): bool { return in_array($uid,$this->active,true); }
@@ -191,24 +233,40 @@ namespace FlzBqPlanning\Tests {
     });
 
     TestRunner::test('standalone navigation delegates only the Nextcloud navigation event', static function (): void {
-        $navigation = new StandaloneAppNavigationService();
-        $listener = new StandaloneNavigationListener($navigation, adminAuthorization());
+        $navigation = new FrameworkNavigation();
+        $listener = new StandaloneNavigationListener(
+            adminAuthorization(),
+            new FrameworkSession(new FrameworkUser('admin-a')),
+            new FrameworkAppManager(),
+            $navigation,
+            new FrameworkUrlGenerator(),
+        );
 
         $listener->handle(new Event());
-        assertSame([], $navigation->calls);
+        assertSame([], $navigation->entries);
 
         $listener->handle(new LoadAdditionalEntriesEvent());
-        assertSame([['flzbqplanung', 'BQ-Planer', 'app.svg']], $navigation->calls);
+        $entry = ($navigation->entries[0] ?? static fn(): array => [])();
+        assertSame('flzbqplanung', $entry['id']);
+        assertSame('flzbqplanung.page.index', $entry['href']);
+        assertSame('BQ-Planer', $entry['name']);
     });
 
     TestRunner::test('standalone navigation stays absent without BQ access', static function (): void {
-        $navigation = new StandaloneAppNavigationService();
+        $navigation = new FrameworkNavigation();
         $authorization = new AuthorizationService(
             new FrameworkSession(new FrameworkUser('user-a')),
             new FrameworkGroups(false),
             new FrameworkConfig(),
         );
-        (new StandaloneNavigationListener($navigation, $authorization))->handle(new LoadAdditionalEntriesEvent());
-        assertSame([], $navigation->calls);
+        $listener = new StandaloneNavigationListener(
+            $authorization,
+            new FrameworkSession(new FrameworkUser('user-a')),
+            new FrameworkAppManager(),
+            $navigation,
+            new FrameworkUrlGenerator(),
+        );
+        $listener->handle(new LoadAdditionalEntriesEvent());
+        assertSame([], $navigation->entries);
     });
 }
