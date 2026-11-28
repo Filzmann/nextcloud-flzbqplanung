@@ -23,6 +23,7 @@ TestRunner::test('BQ processing metadata publishes only the stable app-owned cat
         'lecturer_profile_and_assignment_management',
         'external_lecturer_request_tracking',
         'temporary_admin_full_access',
+        'bq_hiring_event_inbox',
     ], $catalog->processingIds());
     assertTrue(!array_key_exists('personal_runtime_data', $catalog->toArray()));
     $encodedCatalog=json_encode($catalog->toArray(),JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE);

@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 $appRoot = dirname(__DIR__);
+$workspaceRoot = dirname($appRoot);
 
-spl_autoload_register(static function (string $class) use ($appRoot): void {
+spl_autoload_register(static function (string $class) use ($appRoot, $workspaceRoot): void {
     $mappings = [
         'OCA\\FlzDataProtection\\' => $appRoot . '/tests/stubs/FlzDataProtection/',
+        'OCA\\FlzRecruitment\\' => $workspaceRoot . '/flzrecruitment/lib/',
         'OCA\\FlzBqPlanning\\' => $appRoot . '/lib/',
         'FlzBqPlanning\\Tests\\' => $appRoot . '/tests/',
     ];

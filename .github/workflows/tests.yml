@@ -32,6 +32,12 @@ jobs:
           repository: Filzmann/nextcloud-localbase
           ref: main
           path: localbase
+      - name: Recruitment-Vertrag (ZM-07) auschecken
+        uses: actions/checkout@v7
+        with:
+          repository: Filzmann/nextcloud-flzrecruitment
+          ref: main
+          path: flzrecruitment
       - name: PHP einrichten
         uses: shivammathur/setup-php@v2
         with:

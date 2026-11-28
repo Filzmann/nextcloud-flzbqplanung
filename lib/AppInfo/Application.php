@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace OCA\FlzBqPlanning\AppInfo;
 
+use OCA\FlzBqPlanning\Listener\ApplicationHiredListener;
 use OCA\FlzBqPlanning\Listener\StandaloneNavigationListener;
+use OCA\FlzRecruitment\PublicApi\V1\ApplicationHiredEvent;
 use OCA\FlzBqPlanning\Contract\BlockedPeriodProvider;
 use OCA\FlzBqPlanning\Contract\OrganizationSnapshotSource;
 use OCA\FlzBqPlanning\Contract\TeachingStore;
@@ -40,6 +42,7 @@ final class Application extends App implements IBootstrap {
 
     public function register(IRegistrationContext $context): void {
         $context->registerEventListener(LoadAdditionalEntriesEvent::class, StandaloneNavigationListener::class);
+        $context->registerEventListener(ApplicationHiredEvent::class, ApplicationHiredListener::class);
         $context->registerEventListener(RegisterPersonalDataProvidersEvent::class, BqPrivacyProviderListener::class);
         $context->registerEventListener(RegisterProcessingMetadataProvidersEvent::class, BqProcessingMetadataProviderListener::class);
         $context->registerEventListener(RegisterPermissionProvidersEvent::class, BqPermissionProviderListener::class);

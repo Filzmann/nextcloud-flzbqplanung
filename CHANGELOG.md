@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- ZM-07 Minimal-Vertrag: Optionaler Consumer `ApplicationHiredListener` für
+  `OCA\FlzRecruitment\PublicApi\V1\ApplicationHiredEvent` mit begrenzter
+  Inbox (`bq_hiring_events_v1`, max. 100 Einträge, nur Vorgangskennungen);
+  ohne aktiviertes flzrecruitment No-Op. Processing-Katalog um
+  `bq_hiring_event_inbox` ergänzt (Rechtsgrundlage bleibt
+  PRIVACY-DECISION-REQUIRED).
+
 - L10N-Migration (ZM-06): sichtbare Texte über Nextcloud-l10n (deutsche Quelltexte, Kataloge `l10n/en.*` + `l10n/en_GB.*`), inkl. `tests/Ui/L10nCatalogContractTest.php` und `docs/l10n-inventory.md`.
 
 - BQ-Berechtigungen und Organisationsgruppen getrennt: Planung, Lehre,

@@ -1,90 +1,706 @@
 {
-  "schema_version": "1.0",
-  "app_id": "flzbqplanung",
-  "processings": [
+ "schema_version": "1.0",
+ "app_id": "flzbqplanung",
+ "processings": [
+  {
+   "processing_id": "bq_run_curriculum_and_schedule_management",
+   "name": "BQ-Durchlauf-, Curriculum- und Terminplanung",
+   "controller": {
+    "component": "Filzmann BQ-Planer",
+    "business_owner": "Personalreferat / BQ-Koordination"
+   },
+   "data_categories": [
+    "Durchlaufbezeichnung, Zeitraum, Kapazität, Status und Version",
+    "Zentrale Curriculum-Vorlage mit Modulschlüssel, Titel, Dauer, Reihenfolge und Version ohne Termine",
+    "Durchlaufbezogene Curriculum-Snapshots mit Terminen, Zeiten, Reihenfolge und Zusatzkapazität",
+    "Nextcloud-UIDs der anlegenden und bearbeitenden Personen samt Zeitpunkten",
+    "Kalenderbasierte Ferien-, Feiertags-, Brücken- und Sperrperioden ohne Teilnehmerdaten"
+   ],
+   "data_subjects": [
+    "Interne BQ-Planungsverantwortliche mit Bearbeitungsreferenz",
+    "Zugeordnete interne Dozentinnen über gesonderte Profil- und Zuordnungsverarbeitung"
+   ],
+   "purposes": [
+    "Erklärbare Terminplanung und versionierte Curriculum-Snapshots",
+    "Veröffentlichung terminlich vollständiger BQ-Durchläufe",
+    "Nachvollziehbarkeit planender Bearbeitung"
+   ],
+   "access_roles": [
+    "Konfigurierte Planungs-, Lehr- und Veröffentlichungsgruppen nach Fähigkeit",
+    "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"
+   ],
+   "recipients": [
     {
-      "processing_id": "bq_run_curriculum_and_schedule_management",
-      "name": "BQ-Durchlauf-, Curriculum- und Terminplanung",
-      "controller": {"component":"Filzmann BQ-Planer","business_owner":"Personalreferat / BQ-Koordination"},
-      "data_categories": ["Durchlaufbezeichnung, Zeitraum, Kapazität, Status und Version", "Zentrale Curriculum-Vorlage mit Modulschlüssel, Titel, Dauer, Reihenfolge und Version ohne Termine", "Durchlaufbezogene Curriculum-Snapshots mit Terminen, Zeiten, Reihenfolge und Zusatzkapazität", "Nextcloud-UIDs der anlegenden und bearbeitenden Personen samt Zeitpunkten", "Kalenderbasierte Ferien-, Feiertags-, Brücken- und Sperrperioden ohne Teilnehmerdaten"],
-      "data_subjects": ["Interne BQ-Planungsverantwortliche mit Bearbeitungsreferenz", "Zugeordnete interne Dozentinnen über gesonderte Profil- und Zuordnungsverarbeitung"],
-      "purposes": ["Erklärbare Terminplanung und versionierte Curriculum-Snapshots", "Veröffentlichung terminlich vollständiger BQ-Durchläufe", "Nachvollziehbarkeit planender Bearbeitung"],
-      "access_roles": ["Konfigurierte Planungs-, Lehr- und Veröffentlichungsgruppen nach Fähigkeit", "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"],
-      "recipients": [{"category":"Berechtigte BQ-Rollen","allowed_disclosures":["Für Planung, Lehre oder Veröffentlichung erforderliche Durchlauf- und Moduldaten"],"conditions":["Serverseitig geprüfte konfigurierte Fähigkeit"]},{"category":"Künftiger Filzmann-Recruitment-Consumer","allowed_disclosures":["Stabile externe Durchlauf-ID und erforderlicher Terminsnapshot veröffentlichter verfügbarer BQs"],"conditions":["Kleiner optionaler versionierter Vertrag", "Keine Bewerbungsakte oder Teilnehmerkopie"]}],
-      "data_sources": ["Eingaben berechtigter BQ-Planungsverantwortlicher", "App-eigene Tabellen flz_bq_templates, flz_bq_template_modules, flz_bq_runs und flz_bq_modules", "Read-only LocalBase-Jahreskalender und app-eigene Sperrtage"],
-      "legal_basis": {"status":"PRIVACY-DECISION-REQUIRED","affected_data":"UID-bezogene Bearbeitungs- und Lehrzuordnungen in Durchläufen und Modulen","planned_processing":"BQ-Planung und Veröffentlichungsnachweis","missing_decision":"Rechtsgrundlage und Erforderlichkeit je Personenreferenz","reason":"Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.","technical_impact":"Keine freigegebene Rechtsgrundlage wird behauptet.","privacy_preserving_alternative":"Nur erforderliche UID- und Zeitbezüge verarbeiten.","responsible_party":"ungeklärt","blocking":false},
-      "retention": {"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Abgeschlossene oder abgesagte Durchläufe, Module und Bearbeitungsreferenzen","planned_processing":"Aufbewahrung, Einschränkung, Löschung oder Anonymisierung","missing_decision":"Trigger, Fristen und Maßnahmen nach Durchlaufabschluss","reason":"Keine ausführende Retention-Policy ist festgelegt.","technical_impact":"Keine automatische Maßnahme.","privacy_preserving_alternative":"Keine zusätzlichen Planungshistorien oder Teilnehmerkopien erzeugen.","responsible_party":"ungeklärt","blocking":true},
-      "logging": {"audit_requirements":["Planungs-, Versions- und Providerfehler ohne unnötige UIDs diagnostizieren"],"personal_data_policy":"Keine vollständigen Durchlaufpayloads, Lehrzuordnungen oder Personenkennungen in technische Logs übernehmen."},
-      "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Persistierte Durchlauf-, Modul- und Bearbeitungsdaten","planned_processing":"Betriebliche Sicherung","missing_decision":"Backup-Relevanz und Dauer","reason":"Der betriebliche Backupzyklus ist unbekannt.","technical_impact":"Kein Entfall kann behauptet werden.","privacy_preserving_alternative":"Keine separate App-Sicherung anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Wiederhergestellte abgeschlossene oder abgesagte Planungen","planned_processing":"Retention und Statusprüfung nach Restore","missing_decision":"Behandlung abgelaufener Datensätze","reason":"Retention ist ungeklärt.","technical_impact":"Keine automatische Maßnahme.","privacy_preserving_alternative":"Aktuelle Status- und Rechteprüfung beibehalten.","responsible_party":"ungeklärt","blocking":true}},
-      "exports_and_reports": {"article_15_relevance":"Eigene Bearbeitungsreferenzen werden subjectgebunden ausgegeben; fremde Lehrkräfte bleiben ausgeschlossen.","other_outputs":["Berechtigte Jahres-, Durchlauf- und Modulansichten", "Künftiger minimaler Recruitment-Terminsnapshot"],"minimization":"Die App führt keine Bewerbungsakten, Teilnehmerinnenzuordnungen oder Eignungsentscheidungen."},
-      "data_subject_rights": {"article_15":"Explizite interne UID-Bezüge sind über den app-eigenen PersonalDataProvider implementiert.","rectification":"Entwürfe können versionsgesichert berichtigt werden; veröffentlichte Zustände bleiben an den Fachvertrag gebunden.","restriction":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Strittige Bearbeitungs- oder Lehrreferenzen","planned_processing":"Einschränkung weiterer Nutzung","missing_decision":"Sperrgründe und technische Wirkung","reason":"Kein Einschränkungsworkflow ist definiert.","technical_impact":"Keine automatische Sperre.","privacy_preserving_alternative":"Zugriff auf konfigurierte Fähigkeiten begrenzen.","responsible_party":"ungeklärt","blocking":true},"erasure_or_anonymization":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Historische Bearbeitungs- und Lehrreferenzen","planned_processing":"Löschung oder Anonymisierung","missing_decision":"Maßnahme und Nachweispflichten","reason":"Planungsnachweis und Datenminimierung sind abzuwägen.","technical_impact":"Keine automatische Maßnahme.","privacy_preserving_alternative":"Keine Zusatzhistorie erzeugen.","responsible_party":"ungeklärt","blocking":true}},
-      "international_transfers":"Der BQ-Planer übermittelt Planungsdaten selbst nicht an Drittländer; Kalender- und Hostinginfrastruktur sind betrieblich zu bewerten.",
-      "automated_decisions":"Terminvorschläge werden regelbasiert erzeugt; Planung, Veröffentlichung und fachliche Entscheidungen erfolgen durch berechtigte Personen.",
-      "special_safeguards": ["Deny-by-default und getrennte Fähigkeiten", "Optimistische Versionierung", "Fehlende Kalenderabdeckung erzeugt keinen automatischen Vorschlag", "Keine Bewerbungs- oder Teilnehmerkopie"],
-      "systems": ["Nextcloud", "Filzmann BQ-Planer", "App-eigene Tabellen flz_bq_templates, flz_bq_template_modules, flz_bq_runs und flz_bq_modules", "Optionaler LocalBase-Kalendervertrag"]
+     "category": "Berechtigte BQ-Rollen",
+     "allowed_disclosures": [
+      "Für Planung, Lehre oder Veröffentlichung erforderliche Durchlauf- und Moduldaten"
+     ],
+     "conditions": [
+      "Serverseitig geprüfte konfigurierte Fähigkeit"
+     ]
     },
     {
-      "processing_id": "lecturer_profile_and_assignment_management",
-      "name": "Dozentinnenprofil- und Lehrzuordnungsverwaltung",
-      "controller": {"component":"Filzmann BQ-Planer","business_owner":"Personalreferat / BQ-Koordination"},
-      "data_categories": ["Interne Nextcloud-UID oder externe app-eigene Profil-ID", "Nextcloud-Anzeigename nur transient für die Suche innerhalb der Organigrammrolle Pflegefachkräfte und nicht im Dozentinnenprofil persistiert", "Externer Name und E-Mail-Adresse", "Aktivstatus, Version sowie anlegende und ändernde UIDs mit Zeitpunkten", "Hauptdozentinnen- und Modulzuordnungen"],
-      "data_subjects": ["Interne PFKs", "Externe Dozentinnen", "Bearbeitende BQ-Planungsverantwortliche"],
-      "purposes": ["Verwaltung eines minimalen Lehrendenpools", "Zuordnung einer Hauptdozentin und abweichender Moduldozentinnen", "Nachvollziehbarkeit der Profilbearbeitung"],
-      "access_roles": ["Je BQ-Berechtigung konfigurierte semantische Organigrammrollen", "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"],
-      "recipients": [{"category":"Berechtigte BQ-Planungs- und Lehrrollen","allowed_disclosures":["Für Auswahl und Zuordnung erforderliches Profil und aktuelle Lehrbezüge"],"conditions":["Serverseitig geprüfte Planungs- oder Lehrfähigkeit"]},{"category":"Berechtigte Verwaltung des internen PFK-Pools","allowed_disclosures":["Interne Nextcloud-UID und für die Auswahl transient benötigter Anzeigename"],"conditions":["Serverseitig geprüfte PFK-Pool-Fähigkeit", "Keine Durchlaufdaten, externen Profile, E-Mail-Adressen oder Anfragen"]}],
-      "data_sources": ["Mitglieder und Anzeigenamen der semantischen LocalBase-Organigrammrolle Pflegefachkräfte", "Geprüftes Nextcloud-Konto interner PFKs", "Eingaben berechtigter Personen zu externen Dozentinnen", "App-eigene Tabelle flz_bq_lecturers und Zuordnungen in Durchläufen und Modulen"],
-      "legal_basis": {"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Interne UID sowie externe Name-, E-Mail- und Lehrzuordnungsdaten","planned_processing":"Dozentinnenpool und Einsatzplanung","missing_decision":"Rechtsgrundlage und Erforderlichkeit je Profilart","reason":"Nicht technisch ableitbar.","technical_impact":"Keine Rechtsgrundlage wird behauptet.","privacy_preserving_alternative":"Externe Profile auf Name und notwendige Kontaktadresse begrenzen.","responsible_party":"ungeklärt","blocking":false},
-      "retention":{"policy_id":"external_lecturer_profile_twelve_months_after_last_relevant_end","trigger":"Ablehnung, Absage oder Ende des letzten zugehörigen Kurses, sofern keine aktive oder zukünftige Anfrage beziehungsweise Zuordnung besteht","duration_or_deadline":"P12M","action":"delete","conditions_or_holds":["Die Policy gilt für externe Profile; die Aufbewahrung interner PFK-Bezüge bleibt gesondert zu entscheiden.","Profil und offene personenbezogene Bezüge werden gelöscht; in fachlich erforderlichen historischen Curriculumstrukturen wird die Personenreferenz entfernt.","Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.","Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Referenzintegritäts-, Nebenläufigkeits-, Fehler- und Backupgrenzvertrag."]},
-      "logging": {"audit_requirements":["Profil- und Zuordnungsfehler ohne Namen oder E-Mail diagnostizieren"],"personal_data_policy":"Keine Namen, E-Mail-Adressen oder vollständigen Lehrprofile in technische Logs übernehmen."},
-      "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Persistierte Profile und Lehrzuordnungen","planned_processing":"Betriebliche Sicherung","missing_decision":"Backup-Relevanz und Dauer","reason":"Betriebliche Regeln fehlen.","technical_impact":"Kein Entfall kann behauptet werden.","privacy_preserving_alternative":"Keine separate App-Sicherung anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Wiederhergestellte inaktive Profile und alte Zuordnungen","planned_processing":"Erneute Anwendung der beschlossenen externen Profil-Retention","missing_decision":"Sichere Restore-Ausführung und Referenzintegrität","reason":"Frist und Maßnahme für externe Profile sind entschieden; sichere Restore-Ausführung und interner PFK-Lifecycle bleiben offen.","technical_impact":"Keine automatische Maßnahme.","privacy_preserving_alternative":"Aktivstatus und Fachbezüge weiterhin prüfen.","responsible_party":"Datenschutzbeauftragte und technische App-Verantwortung","blocking":true}},
-      "exports_and_reports": {"article_15_relevance":"Interne PFK-Profile und eigene Zuordnungen werden per Nextcloud-UID ausgegeben; externe Profile warten auf einen sicheren Subject-Vertrag.","other_outputs":["Berechtigte Dozentinnen- und Lehrzuordnungsansichten"],"minimization":"Andere interne oder externe Lehrkräfte und deren Kontaktdaten bleiben aus der subjectgebundenen Ausgabe ausgeschlossen."},
-      "data_subject_rights": {"article_15":"Externe Betroffenenrechte verwenden denselben dokumentierten, bereits verifizierten Kontaktkanal; Name oder E-Mail genügen niemals als Identifikation. Die technische Provider-Unterstützung bleibt offen.","rectification":"Berechtigte Profilbearbeitung ist versionsgesichert; interne Identitäten werden gegen Nextcloud geprüft.","restriction":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Strittige Profile und Lehrzuordnungen","planned_processing":"Einschränkung weiterer Nutzung","missing_decision":"Sperrgründe und Wirkung","reason":"Kein vollständiger Workflow ist definiert.","technical_impact":"Keine automatische Sperre.","privacy_preserving_alternative":"Profil deaktivieren und nicht neu zuordnen.","responsible_party":"ungeklärt","blocking":true},"erasure_or_anonymization":"Externe Profile werden zwölf Monate nach Ablehnung, Absage oder Ende des letzten Kurses vollständig gelöscht, sofern kein aktiver oder künftiger Lehrbezug besteht; erforderliche historische Curriculumstrukturen verlieren die Personenreferenz. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."},
-      "international_transfers":"Der BQ-Planer übermittelt Profile selbst nicht an Drittländer.",
-      "automated_decisions":"Zuordnungen und Aktivstatus werden durch berechtigte Personen gepflegt; es findet keine automatisierte Personenentscheidung statt.",
-      "special_safeguards": ["Interne UIDs werden gegen Existenz und Mitgliedschaft in der semantischen Organigrammrolle Pflegefachkräfte geprüft", "PFK-Suchergebnisse sind auf UID und Anzeigename begrenzt und werden nicht zusätzlich persistiert", "PFK-Pool-Berechtigte erhalten keine Durchlaufdaten, externen Profile oder Kontaktdaten", "Externe Profile enthalten nur Name und notwendige E-Mail", "Keine Identifikation externer Personen über E-Mail-Abgleich", "Keine Bewerbungsdaten"],
-      "systems": ["Nextcloud", "Filzmann BQ-Planer", "App-eigene Dozentinnen-, Durchlauf- und Modultabellen"]
-    },
-    {
-      "processing_id": "external_lecturer_request_tracking",
-      "name": "Dokumentation externer Dozentinnenanfragen",
-      "controller": {"component":"Filzmann BQ-Planer","business_owner":"Personalreferat / BQ-Koordination"},
-      "data_categories": ["Externe Dozentinnenprofil-ID mit Name und E-Mail über das referenzierte Profil", "Modul- und Durchlaufbezug", "Anfrage-, Zusage-, Ablehnungs- oder Absagestatus und Version", "Anlegende und ändernde Nextcloud-UIDs samt Zeitpunkten"],
-      "data_subjects": ["Angefragte externe Dozentinnen", "Bearbeitende BQ-Planungsverantwortliche"],
-      "purposes": ["Nachvollziehbarkeit einer außerhalb der App erfolgten Anfrage", "Steuerung der bestätigten Modulzuordnung", "Vermeidung widersprüchlicher Statusübergänge"],
-      "access_roles": ["Für die BQ-Lehrverwaltung konfigurierte semantische Organigrammrollen", "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"],
-      "recipients": [{"category":"Berechtigte BQ-Planungs- und Lehrrollen","allowed_disclosures":["Profil, Modulbezug und aktueller Anfragezustand"],"conditions":["Serverseitig geprüfte Fähigkeit"]}],
-      "data_sources": ["Extern erfolgte Kommunikation, deren Inhalt nicht in der App gespeichert wird", "Eingaben berechtigter BQ-Rollen", "App-eigene Tabelle flz_bq_lecturer_requests und referenzierte Profile/Module"],
-      "legal_basis": {"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Kontakt-, Anfrage- und Bearbeitungsdaten","planned_processing":"Dokumentation externer Lehranfragen","missing_decision":"Rechtsgrundlage und erforderlicher Nachweisumfang","reason":"Nicht technisch ableitbar.","technical_impact":"Keine Rechtsgrundlage wird behauptet.","privacy_preserving_alternative":"Keine Kommunikationsinhalte speichern.","responsible_party":"ungeklärt","blocking":false},
-      "retention":{"policy_id":"external_lecturer_request_twelve_months_after_end","trigger":"Ablehnung, Absage oder Ende des zugehörigen Kurses, sofern keine aktive oder zukünftige Anfrage beziehungsweise Zuordnung besteht","duration_or_deadline":"P12M","action":"delete","conditions_or_holds":["Anfrage, Bearbeitungsreferenzen und nicht mehr benötigte externe Profilbezüge werden vollständig gelöscht.","In fachlich erforderlichen historischen Curriculumstrukturen wird die Personenreferenz entfernt.","Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.","Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Referenzintegritäts-, Nebenläufigkeits-, Fehler- und Backupgrenzvertrag."]},
-      "logging": {"audit_requirements":["Statuskonflikte ohne Kontaktdaten diagnostizieren"],"personal_data_policy":"Keine Namen, E-Mail-Adressen oder externe Kommunikationsinhalte in technische Logs übernehmen."},
-      "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Persistierte Anfrage- und Bearbeitungsdaten","planned_processing":"Betriebliche Sicherung","missing_decision":"Backup-Relevanz und Dauer","reason":"Betriebliche Regeln fehlen.","technical_impact":"Kein Entfall kann behauptet werden.","privacy_preserving_alternative":"Keine separate Sicherung anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Wiederhergestellte alte Anfragen","planned_processing":"Erneute Anwendung der beschlossenen Retention und Statusprüfung","missing_decision":"Sichere Restore-Ausführung und Referenzintegrität","reason":"Frist und Maßnahme sind entschieden; die sichere technische Restore-Ausführung fehlt.","technical_impact":"Keine automatische Folgekommunikation oder Löschung.","privacy_preserving_alternative":"Status manuell prüfen.","responsible_party":"Datenschutzbeauftragte und technische App-Verantwortung","blocking":true}},
-      "exports_and_reports": {"article_15_relevance":"Interne Bearbeitungsbezüge werden subjectgebunden ausgegeben; externe Anfragen warten auf den externen Subject-Vertrag.","other_outputs":["Berechtigte Anfrage- und Modulansichten"],"minimization":"Die App versendet keine Nachricht und speichert keinen Kommunikationsinhalt."},
-      "data_subject_rights": {"article_15":"Externe Betroffenenrechte verwenden denselben dokumentierten, bereits verifizierten Kontaktkanal; Name oder E-Mail genügen niemals als Identifikation. Die technische Provider-Unterstützung bleibt offen.","rectification":"Berechtigte Statusänderungen folgen dem guarded Transition-Vertrag und optimistischer Versionierung.","restriction":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Strittige Anfragen","planned_processing":"Einschränkung weiterer Nutzung","missing_decision":"Sperrgründe und Wirkung","reason":"Kein Workflow ist definiert.","technical_impact":"Keine automatische Sperre.","privacy_preserving_alternative":"Keine neue Zuordnung auslösen.","responsible_party":"ungeklärt","blocking":true},"erasure_or_anonymization":"Anfrage, Bearbeitungsreferenzen und nicht mehr benötigte externe Profilbezüge werden zwölf Monate nach Ablehnung, Absage oder Kursende vollständig gelöscht, sofern kein aktiver oder künftiger Lehrbezug besteht; historische Curriculumstrukturen verlieren die Personenreferenz. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."},
-      "international_transfers":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Außerhalb der App verwendete Kontaktdaten und Kommunikation","planned_processing":"Externe Kontaktaufnahme über einen nicht app-eigenen Kanal","missing_decision":"Kommunikationsanbieter, Verarbeitungsort und mögliche Drittlandübermittlung","reason":"Die App dokumentiert nur den Status und kennt den externen Kanal nicht.","technical_impact":"Keine transferfreie Kommunikation wird behauptet.","privacy_preserving_alternative":"Keinen Anfragevorgang anlegen, bevor der zulässige Kontaktweg feststeht.","responsible_party":"ungeklärt","blocking":true},
-      "automated_decisions":"Statusübergänge steuern nur die Lehrzuordnung; Anfrage und Rückmeldung erfolgen durch Personen außerhalb der App.",
-      "special_safeguards": ["Keine Nachrichtenübermittlung durch die App", "Keine Kommunikationsinhalte gespeichert", "Guarded Statusübergänge", "Bestätigung wirkt nur auf das betroffene Modul"],
-      "systems": ["Nextcloud", "Filzmann BQ-Planer", "App-eigene Anfrage-, Dozentinnen- und Modultabellen", "Nicht festgelegter externer Kommunikationskanal"]
-    },
-    {
-      "processing_id": "temporary_admin_full_access",
-      "name": "Zeitlich begrenzte fachliche Adminfreigabe",
-      "controller": {"component":"Filzmann BQ-Planer","business_owner":"Datenschutzbeauftragte"},
-      "data_categories": ["Nextcloud-UID des Zielkontos (aktives Nextcloud-Administrationskonto) sowie UIDs der freigebenden und widerrufenden Mitglieder von Datenschutzbeauftragte", "Beginn, geplantes Ende, tatsächliches Ende und Status"],
-      "data_subjects": ["Administrationskonten mit Bezug zu einer app-lokalen Vollzugriffsfreigabe"],
-      "purposes": ["Durchsetzung einer höchstens 24 Stunden gültigen fachlichen Adminfreigabe", "Sicherheits- und Auditnachweis"],
-      "access_roles": ["Erteilen und Widerrufen: Mitglied der kanonischen Nextcloud-Gruppe Datenschutzbeauftragte; nativer Adminstatus ist dafür weder erforderlich noch ausreichend", "Ziel: ausschließlich aktives Nextcloud-Administrationskonto", "Betroffene Person für eigene Projektion", "Ausdrücklich berechtigte Prüfrolle"],
-      "recipients": [{"category":"Betroffene Person","allowed_disclosures":["Eigene Rolle und Zeitpunkte ohne Kennungen anderer Beteiligter"]},{"category":"Berechtigte Prüfrolle","allowed_disclosures":["Erforderliche Freigabenachweise"],"conditions":["Serverseitige Fachberechtigungsprüfung"]}],
-      "data_sources": ["Freigabesteuerung in der BQ-Fachoberfläche durch Datenschutzbeauftragte", "App-eigene Tabelle flz_bq_admin_access"],
-      "legal_basis": {"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Personenbezogene Adminfreigabehistorie","planned_processing":"Sicherheitsprüfung und Audit","missing_decision":"Anwendbare Rechtsgrundlage","reason":"Fachlich und rechtlich zu entscheiden.","technical_impact":"Keine Rechtsgrundlage wird behauptet.","privacy_preserving_alternative":"Nur minimale UIDs und Zeitpunkte speichern.","responsible_party":"ungeklärt","blocking":false},
-      "retention":{"policy_id":"temporary_admin_access_history_six_months","trigger":"Tatsächliches Ende der zeitlich begrenzten app-lokalen Adminfreigabe","duration_or_deadline":"P6M","action":"delete","conditions_or_holds":["Vollständige Löschung ohne anonymisierten oder statistischen Restbestand.","Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.","Restore reaktiviert keine Freigabe und plant abgelaufene ungesperrte Historie erneut zur Löschung ein.","Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Sperr-, Audit-, Nebenläufigkeits- und Fehlervertrag."]},
-      "logging": {"audit_requirements":["Beginn, Ende und Widerruf nachvollziehbar halten"],"personal_data_policy":"Keine vollständigen Requests oder Kennungen unbeteiligter Personen in Standardlogs übernehmen."},
-      "backup": {"relevance":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Persistierte Freigabehistorie","planned_processing":"Betriebliche Sicherung","missing_decision":"Backup-Relevanz und Dauer","reason":"Betriebliche Regeln fehlen.","technical_impact":"Kein Entfall kann behauptet werden.","privacy_preserving_alternative":"Keine separate Sicherung anlegen.","responsible_party":"ungeklärt","blocking":false},"restore_handling":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Wiederhergestellte Freigabehistorie","planned_processing":"Anwendung der beschlossenen Retention nach Restore","missing_decision":"Sichere Restore-Ausführung und Wiederanlauf","reason":"Frist, Maßnahme und Nichtreaktivierung sind entschieden; die sichere technische Restore-Ausführung fehlt.","technical_impact":"Keine automatische Löschung.","privacy_preserving_alternative":"Freigaben anhand des Endzeitpunkts als inaktiv behandeln.","responsible_party":"Datenschutzbeauftragte und technische App-Verantwortung","blocking":true}},
-      "exports_and_reports": {"article_15_relevance":"Eigene Rollen und Zeitpunkte werden subjectgebunden ausgegeben.","other_outputs":["Autorisierte administrative Prüfung"],"minimization":"Kennungen anderer beteiligter Administrationskonten werden neutralisiert."},
-      "data_subject_rights": {"article_15":"Subjectgebundene Projektion der eigenen Beteiligung ist implementiert.","rectification":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Historische Freigabenachweise","planned_processing":"Berichtigung ohne Verlust des Auditwerts","missing_decision":"Zulässiger Korrekturweg","reason":"Überschreiben könnte den Beweiswert zerstören.","technical_impact":"Kein generischer Korrekturbefehl.","privacy_preserving_alternative":"Fehler manuell prüfen und Original erhalten.","responsible_party":"ungeklärt","blocking":true},"restriction":{"status":"PRIVACY-DECISION-REQUIRED","affected_data":"Historische Freigabenachweise","planned_processing":"Einschränkung weiterer Nutzung","missing_decision":"Sperrgründe und Wirkung","reason":"Auditfolgen sind ungeklärt.","technical_impact":"Keine automatische Sperre.","privacy_preserving_alternative":"Zugriff eng begrenzen.","responsible_party":"ungeklärt","blocking":true},"erasure_or_anonymization":"Vollständige Löschung sechs Monate nach dem tatsächlichen Ende ohne anonymisierten oder statistischen Restbestand; zweckgebundene Holds mit Prüftermin gehen vor. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."},
-      "international_transfers":"Der BQ-Planer übermittelt die Freigabehistorie nicht an Drittländer.",
-      "automated_decisions":"Der Server beendet den Vollzugriff spätestens nach 24 Stunden; keine automatisierte Personenentscheidung.",
-      "special_safeguards": ["Nativer Adminstatus und aktive app-lokale Freigabe erforderlich", "Nur Mitglieder von Datenschutzbeauftragte dürfen Historie lesen, Freigaben erteilen oder widerrufen", "Zielkonto und Widerrufsziel müssen aktuelle native Administrationskonten sein", "Ablauf, Rollenverlust, ungültige Eingaben und Lesefehler führen deny by default zu keinem Vollzugriff und keiner Mutation", "Drittpersonen-UIDs werden neutralisiert"],
-      "systems": ["Nextcloud", "Filzmann BQ-Planer", "App-eigene Tabelle flz_bq_admin_access"]
+     "category": "Künftiger Filzmann-Recruitment-Consumer",
+     "allowed_disclosures": [
+      "Stabile externe Durchlauf-ID und erforderlicher Terminsnapshot veröffentlichter verfügbarer BQs"
+     ],
+     "conditions": [
+      "Kleiner optionaler versionierter Vertrag",
+      "Keine Bewerbungsakte oder Teilnehmerkopie"
+     ]
     }
-  ]
+   ],
+   "data_sources": [
+    "Eingaben berechtigter BQ-Planungsverantwortlicher",
+    "App-eigene Tabellen flz_bq_templates, flz_bq_template_modules, flz_bq_runs und flz_bq_modules",
+    "Read-only LocalBase-Jahreskalender und app-eigene Sperrtage"
+   ],
+   "legal_basis": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "UID-bezogene Bearbeitungs- und Lehrzuordnungen in Durchläufen und Modulen",
+    "planned_processing": "BQ-Planung und Veröffentlichungsnachweis",
+    "missing_decision": "Rechtsgrundlage und Erforderlichkeit je Personenreferenz",
+    "reason": "Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.",
+    "technical_impact": "Keine freigegebene Rechtsgrundlage wird behauptet.",
+    "privacy_preserving_alternative": "Nur erforderliche UID- und Zeitbezüge verarbeiten.",
+    "responsible_party": "ungeklärt",
+    "blocking": false
+   },
+   "retention": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Abgeschlossene oder abgesagte Durchläufe, Module und Bearbeitungsreferenzen",
+    "planned_processing": "Aufbewahrung, Einschränkung, Löschung oder Anonymisierung",
+    "missing_decision": "Trigger, Fristen und Maßnahmen nach Durchlaufabschluss",
+    "reason": "Keine ausführende Retention-Policy ist festgelegt.",
+    "technical_impact": "Keine automatische Maßnahme.",
+    "privacy_preserving_alternative": "Keine zusätzlichen Planungshistorien oder Teilnehmerkopien erzeugen.",
+    "responsible_party": "ungeklärt",
+    "blocking": true
+   },
+   "logging": {
+    "audit_requirements": [
+     "Planungs-, Versions- und Providerfehler ohne unnötige UIDs diagnostizieren"
+    ],
+    "personal_data_policy": "Keine vollständigen Durchlaufpayloads, Lehrzuordnungen oder Personenkennungen in technische Logs übernehmen."
+   },
+   "backup": {
+    "relevance": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Persistierte Durchlauf-, Modul- und Bearbeitungsdaten",
+     "planned_processing": "Betriebliche Sicherung",
+     "missing_decision": "Backup-Relevanz und Dauer",
+     "reason": "Der betriebliche Backupzyklus ist unbekannt.",
+     "technical_impact": "Kein Entfall kann behauptet werden.",
+     "privacy_preserving_alternative": "Keine separate App-Sicherung anlegen.",
+     "responsible_party": "ungeklärt",
+     "blocking": false
+    },
+    "restore_handling": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Wiederhergestellte abgeschlossene oder abgesagte Planungen",
+     "planned_processing": "Retention und Statusprüfung nach Restore",
+     "missing_decision": "Behandlung abgelaufener Datensätze",
+     "reason": "Retention ist ungeklärt.",
+     "technical_impact": "Keine automatische Maßnahme.",
+     "privacy_preserving_alternative": "Aktuelle Status- und Rechteprüfung beibehalten.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    }
+   },
+   "exports_and_reports": {
+    "article_15_relevance": "Eigene Bearbeitungsreferenzen werden subjectgebunden ausgegeben; fremde Lehrkräfte bleiben ausgeschlossen.",
+    "other_outputs": [
+     "Berechtigte Jahres-, Durchlauf- und Modulansichten",
+     "Künftiger minimaler Recruitment-Terminsnapshot"
+    ],
+    "minimization": "Die App führt keine Bewerbungsakten, Teilnehmerinnenzuordnungen oder Eignungsentscheidungen."
+   },
+   "data_subject_rights": {
+    "article_15": "Explizite interne UID-Bezüge sind über den app-eigenen PersonalDataProvider implementiert.",
+    "rectification": "Entwürfe können versionsgesichert berichtigt werden; veröffentlichte Zustände bleiben an den Fachvertrag gebunden.",
+    "restriction": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Strittige Bearbeitungs- oder Lehrreferenzen",
+     "planned_processing": "Einschränkung weiterer Nutzung",
+     "missing_decision": "Sperrgründe und technische Wirkung",
+     "reason": "Kein Einschränkungsworkflow ist definiert.",
+     "technical_impact": "Keine automatische Sperre.",
+     "privacy_preserving_alternative": "Zugriff auf konfigurierte Fähigkeiten begrenzen.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "erasure_or_anonymization": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Historische Bearbeitungs- und Lehrreferenzen",
+     "planned_processing": "Löschung oder Anonymisierung",
+     "missing_decision": "Maßnahme und Nachweispflichten",
+     "reason": "Planungsnachweis und Datenminimierung sind abzuwägen.",
+     "technical_impact": "Keine automatische Maßnahme.",
+     "privacy_preserving_alternative": "Keine Zusatzhistorie erzeugen.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    }
+   },
+   "international_transfers": "Der BQ-Planer übermittelt Planungsdaten selbst nicht an Drittländer; Kalender- und Hostinginfrastruktur sind betrieblich zu bewerten.",
+   "automated_decisions": "Terminvorschläge werden regelbasiert erzeugt; Planung, Veröffentlichung und fachliche Entscheidungen erfolgen durch berechtigte Personen.",
+   "special_safeguards": [
+    "Deny-by-default und getrennte Fähigkeiten",
+    "Optimistische Versionierung",
+    "Fehlende Kalenderabdeckung erzeugt keinen automatischen Vorschlag",
+    "Keine Bewerbungs- oder Teilnehmerkopie"
+   ],
+   "systems": [
+    "Nextcloud",
+    "Filzmann BQ-Planer",
+    "App-eigene Tabellen flz_bq_templates, flz_bq_template_modules, flz_bq_runs und flz_bq_modules",
+    "Optionaler LocalBase-Kalendervertrag"
+   ]
+  },
+  {
+   "processing_id": "lecturer_profile_and_assignment_management",
+   "name": "Dozentinnenprofil- und Lehrzuordnungsverwaltung",
+   "controller": {
+    "component": "Filzmann BQ-Planer",
+    "business_owner": "Personalreferat / BQ-Koordination"
+   },
+   "data_categories": [
+    "Interne Nextcloud-UID oder externe app-eigene Profil-ID",
+    "Nextcloud-Anzeigename nur transient für die Suche innerhalb der Organigrammrolle Pflegefachkräfte und nicht im Dozentinnenprofil persistiert",
+    "Externer Name und E-Mail-Adresse",
+    "Aktivstatus, Version sowie anlegende und ändernde UIDs mit Zeitpunkten",
+    "Hauptdozentinnen- und Modulzuordnungen"
+   ],
+   "data_subjects": [
+    "Interne PFKs",
+    "Externe Dozentinnen",
+    "Bearbeitende BQ-Planungsverantwortliche"
+   ],
+   "purposes": [
+    "Verwaltung eines minimalen Lehrendenpools",
+    "Zuordnung einer Hauptdozentin und abweichender Moduldozentinnen",
+    "Nachvollziehbarkeit der Profilbearbeitung"
+   ],
+   "access_roles": [
+    "Je BQ-Berechtigung konfigurierte semantische Organigrammrollen",
+    "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"
+   ],
+   "recipients": [
+    {
+     "category": "Berechtigte BQ-Planungs- und Lehrrollen",
+     "allowed_disclosures": [
+      "Für Auswahl und Zuordnung erforderliches Profil und aktuelle Lehrbezüge"
+     ],
+     "conditions": [
+      "Serverseitig geprüfte Planungs- oder Lehrfähigkeit"
+     ]
+    },
+    {
+     "category": "Berechtigte Verwaltung des internen PFK-Pools",
+     "allowed_disclosures": [
+      "Interne Nextcloud-UID und für die Auswahl transient benötigter Anzeigename"
+     ],
+     "conditions": [
+      "Serverseitig geprüfte PFK-Pool-Fähigkeit",
+      "Keine Durchlaufdaten, externen Profile, E-Mail-Adressen oder Anfragen"
+     ]
+    }
+   ],
+   "data_sources": [
+    "Mitglieder und Anzeigenamen der semantischen LocalBase-Organigrammrolle Pflegefachkräfte",
+    "Geprüftes Nextcloud-Konto interner PFKs",
+    "Eingaben berechtigter Personen zu externen Dozentinnen",
+    "App-eigene Tabelle flz_bq_lecturers und Zuordnungen in Durchläufen und Modulen"
+   ],
+   "legal_basis": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Interne UID sowie externe Name-, E-Mail- und Lehrzuordnungsdaten",
+    "planned_processing": "Dozentinnenpool und Einsatzplanung",
+    "missing_decision": "Rechtsgrundlage und Erforderlichkeit je Profilart",
+    "reason": "Nicht technisch ableitbar.",
+    "technical_impact": "Keine Rechtsgrundlage wird behauptet.",
+    "privacy_preserving_alternative": "Externe Profile auf Name und notwendige Kontaktadresse begrenzen.",
+    "responsible_party": "ungeklärt",
+    "blocking": false
+   },
+   "retention": {
+    "policy_id": "external_lecturer_profile_twelve_months_after_last_relevant_end",
+    "trigger": "Ablehnung, Absage oder Ende des letzten zugehörigen Kurses, sofern keine aktive oder zukünftige Anfrage beziehungsweise Zuordnung besteht",
+    "duration_or_deadline": "P12M",
+    "action": "delete",
+    "conditions_or_holds": [
+     "Die Policy gilt für externe Profile; die Aufbewahrung interner PFK-Bezüge bleibt gesondert zu entscheiden.",
+     "Profil und offene personenbezogene Bezüge werden gelöscht; in fachlich erforderlichen historischen Curriculumstrukturen wird die Personenreferenz entfernt.",
+     "Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.",
+     "Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Referenzintegritäts-, Nebenläufigkeits-, Fehler- und Backupgrenzvertrag."
+    ]
+   },
+   "logging": {
+    "audit_requirements": [
+     "Profil- und Zuordnungsfehler ohne Namen oder E-Mail diagnostizieren"
+    ],
+    "personal_data_policy": "Keine Namen, E-Mail-Adressen oder vollständigen Lehrprofile in technische Logs übernehmen."
+   },
+   "backup": {
+    "relevance": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Persistierte Profile und Lehrzuordnungen",
+     "planned_processing": "Betriebliche Sicherung",
+     "missing_decision": "Backup-Relevanz und Dauer",
+     "reason": "Betriebliche Regeln fehlen.",
+     "technical_impact": "Kein Entfall kann behauptet werden.",
+     "privacy_preserving_alternative": "Keine separate App-Sicherung anlegen.",
+     "responsible_party": "ungeklärt",
+     "blocking": false
+    },
+    "restore_handling": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Wiederhergestellte inaktive Profile und alte Zuordnungen",
+     "planned_processing": "Erneute Anwendung der beschlossenen externen Profil-Retention",
+     "missing_decision": "Sichere Restore-Ausführung und Referenzintegrität",
+     "reason": "Frist und Maßnahme für externe Profile sind entschieden; sichere Restore-Ausführung und interner PFK-Lifecycle bleiben offen.",
+     "technical_impact": "Keine automatische Maßnahme.",
+     "privacy_preserving_alternative": "Aktivstatus und Fachbezüge weiterhin prüfen.",
+     "responsible_party": "Datenschutzbeauftragte und technische App-Verantwortung",
+     "blocking": true
+    }
+   },
+   "exports_and_reports": {
+    "article_15_relevance": "Interne PFK-Profile und eigene Zuordnungen werden per Nextcloud-UID ausgegeben; externe Profile warten auf einen sicheren Subject-Vertrag.",
+    "other_outputs": [
+     "Berechtigte Dozentinnen- und Lehrzuordnungsansichten"
+    ],
+    "minimization": "Andere interne oder externe Lehrkräfte und deren Kontaktdaten bleiben aus der subjectgebundenen Ausgabe ausgeschlossen."
+   },
+   "data_subject_rights": {
+    "article_15": "Externe Betroffenenrechte verwenden denselben dokumentierten, bereits verifizierten Kontaktkanal; Name oder E-Mail genügen niemals als Identifikation. Die technische Provider-Unterstützung bleibt offen.",
+    "rectification": "Berechtigte Profilbearbeitung ist versionsgesichert; interne Identitäten werden gegen Nextcloud geprüft.",
+    "restriction": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Strittige Profile und Lehrzuordnungen",
+     "planned_processing": "Einschränkung weiterer Nutzung",
+     "missing_decision": "Sperrgründe und Wirkung",
+     "reason": "Kein vollständiger Workflow ist definiert.",
+     "technical_impact": "Keine automatische Sperre.",
+     "privacy_preserving_alternative": "Profil deaktivieren und nicht neu zuordnen.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "erasure_or_anonymization": "Externe Profile werden zwölf Monate nach Ablehnung, Absage oder Ende des letzten Kurses vollständig gelöscht, sofern kein aktiver oder künftiger Lehrbezug besteht; erforderliche historische Curriculumstrukturen verlieren die Personenreferenz. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."
+   },
+   "international_transfers": "Der BQ-Planer übermittelt Profile selbst nicht an Drittländer.",
+   "automated_decisions": "Zuordnungen und Aktivstatus werden durch berechtigte Personen gepflegt; es findet keine automatisierte Personenentscheidung statt.",
+   "special_safeguards": [
+    "Interne UIDs werden gegen Existenz und Mitgliedschaft in der semantischen Organigrammrolle Pflegefachkräfte geprüft",
+    "PFK-Suchergebnisse sind auf UID und Anzeigename begrenzt und werden nicht zusätzlich persistiert",
+    "PFK-Pool-Berechtigte erhalten keine Durchlaufdaten, externen Profile oder Kontaktdaten",
+    "Externe Profile enthalten nur Name und notwendige E-Mail",
+    "Keine Identifikation externer Personen über E-Mail-Abgleich",
+    "Keine Bewerbungsdaten"
+   ],
+   "systems": [
+    "Nextcloud",
+    "Filzmann BQ-Planer",
+    "App-eigene Dozentinnen-, Durchlauf- und Modultabellen"
+   ]
+  },
+  {
+   "processing_id": "external_lecturer_request_tracking",
+   "name": "Dokumentation externer Dozentinnenanfragen",
+   "controller": {
+    "component": "Filzmann BQ-Planer",
+    "business_owner": "Personalreferat / BQ-Koordination"
+   },
+   "data_categories": [
+    "Externe Dozentinnenprofil-ID mit Name und E-Mail über das referenzierte Profil",
+    "Modul- und Durchlaufbezug",
+    "Anfrage-, Zusage-, Ablehnungs- oder Absagestatus und Version",
+    "Anlegende und ändernde Nextcloud-UIDs samt Zeitpunkten"
+   ],
+   "data_subjects": [
+    "Angefragte externe Dozentinnen",
+    "Bearbeitende BQ-Planungsverantwortliche"
+   ],
+   "purposes": [
+    "Nachvollziehbarkeit einer außerhalb der App erfolgten Anfrage",
+    "Steuerung der bestätigten Modulzuordnung",
+    "Vermeidung widersprüchlicher Statusübergänge"
+   ],
+   "access_roles": [
+    "Für die BQ-Lehrverwaltung konfigurierte semantische Organigrammrollen",
+    "Native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"
+   ],
+   "recipients": [
+    {
+     "category": "Berechtigte BQ-Planungs- und Lehrrollen",
+     "allowed_disclosures": [
+      "Profil, Modulbezug und aktueller Anfragezustand"
+     ],
+     "conditions": [
+      "Serverseitig geprüfte Fähigkeit"
+     ]
+    }
+   ],
+   "data_sources": [
+    "Extern erfolgte Kommunikation, deren Inhalt nicht in der App gespeichert wird",
+    "Eingaben berechtigter BQ-Rollen",
+    "App-eigene Tabelle flz_bq_lecturer_requests und referenzierte Profile/Module"
+   ],
+   "legal_basis": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Kontakt-, Anfrage- und Bearbeitungsdaten",
+    "planned_processing": "Dokumentation externer Lehranfragen",
+    "missing_decision": "Rechtsgrundlage und erforderlicher Nachweisumfang",
+    "reason": "Nicht technisch ableitbar.",
+    "technical_impact": "Keine Rechtsgrundlage wird behauptet.",
+    "privacy_preserving_alternative": "Keine Kommunikationsinhalte speichern.",
+    "responsible_party": "ungeklärt",
+    "blocking": false
+   },
+   "retention": {
+    "policy_id": "external_lecturer_request_twelve_months_after_end",
+    "trigger": "Ablehnung, Absage oder Ende des zugehörigen Kurses, sofern keine aktive oder zukünftige Anfrage beziehungsweise Zuordnung besteht",
+    "duration_or_deadline": "P12M",
+    "action": "delete",
+    "conditions_or_holds": [
+     "Anfrage, Bearbeitungsreferenzen und nicht mehr benötigte externe Profilbezüge werden vollständig gelöscht.",
+     "In fachlich erforderlichen historischen Curriculumstrukturen wird die Personenreferenz entfernt.",
+     "Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.",
+     "Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Referenzintegritäts-, Nebenläufigkeits-, Fehler- und Backupgrenzvertrag."
+    ]
+   },
+   "logging": {
+    "audit_requirements": [
+     "Statuskonflikte ohne Kontaktdaten diagnostizieren"
+    ],
+    "personal_data_policy": "Keine Namen, E-Mail-Adressen oder externe Kommunikationsinhalte in technische Logs übernehmen."
+   },
+   "backup": {
+    "relevance": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Persistierte Anfrage- und Bearbeitungsdaten",
+     "planned_processing": "Betriebliche Sicherung",
+     "missing_decision": "Backup-Relevanz und Dauer",
+     "reason": "Betriebliche Regeln fehlen.",
+     "technical_impact": "Kein Entfall kann behauptet werden.",
+     "privacy_preserving_alternative": "Keine separate Sicherung anlegen.",
+     "responsible_party": "ungeklärt",
+     "blocking": false
+    },
+    "restore_handling": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Wiederhergestellte alte Anfragen",
+     "planned_processing": "Erneute Anwendung der beschlossenen Retention und Statusprüfung",
+     "missing_decision": "Sichere Restore-Ausführung und Referenzintegrität",
+     "reason": "Frist und Maßnahme sind entschieden; die sichere technische Restore-Ausführung fehlt.",
+     "technical_impact": "Keine automatische Folgekommunikation oder Löschung.",
+     "privacy_preserving_alternative": "Status manuell prüfen.",
+     "responsible_party": "Datenschutzbeauftragte und technische App-Verantwortung",
+     "blocking": true
+    }
+   },
+   "exports_and_reports": {
+    "article_15_relevance": "Interne Bearbeitungsbezüge werden subjectgebunden ausgegeben; externe Anfragen warten auf den externen Subject-Vertrag.",
+    "other_outputs": [
+     "Berechtigte Anfrage- und Modulansichten"
+    ],
+    "minimization": "Die App versendet keine Nachricht und speichert keinen Kommunikationsinhalt."
+   },
+   "data_subject_rights": {
+    "article_15": "Externe Betroffenenrechte verwenden denselben dokumentierten, bereits verifizierten Kontaktkanal; Name oder E-Mail genügen niemals als Identifikation. Die technische Provider-Unterstützung bleibt offen.",
+    "rectification": "Berechtigte Statusänderungen folgen dem guarded Transition-Vertrag und optimistischer Versionierung.",
+    "restriction": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Strittige Anfragen",
+     "planned_processing": "Einschränkung weiterer Nutzung",
+     "missing_decision": "Sperrgründe und Wirkung",
+     "reason": "Kein Workflow ist definiert.",
+     "technical_impact": "Keine automatische Sperre.",
+     "privacy_preserving_alternative": "Keine neue Zuordnung auslösen.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "erasure_or_anonymization": "Anfrage, Bearbeitungsreferenzen und nicht mehr benötigte externe Profilbezüge werden zwölf Monate nach Ablehnung, Absage oder Kursende vollständig gelöscht, sofern kein aktiver oder künftiger Lehrbezug besteht; historische Curriculumstrukturen verlieren die Personenreferenz. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."
+   },
+   "international_transfers": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Außerhalb der App verwendete Kontaktdaten und Kommunikation",
+    "planned_processing": "Externe Kontaktaufnahme über einen nicht app-eigenen Kanal",
+    "missing_decision": "Kommunikationsanbieter, Verarbeitungsort und mögliche Drittlandübermittlung",
+    "reason": "Die App dokumentiert nur den Status und kennt den externen Kanal nicht.",
+    "technical_impact": "Keine transferfreie Kommunikation wird behauptet.",
+    "privacy_preserving_alternative": "Keinen Anfragevorgang anlegen, bevor der zulässige Kontaktweg feststeht.",
+    "responsible_party": "ungeklärt",
+    "blocking": true
+   },
+   "automated_decisions": "Statusübergänge steuern nur die Lehrzuordnung; Anfrage und Rückmeldung erfolgen durch Personen außerhalb der App.",
+   "special_safeguards": [
+    "Keine Nachrichtenübermittlung durch die App",
+    "Keine Kommunikationsinhalte gespeichert",
+    "Guarded Statusübergänge",
+    "Bestätigung wirkt nur auf das betroffene Modul"
+   ],
+   "systems": [
+    "Nextcloud",
+    "Filzmann BQ-Planer",
+    "App-eigene Anfrage-, Dozentinnen- und Modultabellen",
+    "Nicht festgelegter externer Kommunikationskanal"
+   ]
+  },
+  {
+   "processing_id": "temporary_admin_full_access",
+   "name": "Zeitlich begrenzte fachliche Adminfreigabe",
+   "controller": {
+    "component": "Filzmann BQ-Planer",
+    "business_owner": "Datenschutzbeauftragte"
+   },
+   "data_categories": [
+    "Nextcloud-UID des Zielkontos (aktives Nextcloud-Administrationskonto) sowie UIDs der freigebenden und widerrufenden Mitglieder von Datenschutzbeauftragte",
+    "Beginn, geplantes Ende, tatsächliches Ende und Status"
+   ],
+   "data_subjects": [
+    "Administrationskonten mit Bezug zu einer app-lokalen Vollzugriffsfreigabe"
+   ],
+   "purposes": [
+    "Durchsetzung einer höchstens 24 Stunden gültigen fachlichen Adminfreigabe",
+    "Sicherheits- und Auditnachweis"
+   ],
+   "access_roles": [
+    "Erteilen und Widerrufen: Mitglied der kanonischen Nextcloud-Gruppe Datenschutzbeauftragte; nativer Adminstatus ist dafür weder erforderlich noch ausreichend",
+    "Ziel: ausschließlich aktives Nextcloud-Administrationskonto",
+    "Betroffene Person für eigene Projektion",
+    "Ausdrücklich berechtigte Prüfrolle"
+   ],
+   "recipients": [
+    {
+     "category": "Betroffene Person",
+     "allowed_disclosures": [
+      "Eigene Rolle und Zeitpunkte ohne Kennungen anderer Beteiligter"
+     ]
+    },
+    {
+     "category": "Berechtigte Prüfrolle",
+     "allowed_disclosures": [
+      "Erforderliche Freigabenachweise"
+     ],
+     "conditions": [
+      "Serverseitige Fachberechtigungsprüfung"
+     ]
+    }
+   ],
+   "data_sources": [
+    "Freigabesteuerung in der BQ-Fachoberfläche durch Datenschutzbeauftragte",
+    "App-eigene Tabelle flz_bq_admin_access"
+   ],
+   "legal_basis": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Personenbezogene Adminfreigabehistorie",
+    "planned_processing": "Sicherheitsprüfung und Audit",
+    "missing_decision": "Anwendbare Rechtsgrundlage",
+    "reason": "Fachlich und rechtlich zu entscheiden.",
+    "technical_impact": "Keine Rechtsgrundlage wird behauptet.",
+    "privacy_preserving_alternative": "Nur minimale UIDs und Zeitpunkte speichern.",
+    "responsible_party": "ungeklärt",
+    "blocking": false
+   },
+   "retention": {
+    "policy_id": "temporary_admin_access_history_six_months",
+    "trigger": "Tatsächliches Ende der zeitlich begrenzten app-lokalen Adminfreigabe",
+    "duration_or_deadline": "P6M",
+    "action": "delete",
+    "conditions_or_holds": [
+     "Vollständige Löschung ohne anonymisierten oder statistischen Restbestand.",
+     "Nur Datenschutzbeauftragte dürfen einen zweck-, scope- und reviewterminbezogenen Hold setzen oder aufheben.",
+     "Restore reaktiviert keine Freigabe und plant abgelaufene ungesperrte Historie erneut zur Löschung ein.",
+     "Keine automatische Ausführung vor getestetem app-lokalem Lösch-, Restore-, Sperr-, Audit-, Nebenläufigkeits- und Fehlervertrag."
+    ]
+   },
+   "logging": {
+    "audit_requirements": [
+     "Beginn, Ende und Widerruf nachvollziehbar halten"
+    ],
+    "personal_data_policy": "Keine vollständigen Requests oder Kennungen unbeteiligter Personen in Standardlogs übernehmen."
+   },
+   "backup": {
+    "relevance": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Persistierte Freigabehistorie",
+     "planned_processing": "Betriebliche Sicherung",
+     "missing_decision": "Backup-Relevanz und Dauer",
+     "reason": "Betriebliche Regeln fehlen.",
+     "technical_impact": "Kein Entfall kann behauptet werden.",
+     "privacy_preserving_alternative": "Keine separate Sicherung anlegen.",
+     "responsible_party": "ungeklärt",
+     "blocking": false
+    },
+    "restore_handling": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Wiederhergestellte Freigabehistorie",
+     "planned_processing": "Anwendung der beschlossenen Retention nach Restore",
+     "missing_decision": "Sichere Restore-Ausführung und Wiederanlauf",
+     "reason": "Frist, Maßnahme und Nichtreaktivierung sind entschieden; die sichere technische Restore-Ausführung fehlt.",
+     "technical_impact": "Keine automatische Löschung.",
+     "privacy_preserving_alternative": "Freigaben anhand des Endzeitpunkts als inaktiv behandeln.",
+     "responsible_party": "Datenschutzbeauftragte und technische App-Verantwortung",
+     "blocking": true
+    }
+   },
+   "exports_and_reports": {
+    "article_15_relevance": "Eigene Rollen und Zeitpunkte werden subjectgebunden ausgegeben.",
+    "other_outputs": [
+     "Autorisierte administrative Prüfung"
+    ],
+    "minimization": "Kennungen anderer beteiligter Administrationskonten werden neutralisiert."
+   },
+   "data_subject_rights": {
+    "article_15": "Subjectgebundene Projektion der eigenen Beteiligung ist implementiert.",
+    "rectification": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Historische Freigabenachweise",
+     "planned_processing": "Berichtigung ohne Verlust des Auditwerts",
+     "missing_decision": "Zulässiger Korrekturweg",
+     "reason": "Überschreiben könnte den Beweiswert zerstören.",
+     "technical_impact": "Kein generischer Korrekturbefehl.",
+     "privacy_preserving_alternative": "Fehler manuell prüfen und Original erhalten.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "restriction": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Historische Freigabenachweise",
+     "planned_processing": "Einschränkung weiterer Nutzung",
+     "missing_decision": "Sperrgründe und Wirkung",
+     "reason": "Auditfolgen sind ungeklärt.",
+     "technical_impact": "Keine automatische Sperre.",
+     "privacy_preserving_alternative": "Zugriff eng begrenzen.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "erasure_or_anonymization": "Vollständige Löschung sechs Monate nach dem tatsächlichen Ende ohne anonymisierten oder statistischen Restbestand; zweckgebundene Holds mit Prüftermin gehen vor. Die automatische Ausführung bleibt bis zum getesteten app-lokalen Vertrag deaktiviert."
+   },
+   "international_transfers": "Der BQ-Planer übermittelt die Freigabehistorie nicht an Drittländer.",
+   "automated_decisions": "Der Server beendet den Vollzugriff spätestens nach 24 Stunden; keine automatisierte Personenentscheidung.",
+   "special_safeguards": [
+    "Nativer Adminstatus und aktive app-lokale Freigabe erforderlich",
+    "Nur Mitglieder von Datenschutzbeauftragte dürfen Historie lesen, Freigaben erteilen oder widerrufen",
+    "Zielkonto und Widerrufsziel müssen aktuelle native Administrationskonten sein",
+    "Ablauf, Rollenverlust, ungültige Eingaben und Lesefehler führen deny by default zu keinem Vollzugriff und keiner Mutation",
+    "Drittpersonen-UIDs werden neutralisiert"
+   ],
+   "systems": [
+    "Nextcloud",
+    "Filzmann BQ-Planer",
+    "App-eigene Tabelle flz_bq_admin_access"
+   ]
+  },
+  {
+   "processing_id": "bq_hiring_event_inbox",
+   "name": "Eingangs-Inbox für Einstellungsevents des optionalen Recruitment-Vertrags (ZM-07)",
+   "controller": {
+    "component": "Filzmann BQ-Planer",
+    "business_owner": "Personalreferat / BQ-Koordination"
+   },
+   "data_categories": [
+    "Bewerbungs-ID, Organisationsbereich und Zeitpunkt des ApplicationHiredEvent (ZM-07-Minimal-Vertrag); keine Namen, keine Kontaktdaten"
+   ],
+   "data_subjects": [
+    "Bewerberinnen und Bewerber, deren Bewerbung den Status hired erreicht"
+   ],
+   "purposes": [
+    "Bedarfserkennung für Basisqualifizierungen nach Neueinstellungen über den optionalen versionierten V1-Vertrag"
+   ],
+   "access_roles": [
+    "Konfigurierte BQ-Planungsgruppen; native Nextcloud-Administration nur mit aktiver app-lokaler Freigabe"
+   ],
+   "recipients": [
+    {
+     "category": "Berechtigte BQ-Rollen",
+     "allowed_disclosures": [
+      "Inbox-Einträge (Bewerbungs-ID, Bereich, Zeitpunkt)"
+     ],
+     "conditions": [
+      "Serverseitig geprüfte konfigurierte Fähigkeit; Provider flzrecruitment aktiviert"
+     ]
+    }
+   ],
+   "data_sources": [
+    "Optionaler Provider flzrecruitment über ApplicationHiredEvent (PublicApi V1); ohne Provider bleibt die Inbox leer"
+   ],
+   "legal_basis": {
+    "status": "PRIVACY-DECISION-REQUIRED",
+    "affected_data": "Bewerbungsbezogene Vorgangskennungen in der Inbox",
+    "planned_processing": "BQ-Bedarfserkennung nach Neueinstellungen",
+    "missing_decision": "Rechtsgrundlage und Erforderlichkeit der Bewerbungs-ID je Quelle",
+    "reason": "Die Rechtsgrundlage ist fachlich und rechtlich zu entscheiden.",
+    "technical_impact": "Keine freigegebene Rechtsgrundlage wird behauptet.",
+    "privacy_preserving_alternative": "Ohne fachliche Rechtsgrundlage wird die Inbox nicht befüllt; der Provider-Consumer bleibt deaktiviert.",
+    "responsible_party": "ungeklärt",
+    "blocking": true
+   },
+   "retention": {
+    "policy_id": "bq_hiring_event_inbox_cap",
+    "trigger": "Jeder neue Inbox-Eintrag nach Erreichen von 100 Einträgen",
+    "duration_or_deadline": "Begrenzung auf die jüngsten 100 Einträge (FIFO); kein zeitbasiertes Löschdatum",
+    "action": "delete",
+    "conditions_or_holds": [
+     "Inbox-Einträge enthalten nur Vorgangskennungen ohne Personenbezug; keine fachlichen Holds vorgesehen"
+    ]
+   },
+   "logging": {
+    "audit_requirements": [
+     "Provider-Events ohne Payload-Inhalte diagnostizieren"
+    ],
+    "personal_data_policy": "Keine vollständigen Event-Payloads in technische Logs übernehmen."
+   },
+   "backup": {
+    "relevance": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Inbox-Einträge",
+     "planned_processing": "Betriebliche Sicherung",
+     "missing_decision": "Backup-Relevanz und Dauer",
+     "reason": "Der betriebliche Backupzyklus ist unbekannt.",
+     "technical_impact": "Kein Entfall kann behauptet werden.",
+     "privacy_preserving_alternative": "Inbox bei Bedarf app-lokal leeren; kein fachlicher Datenverlust.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "restore_handling": "Inbox-Einträge werden mit der AppConfig wiederhergestellt; eine app-lokale Leerung der Inbox ist nach einer Wiederherstellung erneut möglich."
+   },
+   "exports_and_reports": {
+    "article_15_relevance": "Inbox-Einträge werden subjectgebunden über den app-eigenen PersonalDataProvider ausgegeben.",
+    "other_outputs": [
+     "Berechtigte BQ-Inbox-Ansicht"
+    ],
+    "minimization": "Die Inbox enthält keine Bewerbungsakte und keine Teilnehmerdaten."
+   },
+   "data_subject_rights": {
+    "article_15": "Inbox-Einträge sind über den app-eigenen PersonalDataProvider subjectgebunden ausweisbar.",
+    "rectification": "Stammt aus dem Provider; Korrekturen erfolgen im Quellsystem flzrecruitment.",
+    "restriction": {
+     "status": "PRIVACY-DECISION-REQUIRED",
+     "affected_data": "Inbox-Einträge",
+     "planned_processing": "Einschränkung der Verarbeitung",
+     "missing_decision": "Fachlicher Prozess für Einschränkungsanfragen",
+     "reason": "Fachlich zu entscheiden.",
+     "technical_impact": "Keine technische Default-Maßnahme.",
+     "privacy_preserving_alternative": "Inbox app-lokal leeren.",
+     "responsible_party": "ungeklärt",
+     "blocking": true
+    },
+    "erasure_or_anonymization": "Inbox-Einträge werden app-lokal gelöscht; der Vorgang im Quellsystem bleibt unberührt."
+   },
+   "international_transfers": "Der BQ-Planer übermittelt Inbox-Daten selbst nicht an Drittländer; der optionale Provider flzrecruitment liegt auf derselben Instanz.",
+   "automated_decisions": "Keine automatisierte Entscheidung; die Inbox ist reiner Merkposten für berechtigte Planung.",
+   "special_safeguards": [
+    "Deny-by-default",
+    "Optionaler Provider: ohne aktiviertes flzrecruitment bleibt die Inbox leer",
+    "Maximal 100 Einträge mit Überschreiben der ältesten",
+    "Keine Namen, Kontaktdaten oder Bewerbungsakten"
+   ],
+   "systems": [
+    "Nextcloud",
+    "Filzmann BQ-Planer (IAppConfig-Schlüssel bq_hiring_events_v1)",
+    "Optionaler Provider Filzmann Recruitment (PublicApi V1 ApplicationHiredEvent)"
+   ]
+  }
+ ]
 }
