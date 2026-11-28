@@ -92,7 +92,7 @@ namespace OCP {
     interface IURLGenerator { public function linkToRoute(string $routeName, array $arguments = []): string; public function imagePath(string $appName, string $file): string; }
 }
 
-namespace OCP\Navigation {
+namespace OCP {
     interface INavigationManager { public const TYPE_APPS = 'link'; public function add(callable $entry): void; }
 }
 
@@ -133,7 +133,7 @@ namespace FlzBqPlanning\Tests {
     use OCP\App\IAppManager;
     use OCP\EventDispatcher\Event;
     use OCP\IURLGenerator;
-    use OCP\Navigation\INavigationManager;
+    use OCP\INavigationManager;
     use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
     use OCP\IAppConfig;
     use OCP\IGroup;
