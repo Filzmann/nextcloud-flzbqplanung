@@ -26,12 +26,13 @@ jobs:
         uses: actions/checkout@v7
         with:
           path: app
-      - name: Coverage-Tooling auschecken
+      - name: Test-Harness (Parent) auschecken
         uses: actions/checkout@v7
         with:
-          repository: Filzmann/nextcloud-localbase
+          repository: Filzmann/br-nextcloud-apps
           ref: main
-          path: localbase
+          path: '.'
+          clean: false
       - name: Recruitment-Vertrag (ZM-07) auschecken
         uses: actions/checkout@v7
         with:
@@ -50,16 +51,16 @@ jobs:
         run: php tests/run.php
       - name: PHP-Coverage-Tooling installieren
         if: matrix.php-version == '8.3'
-        run: composer install --working-dir=localbase/tests/coverage --no-interaction --no-progress --prefer-dist
+        run: composer install --working-dir=test-harness/coverage --no-interaction --no-progress --prefer-dist
       - name: PHP-Coverage
         if: matrix.php-version == '8.3'
         working-directory: app
         run: |
           mkdir -p "$RUNNER_TEMP/php-coverage"
-          PHP_COVERAGE_COMMAND="$GITHUB_WORKSPACE/localbase/tests/coverage/vendor/bin/phpcov" \
+          PHP_COVERAGE_COMMAND="$GITHUB_WORKSPACE/test-harness/coverage/vendor/bin/phpcov" \
           PHP_COVERAGE_OUTPUT_DIR="$RUNNER_TEMP/php-coverage" \
           php tests/run.php
-          php "$GITHUB_WORKSPACE/localbase/tests/coverage/merge-clover.php" flzbqplanung "$RUNNER_TEMP/php-coverage" 85
+          php "$GITHUB_WORKSPACE/test-harness/coverage/merge-clover.php" flzbqplanung "$RUNNER_TEMP/php-coverage" 85
 
   javascript:
     name: JavaScript
@@ -70,23 +71,24 @@ jobs:
         uses: actions/checkout@v7
         with:
           path: app
-      - name: Coverage-Tooling auschecken
+      - name: Test-Harness (Parent) auschecken
         uses: actions/checkout@v7
         with:
-          repository: Filzmann/nextcloud-localbase
+          repository: Filzmann/br-nextcloud-apps
           ref: main
-          path: localbase
+          path: '.'
+          clean: false
       - name: Node.js einrichten
         uses: actions/setup-node@v6
         with:
           node-version: 24
           package-manager-cache: false
       - name: JavaScript-Coverage-Tooling installieren
-        run: npm ci --prefix localbase/tests/coverage --ignore-scripts
+        run: npm ci --prefix test-harness/coverage --ignore-scripts
       - name: JavaScript-Tests mit Coverage
         working-directory: app
         run: |
-          ../localbase/tests/coverage/node_modules/.bin/c8 \
+          ../test-harness/coverage/node_modules/.bin/c8 \
             --all \
             '--include=js/**/*.js' \
             --check-coverage \
